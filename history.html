@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <title> қазақ даласы - 5 сынып</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component@1.3.2/dist/aframe-environment-component.min.js"></script>
+</head>
+<body>
+
+    <a-scene fog="type: exponential; color: #aac; density: 0.01">
+        
+        <a-assets>
+            <img id="felt-tex" src="https://st2.depositphotos.com/2627021/8051/i/450/depositphotos_80517900-stock-photo-white-felt-texture-background.jpg">
+            <img id="wood-tex" src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/bricks/brick_diffuse.jpg">
+        </a-assets>
+
+        <a-entity environment="preset: forest; 
+                               ground: hills; 
+                               groundColor: #4e6d2a; 
+                               groundTexture: walkey; 
+                               dressing: trees; 
+                               dressingAmount: 50; 
+                               dressingColor: #2e4d0f;
+                               skyType: atmosphere; 
+                               sunPosition: 1 1 1">
+        </a-entity>
+
+        <a-entity position="0 0 -8">
+            <a-cylinder position="0 1.2 0" radius="3.5" height="2.5" material="src: #felt-tex; roughness: 1" shadow></a-cylinder>
+            
+            <a-cone position="0 3.2 0" radius-bottom="3.5" radius-top="0.2" height="1.5" material="src: #felt-tex; roughness: 1" shadow></a-cone>
+            
+            <a-torus position="0 3.9 0" radius="0.4" radius-tubular="0.05" rotation="90 0 0" color="#5d3a1a"></a-torus>
+
+            <a-box position="0 1 -3.4" width="1.4" height="2" depth="0.2" material="src: #wood-tex" shadow></a-box>
+            <a-box position="0 2.1 -3.4" width="1.6" height="0.3" depth="0.3" color="#5d3a1a"></a-box>
+        </a-entity>
+
+        <a-entity position="-10 0 -12" scale="0.8 0.8 0.8">
+            <a-cylinder position="0 1.2 0" radius="3" height="2.5" material="src: #felt-tex"></a-cylinder>
+            <a-cone position="0 3.2 0" radius-bottom="3" radius-top="0.2" height="1.5" material="src: #felt-tex"></a-cone>
+            <a-box position="0 1 -2.9" width="1.2" height="1.8" depth="0.2" color="#5d3a1a"></a-box>
+        </a-entity>
+
+        <a-entity position="10 0 -15" scale="0.9 0.9 0.9">
+            <a-cylinder position="0 1.2 0" radius="3.2" height="2.5" material="src: #felt-tex"></a-cylinder>
+            <a-cone position="0 3.2 0" radius-bottom="3.2" radius-top="0.2" height="1.5" material="src: #felt-tex"></a-cone>
+            <a-box position="0 1 -3.1" width="1.3" height="1.9" depth="0.2" color="#5d3a1a"></a-box>
+        </a-entity>
+
+        <a-entity camera look-controls wasd-controls position="0 1.6 2">
+            <a-text id="sub-txt" value="Қазақ ауылына қош келдіңіз!" 
+                    position="0 -0.7 -1.2" align="center" color="#fff" width="2" 
+                    font="kelsonsans" bgcolor="black">
+            </a-text>
+        </a-entity>
+
+        <a-entity sound="src: url(https://cdn.freesound.org/previews/173/173921_2415139-lq.mp3); autoplay: true; loop: true; volume: 0.2"></a-entity>
+
+    </a-scene>
+
+    <script>
+        const villageFacts = [
+            "Киіз үй - көшпелілердің ең ұлы өнертабысы.",
+            "Шаңырақ - отбасының берекесі мен бірлігінің белгісі.",
+            "Киіз үйдің қабырғасы 'кереге' деп аталады.",
+            "Жерді байқасаңыз, бұл - кең байтақ қазақ даласы.",
+            "WASD пернелерімен ауылды аралап көріңіз!"
+        ];
+        let counter = 0;
+        setInterval(() => {
+            counter = (counter + 1) % villageFacts.length;
+            document.querySelector('#sub-txt').setAttribute('value', villageFacts[counter]);
+        }, 6000);
+    </script>
+</body>
+</html>

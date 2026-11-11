@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Теплоход және өзен ағысы</title>
+
+<style>
+
+body{
+font-family:sans-serif;
+text-align:center;
+background:#dff6ff;
+}
+
+#river{
+width:900px;
+height:220px;
+margin:auto;
+background:linear-gradient(#5ec2f2,#1e88e5);
+border-radius:10px;
+position:relative;
+overflow:hidden;
+}
+
+#wave{
+position:absolute;
+width:200%;
+height:100%;
+background:repeating-linear-gradient(
+90deg,
+rgba(255,255,255,0.2),
+rgba(255,255,255,0.2) 40px,
+transparent 40px,
+transparent 80px
+);
+animation:flow 4s linear infinite;
+}
+
+@keyframes flow{
+0%{transform:translateX(0)}
+100%{transform:translateX(-400px)}
+}
+
+#boat{
+position:absolute;
+bottom:60px;
+font-size:50px;
+left:20px;
+}
+
+.controls{
+margin-top:20px;
+}
+
+input{
+width:70px;
+font-size:16px;
+}
+
+button{
+padding:10px 20px;
+margin:5px;
+font-size:16px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h2>Ағыспен және ағысқа қарсы қозғалыс</h2>
+
+<div id="river">
+
+<div id="wave"></div>
+<div id="boat">🚢</div>
+
+</div>
+
+<div class="controls">
+
+<p>
+Теплоход жылдамдығы:
+<input id="boatSpeed" value="20"> км/сағ
+</p>
+
+<p>
+Ағыс жылдамдығы:
+<input id="flowSpeed" value="5"> км/сағ
+</p>
+
+<button onclick="downstream()">Ағыспен</button>
+<button onclick="upstream()">Ағысқа қарсы</button>
+<button onclick="reset()">Қайта</button>
+
+</div>
+
+<p id="result"></p>
+
+<script>
+
+let boat=document.getElementById("boat")
+let pos=20
+let interval
+
+function downstream(){
+
+clearInterval(interval)
+
+let vBoat=parseFloat(document.getElementById("boatSpeed").value)
+let vFlow=parseFloat(document.getElementById("flowSpeed").value)
+
+let speed=vBoat+vFlow
+
+document.getElementById("result").innerHTML=
+"Ағыспен жылдамдық: "+speed+" км/сағ"
+
+interval=setInterval(()=>{
+
+pos += speed * 0.1
+boat.style.left=pos+"px"
+
+if(pos>820){
+clearInterval(interval)
+}
+
+},60)
+
+}
+
+function upstream(){
+
+clearInterval(interval)
+
+let vBoat=parseFloat(document.getElementById("boatSpeed").value)
+let vFlow=parseFloat(document.getElementById("flowSpeed").value)
+
+let speed=vBoat-vFlow
+
+document.getElementById("result").innerHTML=
+"Ағысқа қарсы жылдамдық: "+speed+" км/сағ"
+
+interval=setInterval(()=>{
+
+pos -= speed * 0.1
+boat.style.left=pos+"px"
+
+if(pos<20){
+clearInterval(interval)
+}
+
+},60)
+
+}
+
+function reset(){
+
+clearInterval(interval)
+pos=20
+boat.style.left="20px"
+document.getElementById("result").innerHTML=""
+
+}
+let river = document.getElementById("river")
+let zoom = 1
+
+river.addEventListener("wheel", function(e){
+
+e.preventDefault()
+
+if(e.deltaY < 0){
+zoom += 0.1
+}else{
+zoom -= 0.1
+}
+
+if(zoom < 0.5) zoom = 0.5
+if(zoom > 2) zoom = 2
+
+river.style.transform = "scale(" + zoom + ")"
+
+})
+</script>
+
+</body>
+</html>

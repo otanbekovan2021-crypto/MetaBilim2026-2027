@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MetaBilim — Дәреже әлемі</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+    overflow:hidden;
+    font-family:Arial,sans-serif;
+    color:white;
+}
+
+.game{
+    width:100vw;
+    height:100vh;
+    position:relative;
+    overflow:hidden;
+    background:
+      linear-gradient(#63c9ff 0%,#b9efff 38%,#69bd61 39%,#28753c 100%);
+}
+
+/* КҮН */
+.sun{
+    position:absolute;
+    width:120px;height:120px;
+    right:7%;top:7%;
+    border-radius:50%;
+    background:#ffe66d;
+    box-shadow:0 0 60px #fff3a3;
+    animation:float 4s infinite;
+}
+
+@keyframes float{
+    50%{transform:translateY(15px)}
+}
+
+/* БҰЛТ */
+.cloud{
+    position:absolute;
+    width:170px;height:50px;
+    background:white;
+    border-radius:50px;
+    opacity:.8;
+    animation:cloud 35s linear infinite;
+}
+.cloud:before,.cloud:after{
+    content:"";
+    position:absolute;
+    background:white;
+    border-radius:50%;
+}
+.cloud:before{
+    width:70px;height:70px;
+    left:25px;top:-30px;
+}
+.cloud:after{
+    width:90px;height:90px;
+    right:20px;top:-40px;
+}
+.cloud1{top:12%;left:-200px}
+.cloud2{top:25%;left:-500px;animation-delay:12s}
+
+@keyframes cloud{
+    from{left:-250px}
+    to{left:110%}
+}
+
+/* ТЕҢІЗ */
+.sea{
+    position:absolute;
+    left:-8%;
+    bottom:-25%;
+    width:55%;
+    height:65%;
+    border-radius:55% 55% 0 0;
+    background:radial-gradient(circle,#38bdf8,#087ea4 65%,#075985);
+    box-shadow:inset 0 15px 35px rgba(255,255,255,.2);
+}
+
+/* ОРМАН */
+.forest{
+    position:absolute;
+    right:-5%;
+    top:28%;
+    width:48%;
+    height:55%;
+    border-radius:50%;
+    background:radial-gradient(circle,#65c466,#176b35 70%,#0b4327);
+}
+
+/* ТАУ */
+.mountains{
+    position:absolute;
+    bottom:5%;
+    left:35%;
+}
+.mountain{
+    position:absolute;
+    width:0;height:0;
+    border-left:120px solid transparent;
+    border-right:120px solid transparent;
+    border-bottom:210px solid #64748b;
+}
+.m1{left:0}
+.m2{left:130px;transform:scale(.75)}
+.m3{left:250px;transform:scale(.55)}
+
+/* АҒАШ */
+.tree{
+    position:absolute;
+    width:28px;height:70px;
+    background:#704214;
+    border-radius:8px;
+}
+.tree:before{
+    content:"";
+    position:absolute;
+    width:85px;height:85px;
+    left:-28px;top:-58px;
+    border-radius:50%;
+    background:#166534;
+    box-shadow:35px 15px #15803d,-20px 20px #16a34a;
+}
+.t1{right:7%;bottom:15%}
+.t2{right:18%;bottom:10%;transform:scale(.8)}
+.t3{right:28%;top:35%;transform:scale(.7)}
+
+/* ҮЗІК ЖОЛ */
+.path{
+    position:absolute;
+    left:12%;
+    top:25%;
+    width:76%;
+    height:55%;
+    border:12px dashed rgba(255,255,255,.75);
+    border-radius:50%;
+    transform:rotate(-7deg);
+    filter:drop-shadow(0 5px 3px rgba(0,0,0,.25));
+    z-index:3;
+}
+
+/* HUD */
+.hud{
+    position:absolute;
+    z-index:100;
+    top:15px;
+    left:50%;
+    transform:translateX(-50%);
+    width:94%;
+    max-width:1100px;
+    padding:13px 20px;
+    border-radius:20px;
+    background:rgba(7,21,46,.85);
+    backdrop-filter:blur(10px);
+    display:flex;
+    justify-content:space-between;
+    font-weight:bold;
+}
+.logo{color:#ffe66d;font-size:20px}
+.stats{display:flex;gap:20px}
+.progress{
+    position:absolute;
+    left:2%;bottom:-7px;
+    width:96%;height:7px;
+    background:#334155;
+    border-radius:10px;
+}
+.progressFill{
+    height:100%;
+    width:0;
+    background:#22c55e;
+    transition:.5s;
+}
+
+/* ЛОКАЦИЯ */
+.location{
+    position:absolute;
+    z-index:20;
+    width:190px;
+    text-align:center;
+    cursor:pointer;
+    transition:.3s;
+}
+.location:hover{transform:translateY(-8px) scale(1.05)}
+.location.locked{
+    filter:grayscale(1);
+    opacity:.45;
+    cursor:not-allowed;
+}
+.location.active .island{
+    animation:pulse 2s infinite;
+}
+@keyframes pulse{
+    50%{box-shadow:0 0 40px #ffe66d}
+}
+.island{
+    width:110px;height:110px;
+    margin:auto;
+    border-radius:50%;
+    border:6px solid white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:50px;
+    box-shadow:0 10px 20px #0008;
+}
+.name{
+    margin-top:8px;
+    padding:8px;
+    border-radius:12px;
+    background:#07152edb;
+    font-weight:bold;
+}
+.info{font-size:12px;color:#cbd5e1}
+
+#seaLocation{left:10%;top:30%}
+#forestLocation{right:10%;top:38%}
+#mountainLocation{left:38%;bottom:13%}
+#castleLocation{right:7%;bottom:8%}
+
+/* КЕМЕ */
+.boat{
+    position:absolute;
+    z-index:80;
+    font-size:65px;
+    display:none;
+    transition:all 3s ease-in-out;
+}
+.boat.go{display:block}
+
+/* РОБОТ */
+.robot{
+    position:absolute;
+    left:25px;
+    bottom:20px;
+    z-index:150;
+    width:155px;
+    animation:float 3s infinite;
+}
+.robotBody{
+    width:95px;height:90px;
+    margin:auto;
+    border-radius:25px;
+    background:linear-gradient(145deg,#e2e8f0,#64748b);
+    border:4px solid white;
+    position:relative;
+}
+.robotHead{
+    position:absolute;
+    width:80px;height:58px;
+    left:4px;top:-42px;
+    border-radius:18px;
+    background:#e2e8f0;
+    border:4px solid #64748b;
+}
+.eye{
+    position:absolute;
+    width:12px;height:12px;
+    top:18px;
+    border-radius:50%;
+    background:#38bdf8;
+    box-shadow:0 0 12px #38bdf8;
+}
+.e1{left:17px}.e2{right:17px}
+.mouth{
+    position:absolute;
+    width:30px;height:7px;
+    background:#334155;
+    left:21px;bottom:10px;
+    border-radius:10px;
+}
+.robotText{
+    margin-top:10px;
+    background:#0f172a;
+    border:2px solid #38bdf8;
+    padding:9px;
+    border-radius:14px;
+    font-size:12px;
+}
+
+/* ЖҰЛДЫЗ */
+.star{
+    position:fixed;
+    z-index:1000;
+    left:50%;
+    top:50%;
+    font-size:60px;
+    pointer-events:none;
+    animation:star 1s forwards;
+}
+@keyframes star{
+    0%{transform:scale(.3);opacity:0}
+    40%{transform:scale(1.5);opacity:1}
+    100%{transform:translateY(-120px) scale(.7);opacity:0}
+}
+
+/* QUIZ */
+.quiz{
+    position:fixed;
+    inset:0;
+    z-index:500;
+    display:none;
+    justify-content:center;
+    align-items:center;
+    background:#020617bb;
+    backdrop-filter:blur(8px);
+    padding:20px;
+}
+.quiz.show{display:flex}
+.card{
+    width:min(650px,95%);
+    background:linear-gradient(145deg,#172554,#0f172a);
+    border:2px solid #38bdf8;
+    border-radius:28px;
+    padding:30px;
+    box-shadow:0 30px 80px #000b;
+}
+.quizTop{
+    display:flex;
+    justify-content:space-between;
+}
+.close{
+    border:0;
+    border-radius:50%;
+    width:35px;height:35px;
+    background:#334155;
+    color:white;
+    font-size:20px;
+}
+.level{
+    color:#facc15;
+    margin-top:15px;
+}
+.question{
+    text-align:center;
+    font-size:35px;
+    font-weight:bold;
+    margin:35px 0;
+}
+.answerArea{
+    display:flex;
+    gap:10px;
+}
+.answer{
+    flex:1;
+    padding:15px;
+    font-size:20px;
+    border-radius:14px;
+    background:#020617;
+    color:white;
+    border:2px solid #475569;
+}
+.check{
+    border:0;
+    border-radius:14px;
+    padding:0 22px;
+    background:#22c55e;
+    color:white;
+    font-weight:bold;
+}
+
+/* ХАБАР */
+.message{
+    position:fixed;
+    z-index:800;
+    left:50%;top:50%;
+    transform:translate(-50%,-50%);
+    width:min(500px,90%);
+    padding:30px;
+    text-align:center;
+    background:#0f172a;
+    border:3px solid #facc15;
+    border-radius:25px;
+    display:none;
+}
+.message.show{display:block}
+.message h2{color:#facc15}
+.message button{
+    margin-top:20px;
+    padding:12px 30px;
+    border:0;
+    border-radius:12px;
+    background:#22c55e;
+    color:white;
+    font-weight:bold;
+}
+
+/* ҚАМАЛ */
+#castleDoor{
+    transition:.8s;
+}
+.openCastle{
+    animation:castleOpen 1.5s forwards;
+}
+@keyframes castleOpen{
+    50%{transform:scale(1.25) rotate(5deg)}
+    100%{transform:scale(1)}
+}
+
+@media(max-width:700px){
+    .logo{font-size:13px}
+    .stats{font-size:12px}
+    .location{transform:scale(.72)}
+    #seaLocation{left:0}
+    #forestLocation{right:0}
+    #mountainLocation{left:23%}
+    #castleLocation{right:0}
+    .robot{transform:scale(.7);transform-origin:bottom left}
+    .question{font-size:27px}
+    .answerArea{flex-direction:column}
+    .check{padding:15px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="game">
+
+<div class="sun"></div>
+<div class="cloud cloud1"></div>
+<div class="cloud cloud2"></div>
+
+<div class="sea"></div>
+<div class="forest"></div>
+
+<div class="mountains">
+<div class="mountain m1"></div>
+<div class="mountain m2"></div>
+<div class="mountain m3"></div>
+</div>
+
+<div class="tree t1"></div>
+<div class="tree t2"></div>
+<div class="tree t3"></div>
+
+<!-- ҮЗІК ЖОЛ -->
+<div class="path"></div>
+
+<!-- HUD -->
+<div class="hud">
+    <div class="logo">✨ MetaBilim • Дәреже әлемі</div>
+    <div class="stats">
+        ⭐ <span id="score">0</span>
+        🧮 <span id="counter">0</span>/20
+    </div>
+    <div class="progress">
+        <div class="progressFill" id="progress"></div>
+    </div>
+</div>
+
+<!-- ТЕҢІЗ -->
+<div class="location active" id="seaLocation"
+onclick="startLocation(0)">
+    <div class="island"
+    style="background:linear-gradient(145deg,#38bdf8,#0369a1)">
+    🌊
+    </div>
+    <div class="name">Дәрежелер теңізі</div>
+    <div class="info">Дәрежені есептеу</div>
+</div>
+
+<!-- ОРМАН -->
+<div class="location locked" id="forestLocation"
+onclick="startLocation(1)">
+    <div class="island"
+    style="background:linear-gradient(145deg,#4ade80,#166534)">
+    🌲
+    </div>
+    <div class="name">Сандар орманы</div>
+    <div class="info">Дәреже қасиеттері</div>
+</div>
+
+<!-- ТАУ -->
+<div class="location locked" id="mountainLocation"
+onclick="startLocation(2)">
+    <div class="island"
+    style="background:linear-gradient(145deg,#94a3b8,#334155)">
+    ⛰️
+    </div>
+    <div class="name">Дәреже тауы</div>
+    <div class="info">C деңгей • Бөлшектер</div>
+</div>
+
+<!-- ҚАМАЛ -->
+<div class="location locked" id="castleLocation"
+onclick="startLocation(3)">
+    <div class="island" id="castleDoor"
+    style="background:linear-gradient(145deg,#a78bfa,#581c87)">
+    🏰
+    </div>
+    <div class="name">Формула қамалы</div>
+    <div class="info">Формуланы тап!</div>
+</div>
+
+<!-- КЕМЕ -->
+<div class="boat" id="boat">⛵</div>
+
+<!-- РОБОТ -->
+<div class="robot">
+    <div class="robotBody">
+        <div class="robotHead">
+            <div class="eye e1"></div>
+            <div class="eye e2"></div>
+            <div class="mouth"></div>
+        </div>
+    </div>
+    <div class="robotText" id="robotText">
+        Сәлем! Дәреже әлеміне қош келдің!
+    </div>
+</div>
+
+<!-- QUIZ -->
+<div class="quiz" id="quiz">
+<div class="card">
+
+<div class="quizTop">
+    <b id="quizLocation">Дәрежелер теңізі</b>
+    <button class="close" onclick="closeQuiz()">×</button>
+</div>
+
+<div class="level" id="level"></div>
+
+<div class="question" id="question"></div>
+
+<div class="answerArea">
+<input class="answer" id="answer"
+placeholder="Жауабыңды жаз...">
+<button class="check" onclick="checkAnswer()">
+Тексеру ✓
+</button>
+</div>
+
+</div>
+</div>
+
+<!-- ХАБАР -->
+<div class="message" id="message">
+<h2 id="messageTitle"></h2>
+<p id="messageText"></p>
+<button onclick="closeMessage()">Жалғастыру</button>
+</div>
+
+</div>
+
+<script>
+
+/* =========================================================
+   20 ЕСЕП
+========================================================= */
+
+const locations=[
+
+/* 1 — ТЕҢІЗ */
+{
+name:"Дәрежелер теңізі",
+questions:[
+["2³ = ?","8"],
+["3² = ?","9"],
+["4² = ?","16"],
+["2⁵ = ?","32"],
+["5³ = ?","125"]
+]
+},
+
+/* 2 — ОРМАН */
+{
+name:"Сандар орманы",
+questions:[
+["2³ · 2² = ?","32"],
+["3⁴ : 3² = ?","9"],
+["5² · 5³ = ?","3125"],
+["2⁴ · 2³ = ?","128"],
+["10⁵ : 10² = ?","1000"]
+]
+},
+
+/* 3 — ТАУ C ДЕҢГЕЙ */
+{
+name:"Дәреже тауы",
+questions:[
+["(1/2)² = ?","1/4"],
+["(2/3)² = ?","4/9"],
+["(3/4)³ = ?","27/64"],
+["2⁻² = ?","1/4"],
+["(1/2)³ · 2² = ?","1/2"]
+]
+},
+
+/* 4 — ҚАМАЛ ФОРМУЛА */
+{
+name:"Формула қамалы",
+questions:[
+["Бірдей негізді дәрежелерді көбейту формуласы?","a^(m+n)"],
+["Бірдей негізді дәрежелерді бөлу формуласы?","a^(m-n)"],
+["Дәрежені дәрежеге шығару формуласы?","a^(mn)"],
+["Көбейтіндіні дәрежеге шығару формуласы?","(ab)^n"],
+["Бөліндіні дәрежеге шығару формуласы?","(a/b)^n"]
+]
+}
+];
+
+let currentLocation=0;
+let currentQuestion=0;
+let score=0;
+let total=0;
+
+/* ЭЛЕМЕНТТЕР */
+
+const quiz=document.getElementById("quiz");
+const question=document.getElementById("question");
+const answer=document.getElementById("answer");
+const level=document.getElementById("level");
+const quizLocation=document.getElementById("quizLocation");
+const scoreEl=document.getElementById("score");
+const counter=document.getElementById("counter");
+const progress=document.getElementById("progress");
+const robotText=document.getElementById("robotText");
+
+/* =========================================================
+   ҚАЗАҚША РОБОТ
+========================================================= */
+
+function kazNumber(n){
+
+const numbers=[
+"бірінші",
+"екінші",
+"үшінші",
+"төртінші",
+"бесінші"
+];
+
+return numbers[n-1] || (n+"-есеп");
+}
+
+function robotSpeak(text){
+
+robotText.innerText=text;
+
+if("speechSynthesis" in window){
+
+speechSynthesis.cancel();
+
+let speech=
+new SpeechSynthesisUtterance(text);
+
+speech.lang="kk-KZ";
+speech.rate=.85;
+speech.pitch=1.05;
+
+let voices=speechSynthesis.getVoices();
+
+let voice=voices.find(v=>
+v.lang.toLowerCase().includes("kk"));
+
+if(voice) speech.voice=voice;
+
+speechSynthesis.speak(speech);
+}
+}
+
+/* =========================================================
+   ДЫБЫС
+========================================================= */
+
+function correctSound(){
+
+let audioCtx=
+new (window.AudioContext||
+window.webkitAudioContext)();
+
+let osc=audioCtx.createOscillator();
+let gain=audioCtx.createGain();
+
+osc.frequency.value=880;
+gain.gain.value=.08;
+
+osc.connect(gain);
+gain.connect(audioCtx.destination);
+
+osc.start();
+
+osc.frequency.exponentialRampToValueAtTime(
+1320,
+audioCtx.currentTime+.2
+);
+
+osc.stop(audioCtx.currentTime+.25);
+}
+
+function wrongSound(){
+
+let audioCtx=
+new (window.AudioContext||
+window.webkitAudioContext)();
+
+let osc=audioCtx.createOscillator();
+let gain=audioCtx.createGain();
+
+osc.frequency.value=180;
+gain.gain.value=.07;
+
+osc.connect(gain);
+gain.connect(audioCtx.destination);
+
+osc.start();
+osc.stop(audioCtx.currentTime+.2);
+}
+
+/* =========================================================
+   ЖҰЛДЫЗ
+========================================================= */
+
+function starAnimation(){
+
+let star=document.createElement("div");
+
+star.className="star";
+star.innerText="⭐ +1";
+
+document.body.appendChild(star);
+
+setTimeout(()=>{
+star.remove();
+},1000);
+}
+
+/* =========================================================
+   ЛОКАЦИЯ
+========================================================= */
+
+function startLocation(index){
+
+let id=[
+"seaLocation",
+"forestLocation",
+"mountainLocation",
+"castleLocation"
+][index];
+
+let element=document.getElementById(id);
+
+if(element.classList.contains("locked")){
+
+robotSpeak(
+"Бұл локация әлі жабық. Алдымен алдыңғы кезеңді аяқта."
+);
+
+return;
+}
+
+currentLocation=index;
+currentQuestion=0;
+
+showQuestion();
+}
+
+/* =========================================================
+   ЕСЕП КӨРСЕТУ
+========================================================= */
+
+function showQuestion(){
+
+let loc=locations[currentLocation];
+let q=loc.questions[currentQuestion];
+
+quizLocation.innerText="📍 "+loc.name;
+
+level.innerText=
+`${kazNumber(currentQuestion+1)} есеп • ${currentQuestion+1}/${loc.questions.length}`;
+
+question.innerText=q[0];
+
+answer.value="";
+
+quiz.classList.add("show");
+
+answer.focus();
+
+if(currentLocation===3){
+
+robotSpeak(
+`${kazNumber(currentQuestion+1)} тапсырма. Формуланы есіңе түсір.`
+);
+
+}else{
+
+robotSpeak(
+`${kazNumber(currentQuestion+1)} есеп. Жауабын тап.`
+);
+
+}
+
+}
+
+/* =========================================================
+   ЖАУАП
+========================================================= */
+
+function checkAnswer(){
+
+let user=
+answer.value
+.trim()
+.toLowerCase()
+.replace(/\s/g,"");
+
+let correct=
+locations[currentLocation]
+.questions[currentQuestion][1]
+.toLowerCase()
+.replace(/\s/g,"");
+
+if(user===correct){
+
+score++;
+total++;
+
+scoreEl.innerText=score;
+counter.innerText=total;
+
+progress.style.width=
+(total/20*100)+"%";
+
+correctSound();
+starAnimation();
+
+robotSpeak(
+"Дұрыс! Бір ұпай. Жарайсың!"
+);
+
+currentQuestion++;
+
+setTimeout(()=>{
+
+if(currentQuestion>=
+locations[currentLocation].questions.length){
+
+finishLocation();
+
+}else{
+
+showQuestion();
+
+}
+
+},900);
+
+}else{
+
+wrongSound();
+
+robotSpeak(
+"Қате. Тағы бір рет ойланып көр."
+);
+
+answer.style.borderColor="#ef4444";
+
+setTimeout(()=>{
+answer.style.borderColor="#475569";
+},700);
+
+}
+
+}
+
+/* =========================================================
+   КЕЗЕҢ АЯҚТАЛДЫ
+========================================================= */
+
+function finishLocation(){
+
+quiz.classList.remove("show");
+
+if(currentLocation===0){
+
+showMessage(
+"🌊 Дәрежелер теңізі аяқталды!",
+"Барлық есеп дұрыс! ⛵ Кеме Сандар орманына жолға шықты!"
+);
+
+moveBoat(0,1);
+
+}
+
+else if(currentLocation===1){
+
+showMessage(
+"🌲 Сандар орманы аяқталды!",
+"Дәреже қасиеттерін меңгердің! ⛵ Кеме Дәреже тауына барады!"
+);
+
+moveBoat(1,2);
+
+}
+
+else if(currentLocation===2){
+
+showMessage(
+"⛰️ Дәреже тауы бағындырылды!",
+"C деңгейдегі бөлшекті есептерден өттің! ⛵ Кеме Формула қамалына барады!"
+);
+
+moveBoat(2,3);
+
+}
+
+else{
+
+document.getElementById("castleDoor")
+.classList.add("openCastle");
+
+showMessage(
+"🏆 ФОРМУЛА ҚАМАЛЫ АШЫЛДЫ!",
+`Құттықтаймын! Сен барлық 20 тапсырманы орындадың! ⭐ ${score} ұпай`
+);
+
+robotSpeak(
+"Құттықтаймын! Формула қамалы ашылды. Сен Дәреже әлемін толық аяқтадың!"
+);
+
+}
+
+}
+
+/* =========================================================
+   КЕМЕ ҚОЗҒАЛЫСЫ
+========================================================= */
+
+function moveBoat(from,to){
+
+let boat=document.getElementById("boat");
+
+let positions=[
+["13%","50%"],
+["35%","48%"],
+["58%","55%"],
+["78%","45%"]
+];
+
+boat.style.left=positions[from][0];
+boat.style.top=positions[from][1];
+boat.classList.add("go");
+
+setTimeout(()=>{
+
+boat.style.left=positions[to][0];
+boat.style.top=positions[to][1];
+
+},100);
+
+setTimeout(()=>{
+
+boat.classList.remove("go");
+
+unlock(to);
+
+robotSpeak(
+"Келесі локацияға келдік! Алға!"
+);
+
+},3200);
+
+}
+
+/* =========================================================
+   КЕЛЕСІ ЛОКАЦИЯ
+========================================================= */
+
+function unlock(index){
+
+let ids=[
+"seaLocation",
+"forestLocation",
+"mountainLocation",
+"castleLocation"
+];
+
+let el=document.getElementById(ids[index]);
+
+el.classList.remove("locked");
+el.classList.add("active");
+
+el.onclick=()=>startLocation(index);
+
+}
+
+/* =========================================================
+   ХАБАР
+========================================================= */
+
+function showMessage(title,text){
+
+document.getElementById("messageTitle")
+.innerText=title;
+
+document.getElementById("messageText")
+.innerText=text;
+
+document.getElementById("message")
+.classList.add("show");
+
+}
+
+function closeMessage(){
+
+document.getElementById("message")
+.classList.remove("show");
+
+}
+
+/* =========================================================
+   QUIZ ЖАБУ
+========================================================= */
+
+function closeQuiz(){
+
+quiz.classList.remove("show");
+
+}
+
+/* ENTER */
+answer.addEventListener("keydown",e=>{
+
+if(e.key==="Enter"){
+checkAnswer();
+}
+
+});
+
+/* БІРІНШІ СӨЗ */
+setTimeout(()=>{
+
+robotSpeak(
+"Сәлем! Дәреже әлеміне қош келдің! Алдымен Дәрежелер теңізіне бар."
+);
+
+},1000);
+
+</script>
+
+</body>
+</html>

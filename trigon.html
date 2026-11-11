@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Бірлескен жұмыс моделі</title>
+
+<style>
+
+body{
+font-family:sans-serif;
+background:linear-gradient(#cceeff,#ffffff);
+text-align:center;
+}
+
+input{
+width:80px;
+font-size:16px;
+margin:5px;
+}
+
+#pipes{
+width:320px;
+margin:auto;
+display:flex;
+justify-content:space-between;
+}
+
+.pipe{
+width:40px;
+height:80px;
+background:#777;
+border-radius:5px;
+position:relative;
+}
+
+.drop{
+position:absolute;
+top:80px;
+left:10px;
+font-size:22px;
+animation:fall 0.6s infinite;
+}
+
+@keyframes fall{
+0%{transform:translateY(0)}
+100%{transform:translateY(70px)}
+}
+
+#pool{
+width:320px;
+height:320px;
+border:6px solid #0077b6;
+margin:20px auto;
+position:relative;
+overflow:hidden;
+border-radius:10px;
+background:white;
+}
+
+#water{
+position:absolute;
+bottom:0;
+width:100%;
+height:0%;
+background:linear-gradient(#00b4d8,#0077b6);
+}
+
+button{
+padding:10px 20px;
+font-size:16px;
+margin:5px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h2>Бассейнді екі құбыр толтыру</h2>
+
+<p>
+1 құбыр уақыты:
+<input id="t1" value="20"> сағат
+<br>
+2 құбыр уақыты:
+<input id="t2" value="30"> сағат
+</p>
+
+<div id="pipes">
+
+<div class="pipe">
+<div class="drop">💧</div>
+</div>
+
+<div class="pipe">
+<div class="drop">💧</div>
+</div>
+
+</div>
+
+<div id="pool">
+<div id="water"></div>
+</div>
+
+<button onclick="start()">Есептеу</button>
+<button onclick="reset()">Қайта бастау</button>
+
+<p id="result"></p>
+<p id="time"></p>
+<audio id="waterSound" loop>
+<source src="https://cdn.pixabay.com/audio/2022/03/15/audio_4c61b3e0c3.mp3">
+</audio>
+<script>
+let sound=document.getElementById("waterSound");
+let water=document.getElementById("water");
+let result=document.getElementById("result");
+let timeText=document.getElementById("time");
+
+let level=0;
+let interval;
+
+function start(){
+sound.play();
+let t1=parseFloat(document.getElementById("t1").value);
+let t2=parseFloat(document.getElementById("t2").value);
+
+/* формула */
+
+let rate=(1/t1)+(1/t2);
+
+let totalTime=1/rate;
+
+result.innerHTML="Екеуі бірге: "+totalTime.toFixed(2)+" сағатта толтырады";
+
+let speed=100/totalTime;
+
+let time=0;
+level=0;
+
+clearInterval(interval);
+
+interval=setInterval(()=>{
+
+level+=speed;
+
+if(level>=100){
+
+level=100;
+
+clearInterval(interval);
+
+}
+
+water.style.height=level+"%";
+
+timeText.innerHTML="Өткен уақыт: "+time+" сағат";
+
+time++;
+
+},300);
+
+}
+
+function reset(){
+
+clearInterval(interval);
+
+water.style.height="0%";
+
+result.innerHTML="";
+timeText.innerHTML="";
+level=0;
+
+}
+
+</script>
+<audio id="waterSound" loop>
+<source src="https://cdn.pixabay.com/audio/2022/03/15/audio_4c61b3e0c3.mp3" type="audio/mpeg">
+</audio>
+</body>
+</html>

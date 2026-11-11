@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>MetaBilim — Формула Кубиктері</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family:"Segoe UI",Arial,sans-serif;
+    min-height:100vh;
+    overflow:hidden;
+    color:white;
+
+    background:
+        linear-gradient(
+            180deg,
+            #38bdf8 0%,
+            #7dd3fc 35%,
+            #166534 100%
+        );
+}
+
+/* =========================
+   ФОН
+========================= */
+
+.game{
+    width:100vw;
+    height:100vh;
+    position:relative;
+    overflow:hidden;
+}
+
+.sun{
+    position:absolute;
+    width:120px;
+    height:120px;
+    border-radius:50%;
+    background:#fde047;
+    top:7%;
+    right:8%;
+
+    box-shadow:
+        0 0 30px #fff7ae,
+        0 0 70px #facc15;
+
+    animation:float 4s infinite ease-in-out;
+}
+
+@keyframes float{
+    50%{
+        transform:translateY(15px);
+    }
+}
+
+.cloud{
+    position:absolute;
+    width:180px;
+    height:50px;
+    background:white;
+    border-radius:50px;
+    opacity:.8;
+    animation:cloud 30s linear infinite;
+}
+
+.cloud:before,
+.cloud:after{
+    content:"";
+    position:absolute;
+    background:white;
+    border-radius:50%;
+}
+
+.cloud:before{
+    width:70px;
+    height:70px;
+    left:30px;
+    top:-35px;
+}
+
+.cloud:after{
+    width:90px;
+    height:90px;
+    right:20px;
+    top:-45px;
+}
+
+.cloud1{
+    top:15%;
+    left:-200px;
+}
+
+.cloud2{
+    top:28%;
+    left:-400px;
+    animation-delay:10s;
+}
+
+@keyframes cloud{
+    from{
+        left:-250px;
+    }
+    to{
+        left:110%;
+    }
+}
+
+/* =========================
+   HUD
+========================= */
+
+.hud{
+    position:absolute;
+    top:15px;
+    left:50%;
+    transform:translateX(-50%);
+
+    width:min(1100px,94%);
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:15px 20px;
+
+    background:rgba(15,23,42,.88);
+    border:2px solid rgba(255,255,255,.25);
+    border-radius:20px;
+
+    z-index:100;
+}
+
+.logo{
+    color:#fde047;
+    font-size:21px;
+    font-weight:900;
+}
+
+.stats{
+    display:flex;
+    gap:20px;
+    font-weight:800;
+}
+
+.progress{
+    position:absolute;
+    left:2%;
+    bottom:-7px;
+    width:96%;
+    height:7px;
+    background:#334155;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.progressFill{
+    height:100%;
+    width:0%;
+    background:#22c55e;
+    transition:.5s;
+}
+
+/* =========================
+   ОЙЫН АЙМАҒЫ
+========================= */
+
+.arena{
+    position:absolute;
+    left:50%;
+    top:52%;
+    transform:translate(-50%,-50%);
+
+    width:min(1050px,94%);
+    height:70%;
+
+    background:rgba(15,23,42,.82);
+
+    border:3px solid #38bdf8;
+    border-radius:30px;
+
+    padding:30px;
+
+    box-shadow:
+        0 25px 70px rgba(0,0,0,.45);
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+/* =========================
+   ТАПСЫРМА
+========================= */
+
+.title{
+    color:#fde047;
+    font-size:28px;
+    font-weight:900;
+    margin-bottom:8px;
+}
+
+.subtitle{
+    color:#cbd5e1;
+    margin-bottom:20px;
+}
+
+.formulaBox{
+    min-height:150px;
+    width:90%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    flex-wrap:wrap;
+
+    background:
+        linear-gradient(
+            145deg,
+            #172554,
+            #0f172a
+        );
+
+    border:3px dashed #38bdf8;
+    border-radius:25px;
+
+    padding:25px;
+
+    font-size:32px;
+    font-weight:900;
+}
+
+/* =========================
+   БОС ОРЫН
+========================= */
+
+.drop{
+    min-width:100px;
+    min-height:65px;
+
+    padding:10px 20px;
+
+    border:3px dashed #facc15;
+    border-radius:15px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    color:#facc15;
+
+    transition:.2s;
+}
+
+.drop.hover{
+    transform:scale(1.08);
+    background:rgba(250,204,21,.15);
+}
+
+.drop.correct{
+    border-color:#22c55e;
+    color:#22c55e;
+    background:rgba(34,197,94,.15);
+}
+
+.drop.wrong{
+    animation:shake .3s;
+    border-color:#ef4444;
+}
+
+@keyframes shake{
+    25%{
+        transform:translateX(-8px);
+    }
+    50%{
+        transform:translateX(8px);
+    }
+    75%{
+        transform:translateX(-5px);
+    }
+}
+
+/* =========================
+   КУБИКТЕР
+========================= */
+
+.cubesTitle{
+    margin-top:20px;
+    color:#94a3b8;
+}
+
+.cubes{
+    display:flex;
+    justify-content:center;
+    gap:15px;
+    flex-wrap:wrap;
+
+    margin-top:15px;
+}
+
+.cube{
+    min-width:130px;
+    min-height:70px;
+
+    padding:12px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:
+        linear-gradient(
+            145deg,
+            #8b5cf6,
+            #4c1d95
+        );
+
+    border:3px solid white;
+    border-radius:18px;
+
+    font-size:20px;
+    font-weight:900;
+
+    cursor:grab;
+
+    box-shadow:
+        0 8px 0 #312e81,
+        0 12px 20px rgba(0,0,0,.35);
+
+    user-select:none;
+
+    transition:.2s;
+}
+
+.cube:hover{
+    transform:translateY(-7px) rotate(2deg);
+}
+
+.cube:active{
+    cursor:grabbing;
+}
+
+/* =========================
+   РОБОТ
+========================= */
+
+.robot{
+    position:absolute;
+    left:20px;
+    bottom:20px;
+    z-index:200;
+
+    display:flex;
+    align-items:end;
+    gap:10px;
+}
+
+.robotBody{
+    width:85px;
+    height:85px;
+
+    background:#e2e8f0;
+
+    border:4px solid #64748b;
+
+    border-radius:25px;
+
+    position:relative;
+
+    box-shadow:
+        0 10px 20px rgba(0,0,0,.4);
+
+    animation:robotFloat 3s infinite ease-in-out;
+}
+
+@keyframes robotFloat{
+    50%{
+        transform:translateY(-8px);
+    }
+}
+
+.robotHead{
+    position:absolute;
+
+    width:75px;
+    height:55px;
+
+    left:1px;
+    top:-45px;
+
+    background:#f1f5f9;
+
+    border:4px solid #64748b;
+    border-radius:18px;
+}
+
+.eye{
+    position:absolute;
+
+    width:11px;
+    height:11px;
+
+    border-radius:50%;
+
+    background:#38bdf8;
+
+    top:18px;
+
+    box-shadow:0 0 12px #38bdf8;
+}
+
+.eye1{
+    left:17px;
+}
+
+.eye2{
+    right:17px;
+}
+
+.mouth{
+    position:absolute;
+
+    width:25px;
+    height:6px;
+
+    background:#334155;
+
+    bottom:9px;
+    left:21px;
+
+    border-radius:10px;
+}
+
+.robotText{
+    max-width:280px;
+
+    background:#0f172a;
+
+    border:2px solid #38bdf8;
+
+    border-radius:15px;
+
+    padding:12px;
+
+    font-size:14px;
+
+    box-shadow:
+        0 10px 25px rgba(0,0,0,.4);
+}
+
+/* =========================
+   ЖҰЛДЫЗ
+========================= */
+
+.star{
+    position:fixed;
+
+    left:50%;
+    top:45%;
+
+    font-size:80px;
+
+    z-index:500;
+
+    opacity:0;
+    pointer-events:none;
+}
+
+.star.show{
+    animation:starWin 1s ease-out;
+}
+
+@keyframes starWin{
+
+    0%{
+        opacity:0;
+        transform:translate(-50%,-50%) scale(.3);
+    }
+
+    30%{
+        opacity:1;
+        transform:translate(-50%,-50%) scale(1.3);
+    }
+
+    100%{
+        opacity:0;
+        transform:translate(-50%,-120%) scale(1);
+    }
+}
+
+/* =========================
+   КЕЛЕСІ
+========================= */
+
+.nextBtn{
+    display:none;
+
+    margin-top:20px;
+
+    padding:12px 30px;
+
+    border:none;
+    border-radius:15px;
+
+    background:#22c55e;
+    color:white;
+
+    font-size:18px;
+    font-weight:900;
+
+    cursor:pointer;
+}
+
+.nextBtn.show{
+    display:block;
+}
+
+@media(max-width:700px){
+
+    .logo{
+        font-size:14px;
+    }
+
+    .stats{
+        font-size:12px;
+        gap:8px;
+    }
+
+    .arena{
+        height:72%;
+        padding:15px;
+    }
+
+    .title{
+        font-size:21px;
+    }
+
+    .formulaBox{
+        font-size:23px;
+    }
+
+    .cube{
+        min-width:100px;
+        font-size:16px;
+    }
+
+    .robotText{
+        max-width:180px;
+        font-size:12px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="game">
+
+    <div class="sun"></div>
+    <div class="cloud cloud1"></div>
+    <div class="cloud cloud2"></div>
+
+    <!-- HUD -->
+
+    <div class="hud">
+
+        <div class="logo">
+            ✨ MetaBilim
+        </div>
+
+        <div class="stats">
+            ⭐ <span id="score">0</span>
+            <span>📘 <span id="level">1</span>/7</span>
+        </div>
+
+        <div class="progress">
+            <div
+                class="progressFill"
+                id="progress">
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- ОЙЫН -->
+
+    <div class="arena">
+
+        <div class="title">
+            🧩 Қысқаша көбейту формулалары
+        </div>
+
+        <div class="subtitle" id="instruction">
+            Формуланы дұрыс құрастыр!
+        </div>
+
+        <div
+            class="formulaBox"
+            id="formulaBox">
+        </div>
+
+        <div class="cubesTitle">
+            🧊 Кубиктерді тышқанмен ұстап,
+            бос орынға сүйреп апар
+        </div>
+
+        <div
+            class="cubes"
+            id="cubes">
+        </div>
+
+        <button
+            class="nextBtn"
+            id="nextBtn"
+            onclick="nextLevel()">
+            Келесі формула ➜
+        </button>
+
+    </div>
+
+
+    <!-- РОБОТ -->
+
+    <div class="robot">
+
+        <div class="robotBody">
+
+            <div class="robotHead">
+
+                <div class="eye eye1"></div>
+                <div class="eye eye2"></div>
+
+                <div class="mouth"></div>
+
+            </div>
+
+        </div>
+
+        <div
+            class="robotText"
+            id="robotText">
+            Сәлем! Формуланы дұрыс құрастыр!
+        </div>
+
+    </div>
+
+
+    <div
+        class="star"
+        id="star">
+        ⭐
+    </div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   ФОРМУЛАЛАР
+===================================================== */
+
+const levels = [
+
+    {
+        text:[
+            "(a+b)²",
+            "=",
+            "a²",
+            "+",
+            "2ab",
+            "+",
+            "b²"
+        ]
+    },
+
+    {
+        text:[
+            "(a-b)²",
+            "=",
+            "a²",
+            "-",
+            "2ab",
+            "+",
+            "b²"
+        ]
+    },
+
+    {
+        text:[
+            "a²-b²",
+            "=",
+            "(a-b)",
+            "(a+b)"
+        ]
+    },
+
+    {
+        text:[
+            "(a+b)³",
+            "=",
+            "a³",
+            "+",
+            "3a²b",
+            "+",
+            "3ab²",
+            "+",
+            "b³"
+        ]
+    },
+
+    {
+        text:[
+            "(a-b)³",
+            "=",
+            "a³",
+            "-",
+            "3a²b",
+            "+",
+            "3ab²",
+            "-",
+            "b³"
+        ]
+    },
+
+    {
+        text:[
+            "a³+b³",
+            "=",
+            "(a+b)",
+            "(a²-ab+b²)"
+        ]
+    },
+
+    {
+        text:[
+            "a³-b³",
+            "=",
+            "(a-b)",
+            "(a²+ab+b²)"
+        ]
+    }
+
+];
+
+
+/* =====================================================
+   ОЙЫН КҮЙІ
+===================================================== */
+
+let currentLevel = 0;
+let score = 0;
+let draggedCube = null;
+let solvedDrops = 0;
+
+
+/* =====================================================
+   ЭЛЕМЕНТТЕР
+===================================================== */
+
+const formulaBox =
+    document.getElementById("formulaBox");
+
+const cubes =
+    document.getElementById("cubes");
+
+const scoreEl =
+    document.getElementById("score");
+
+const levelEl =
+    document.getElementById("level");
+
+const progress =
+    document.getElementById("progress");
+
+const robotText =
+    document.getElementById("robotText");
+
+const nextBtn =
+    document.getElementById("nextBtn");
+
+
+/* =====================================================
+   РОБОТ
+===================================================== */
+
+function robotSpeak(text){
+
+    robotText.innerText = text;
+
+    if(!("speechSynthesis" in window)){
+        return;
+    }
+
+    speechSynthesis.cancel();
+
+    const speech =
+        new SpeechSynthesisUtterance(text);
+
+    speech.lang = "kk-KZ";
+    speech.rate = .9;
+    speech.pitch = 1;
+
+    speechSynthesis.speak(speech);
+}
+
+
+/* =====================================================
+   ДЫБЫС
+===================================================== */
+
+function correctSound(){
+
+    const audio =
+        new AudioContext();
+
+    const osc =
+        audio.createOscillator();
+
+    const gain =
+        audio.createGain();
+
+    osc.connect(gain);
+    gain.connect(audio.destination);
+
+    osc.frequency.value = 880;
+
+    gain.gain.setValueAtTime(
+        .2,
+        audio.currentTime
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+        .001,
+        audio.currentTime + .5
+    );
+
+    osc.start();
+
+    osc.stop(
+        audio.currentTime + .5
+    );
+}
+
+
+/* =====================================================
+   ҚАТЕ ДЫБЫС
+===================================================== */
+
+function wrongSound(){
+
+    const audio =
+        new AudioContext();
+
+    const osc =
+        audio.createOscillator();
+
+    const gain =
+        audio.createGain();
+
+    osc.connect(gain);
+    gain.connect(audio.destination);
+
+    osc.frequency.value = 180;
+
+    gain.gain.value = .15;
+
+    osc.start();
+
+    osc.stop(
+        audio.currentTime + .25
+    );
+}
+
+
+/* =====================================================
+   ФОРМУЛАНЫ ЖАСАУ
+===================================================== */
+
+function loadLevel(){
+
+    formulaBox.innerHTML = "";
+    cubes.innerHTML = "";
+
+    solvedDrops = 0;
+
+    nextBtn.classList.remove("show");
+
+    levelEl.innerText =
+        currentLevel + 1;
+
+    progress.style.width =
+        ((currentLevel) / levels.length * 100) + "%";
+
+
+    const formula =
+        levels[currentLevel].text;
+
+
+    /*
+       Формуланың кейбір бөліктерін
+       кубик арқылы орналастырамыз.
+    */
+
+    const missing =
+        getMissingParts(formula);
+
+
+    formula.forEach((part,index)=>{
+
+        if(missing.includes(index)){
+
+            const drop =
+                document.createElement("div");
+
+            drop.className = "drop";
+
+            drop.dataset.answer = part;
+
+            drop.innerText = "⬇️";
+
+            setupDrop(drop);
+
+            formulaBox.appendChild(drop);
+
+        }
+        else{
+
+            const span =
+                document.createElement("span");
+
+            span.innerText = part;
+
+            formulaBox.appendChild(span);
+
+        }
+
+    });
+
+
+    /*
+       Кубиктер
+    */
+
+    const shuffled =
+        [...missing]
+        .map(i => formula[i])
+        .sort(()=>Math.random()-.5);
+
+
+    shuffled.forEach((part,index)=>{
+
+        const cube =
+            document.createElement("div");
+
+        cube.className = "cube";
+
+        cube.innerText = part;
+
+        cube.draggable = true;
+
+        cube.dataset.value = part;
+
+        cube.addEventListener(
+            "dragstart",
+            e => {
+
+                draggedCube = cube;
+
+                e.dataTransfer.setData(
+                    "text/plain",
+                    part
+                );
+
+            }
+        );
+
+        cubes.appendChild(cube);
+
+    });
+
+
+    robotSpeak(
+        `${currentLevel + 1}-формула. Кубиктерді дұрыс орынға қой!`
+    );
+
+}
+
+
+/* =====================================================
+   ҚАЙ ЖЕР БОС БОЛАДЫ?
+===================================================== */
+
+function getMissingParts(formula){
+
+    /*
+       Әр формуладан 2-3 элементті
+       кездейсоқ емес, ойынға ыңғайлы
+       түрде бос қалдырамыз.
+    */
+
+    if(formula.length <= 5){
+
+        return [2,3];
+
+    }
+
+    if(formula.length <= 7){
+
+        return [2,4,6];
+
+    }
+
+    return [2,4,6,8]
+        .filter(i => i < formula.length);
+
+}
+
+
+/* =====================================================
+   DROP
+===================================================== */
+
+function setupDrop(drop){
+
+    drop.addEventListener(
+        "dragover",
+        e => {
+
+            e.preventDefault();
+
+            drop.classList.add("hover");
+
+        }
+    );
+
+
+    drop.addEventListener(
+        "dragleave",
+        () => {
+
+            drop.classList.remove("hover");
+
+        }
+    );
+
+
+    drop.addEventListener(
+        "drop",
+        e => {
+
+            e.preventDefault();
+
+            drop.classList.remove("hover");
+
+            if(!draggedCube){
+                return;
+            }
+
+
+            const value =
+                draggedCube.dataset.value;
+
+            const correct =
+                drop.dataset.answer;
+
+
+            if(value === correct){
+
+                drop.innerText = value;
+
+                drop.classList.add("correct");
+
+                draggedCube.remove();
+
+                draggedCube = null;
+
+                solvedDrops++;
+
+                score++;
+
+                scoreEl.innerText = score;
+
+                correctSound();
+
+                showStar();
+
+                robotSpeak(
+                    "Дұрыс! Бір ұпай алдың! ⭐"
+                );
+
+
+                /*
+                   Барлық бос орын толды ма?
+                */
+
+                if(
+                    solvedDrops ===
+                    document.querySelectorAll(".drop").length
+                ){
+
+                    formulaComplete();
+
+                }
+
+            }
+            else{
+
+                drop.classList.add("wrong");
+
+                wrongSound();
+
+                robotSpeak(
+                    "Бұл кубик дұрыс емес. Тағы бір рет байқап көр!"
+                );
+
+                setTimeout(()=>{
+
+                    drop.classList.remove("wrong");
+
+                },400);
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   ФОРМУЛА БІТТІ
+===================================================== */
+
+function formulaComplete(){
+
+    progress.style.width =
+        ((currentLevel + 1) /
+        levels.length * 100) + "%";
+
+
+    robotSpeak(
+        "Керемет! Формула толық дұрыс құрастырылды!"
+    );
+
+
+    nextBtn.classList.add("show");
+
+
+    if(
+        currentLevel ===
+        levels.length - 1
+    ){
+
+        nextBtn.innerText =
+            "🏰 Формула қамалын ашу";
+
+    }
+
+}
+
+
+/* =====================================================
+   КЕЛЕСІ ДЕҢГЕЙ
+===================================================== */
+
+function nextLevel(){
+
+    currentLevel++;
+
+    if(
+        currentLevel >=
+        levels.length
+    ){
+
+        robotSpeak(
+            "Құттықтаймын! Барлық қысқаша көбейту формулаларын меңгердің! Формула қамалы ашылды! 🏰"
+        );
+
+        nextBtn.innerText =
+            "🏰 ҚАМАЛ АШЫЛДЫ!";
+
+        nextBtn.disabled = true;
+
+        return;
+
+    }
+
+    loadLevel();
+
+}
+
+
+/* =====================================================
+   ЖҰЛДЫЗ АНИМАЦИЯСЫ
+===================================================== */
+
+function showStar(){
+
+    const star =
+        document.getElementById("star");
+
+    star.classList.remove("show");
+
+    void star.offsetWidth;
+
+    star.classList.add("show");
+
+}
+
+
+/* =====================================================
+   БАСТАУ
+===================================================== */
+
+loadLevel();
+
+</script>
+
+</body>
+</html>

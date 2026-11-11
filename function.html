@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Function Park 8.0 - High Score & Garage</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    
+    body {
+      background: linear-gradient(135deg, #a8ff78 0%, #78ffd6 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .park-container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 28px;
+      padding: 24px;
+      max-width: 950px;
+      width: 100%;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      border: 6px solid #4adc8b;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px dashed #cbd5e1;
+      padding-bottom: 14px;
+    }
+
+    .title {
+      font-size: 26px;
+      color: #1e293b;
+      font-weight: 800;
+    }
+
+    .score-container {
+      display: flex;
+      gap: 10px;
+    }
+
+    .score-badge {
+      background: linear-gradient(180deg, #facc15 0%, #eab308 100%);
+      color: #713f12;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 800;
+      font-size: 16px;
+      box-shadow: 0 4px 10px rgba(234, 179, 8, 0.4);
+      border: 2px solid #fff;
+    }
+
+    .highscore-badge {
+      background: linear-gradient(180deg, #a855f7 0%, #7e22ce 100%);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 800;
+      font-size: 16px;
+      box-shadow: 0 4px 10px rgba(168, 85, 247, 0.4);
+      border: 2px solid #fff;
+    }
+
+    .garage-box {
+      background: #f1f5f9;
+      border: 2px solid #cbd5e1;
+      border-radius: 16px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+
+    .garage-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #334155;
+      margin-bottom: 8px;
+    }
+
+    .garage-items {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .vehicle-card {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .vehicle-card.active {
+      border-color: #3b82f6;
+      background: #eff6ff;
+      box-shadow: 0 0 0 2px #93c5fd;
+    }
+
+    .vehicle-card.locked {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: #f8fafc;
+    }
+
+    .vehicle-icon { font-size: 24px; }
+    .vehicle-name { font-size: 12px; font-weight: 700; color: #475569; }
+    .vehicle-cost { font-size: 11px; font-weight: 800; color: #d97706; }
+
+    .npc-box {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+      border: 3px solid #38bdf8;
+      border-radius: 20px;
+      padding: 14px 20px;
+      margin: 16px 0;
+      box-shadow: 0 6px 15px rgba(56, 189, 248, 0.2);
+    }
+
+    .npc-avatar {
+      font-size: 40px;
+      background: #ffffff;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .npc-speech {
+      font-size: 15px;
+      color: #0369a1;
+      font-weight: 700;
+      line-height: 1.4;
+      flex-grow: 1;
+    }
+
+    .voice-btn {
+      background: #38bdf8;
+      border: none;
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 700px) {
+      .main-content { grid-template-columns: 1fr; }
+      .garage-items { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .canvas-wrapper {
+      position: relative;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      border: 4px solid #38bdf8;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 20px;
+      border: 2px solid #e2e8f0;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    label {
+      font-weight: 700;
+      color: #334155;
+      font-size: 14px;
+    }
+
+    select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 12px;
+      border: 2px solid #cbd5e1;
+      font-weight: 700;
+      color: #0f172a;
+      background: white;
+    }
+
+    input[type=range] {
+      width: 100%;
+      accent-color: #3b82f6;
+    }
+
+    .btn-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    button {
+      padding: 12px;
+      border: none;
+      border-radius: 14px;
+      font-weight: 800;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .btn-mission { background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%); color: white; }
+    .btn-check { background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%); color: white; }
+    .btn-drive { background: linear-gradient(180deg, #f97316 0%, #ea580c 100%); color: white; grid-column: span 2; font-size: 16px; }
+
+    .feedback {
+      font-weight: 800;
+      margin-top: 4px;
+      text-align: center;
+      height: 24px;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="park-container">
+  <div class="header">
+    <div class="title">🎢 Function Park 8.0</div>
+    <div class="score-container">
+      <div class="score-badge">⭐ Ұпай: <span id="score">0</span></div>
+      <div class="highscore-badge">🏆 Рекорд: <span id="highScore">0</span></div>
+    </div>
+  </div>
+
+  <div class="npc-box">
+    <div class="npc-avatar" onclick="speakCurrentText()">🤖</div>
+    <div class="npc-speech" id="npcText">
+      Аттракцион түрін таңдап, «Тапсырма алу» батырмасын бас! Рекорд орнатып, жаңа көліктер аш!
+    </div>
+    <button class="voice-btn" onclick="speakCurrentText()">🔊</button>
+  </div>
+
+  <div class="main-content">
+    <div class="canvas-wrapper">
+      <canvas id="graphCanvas" width="380" height="380"></canvas>
+    </div>
+
+    <div class="controls">
+      <div class="control-group">
+        <label for="funcType">🎢 Аттракцион түрі:</label>
+        <select id="funcType" onchange="updateGraph()">
+          <option value="linear">y = ax + b (Түзу жол)</option>
+          <option value="quadratic">y = ax² + b (Парабола)</option>
+          <option value="sine">y = a · sin(bx) (Толқын)</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label>a параметрі: <span id="valA">1</span></label>
+        <input type="range" id="paramA" min="-5" max="5" step="1" value="1" oninput="updateGraph()">
+      </div>
+
+      <div class="control-group">
+        <label>b параметрі: <span id="valB">0</span></label>
+        <input type="range" id="paramB" min="-5" max="5" step="1" value="0" oninput="updateGraph()">
+      </div>
+
+      <div class="garage-box">
+        <div class="garage-title">🏎‍🟀 Көліктер Гаражы:</div>
+        <div class="garage-items">
+          <div class="vehicle-card active" id="v-car" onclick="selectVehicle('🏎‍🟀', 0, 'v-car')">
+            <div class="vehicle-icon">🏎‍🟀</div>
+            <div class="vehicle-name">Спорткар</div>
+            <div class="vehicle-cost">Тегін</div>
+          </div>
+          <div class="vehicle-card locked" id="v-rocket" onclick="selectVehicle('🚀', 30, 'v-rocket')">
+            <div class="vehicle-icon">🚀</div>
+            <div class="vehicle-name">Зымыран</div>
+            <div class="vehicle-cost">30 ⭐</div>
+          </div>
+          <div class="vehicle-card locked" id="v-ufo" onclick="selectVehicle('🛸', 60, 'v-ufo')">
+            <div class="vehicle-icon">🛸</div>
+            <div class="vehicle-name">НЛО</div>
+            <div class="vehicle-cost">60 ⭐</div>
+          </div>
+          <div class="vehicle-card locked" id="v-dragon" onclick="selectVehicle('🐉', 100, 'v-dragon')">
+            <div class="vehicle-icon">🐉</div>
+            <div class="vehicle-name">Айдаһар</div>
+            <div class="vehicle-cost">100 ⭐</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn-mission" onclick="generateMission()">🎯 Тапсырма алу</button>
+        <button class="btn-check" onclick="checkAnswer()">✅ Тексеру</button>
+        <button class="btn-drive" onclick="startDrive()">🏎‍🟀 Көлікті жүргізу</button>
+      </div>
+
+      <div class="feedback" id="feedback"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let score = 0;
+  let highScore = localStorage.getItem('fp_highscore') ? parseInt(localStorage.getItem('fp_highscore')) : 0;
+  let currentMission = null;
+  let carProgress = -1;
+  let currentVehicle = '🏎‍🟀';
+
+  const canvas = document.getElementById('graphCanvas');
+  const ctx = canvas ? canvas.getContext('2d') : null;
+
+  function speakText(text) {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      let cleanText = text.replace('Пиксель:', '').replace('🎯', '').replace('🎉', '').replace('❌', '').replace('🏆', '');
+      let utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.lang = 'kk-KZ';
+      utterance.rate = 0.9;
+      window.speechSynthesis.speak(utterance);
+    }
+  }
+
+  function speakCurrentText() {
+    speakText(document.getElementById('npcText').innerText);
+  }
+
+  function updateGarageUI() {
+    const vehicles = [
+      { id: 'v-rocket', cost: 30 },
+      { id: 'v-ufo', cost: 60 },
+      { id: 'v-dragon', cost: 100 }
+    ];
+
+    vehicles.forEach(v => {
+      const el = document.getElementById(v.id);
+      if (score >= v.cost) {
+        el.classList.remove('locked');
+      }
+    });
+  }
+
+  function selectVehicle(icon, cost, cardId) {
+    if (score < cost) {
+      let msg = "Бұл көлікті ашу үшін " + cost + " ұпай жинау керек!";
+      document.getElementById('npcText').innerText = "Пиксель: «" + msg + "»";
+      speakText(msg);
+      return;
+    }
+
+    currentVehicle = icon;
+    document.querySelectorAll('.vehicle-card').forEach(card => card.classList.remove('active'));
+    document.getElementById(cardId).classList.add('active');
+    
+    let msg = "Көлік ауыстырылды: " + icon;
+    document.getElementById('npcText').innerText = "Пиксель: «" + msg + "»";
+    speakText(msg);
+    drawWorld();
+  }
+
+  function calculateY(type, a, b, x) {
+    if (type === 'linear') return a * x + b;
+    if (type === 'quadratic') return a * Math.pow(x, 2) + b;
+    if (type === 'sine') return a * Math.sin(b * x);
+    return 0;
+  }
+
+  function drawWorld() {
+    if (!canvas || !ctx) return;
+    const w = canvas.width;
+    const h = canvas.height;
+
+    // Фон
+    let skyGradient = ctx.createLinearGradient(0, 0, 0, h);
+    skyGradient.addColorStop(0, '#7dd3fc');
+    skyGradient.addColorStop(0.7, '#e0f2fe');
+    skyGradient.addColorStop(1, '#bbf7d0');
+    ctx.fillStyle = skyGradient;
+    ctx.fillRect(0, 0, w, h);
+
+    // Декорация
+    ctx.font = '24px serif';
+    ctx.fillText('☁️', 40, 40);
+    ctx.fillText('☁️', 280, 35);
+    ctx.fillText('🌳', 15, h - 15);
+    ctx.fillText('🌳', w - 40, h - 15);
+
+    // Тор
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+    ctx.lineWidth = 1.5;
+    for (let x = 0; x <= w; x += 38) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+    }
+    for (let y = 0; y <= h; y += 38) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    }
+
+    // Остер
+    ctx.strokeStyle = '#0284c7';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(w/2, 0); ctx.lineTo(w/2, h); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, h/2); ctx.lineTo(w, h/2); ctx.stroke();
+
+    // График
+    const type = document.getElementById('funcType').value;
+    const a = parseFloat(document.getElementById('paramA').value);
+    const b = parseFloat(document.getElementById('paramB').value);
+
+    const centerX = w / 2;
+    const centerY = h / 2;
+    const scale = 22;
+
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    let isFirst = true;
+    for (let px = 0; px <= w; px += 3) {
+      let x = (px - centerX) / scale;
+      let y = calculateY(type, a, b, x);
+      let py = centerY - (y * scale);
+
+      if (isFirst) { ctx.moveTo(px, py); isFirst = false; }
+      else { ctx.lineTo(px, py); }
+    }
+    ctx.stroke();
+
+    // Анимация
+    if (carProgress >= 0 && carProgress <= 1) {
+      let px = carProgress * w;
+      let x = (px - centerX) / scale;
+      let y = calculateY(type, a, b, x);
+      let py = centerY - (y * scale);
+
+      ctx.font = '32px serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(currentVehicle, px, py - 8);
+    }
+  }
+
+  function updateGraph() {
+    document.getElementById('valA').innerText = document.getElementById('paramA').value;
+    document.getElementById('valB').innerText = document.getElementById('paramB').value;
+    drawWorld();
+  }
+
+  function startDrive() {
+    if (carProgress >= 0) return;
+    carProgress = 0;
+
+    function animate() {
+      carProgress += 0.004;
+      drawWorld();
+      if (carProgress <= 1) {
+        requestAnimationFrame(animate);
+      } else {
+        carProgress = -1;
+        drawWorld();
+      }
+    }
+    animate();
+  }
+
+  function generateMission() {
+    const selectedType = document.getElementById('funcType').value;
+    
+    let targetA = 0;
+    while (targetA === 0) {
+      targetA = Math.floor(Math.random() * 7) - 3;
+    }
+
+    let targetB = Math.floor(Math.random() * 7) - 3;
+    if (selectedType === 'sine' && targetB === 0) targetB = 1;
+
+    currentMission = { type: selectedType, a: targetA, b: targetB };
+
+    let funcStr = "";
+    if (selectedType === 'linear') {
+      funcStr = "y = " + (targetA === 1 ? "" : targetA === -1 ? "-" : targetA) + "x" + (targetB > 0 ? " + " + targetB : targetB < 0 ? " - " + Math.abs(targetB) : "");
+    } else if (selectedType === 'quadratic') {
+      funcStr = "y = " + (targetA === 1 ? "" : targetA === -1 ? "-" : targetA) + "x²" + (targetB > 0 ? " + " + targetB : targetB < 0 ? " - " + Math.abs(targetB) : "");
+    } else if (selectedType === 'sine') {
+      funcStr = "y = " + targetA + " · sin(" + targetB + "x)";
+    }
+
+    let msg = "Тапсырма: Рельсті " + funcStr + " функциясына келтір!";
+    document.getElementById('npcText').innerText = "Пиксель: «" + msg + "»";
+    document.getElementById('feedback').innerText = "";
+
+    speakText(msg);
+  }
+
+  function checkAnswer() {
+    if (!currentMission) {
+      let msg = "Алдымен Тапсырма алу батырмасын бас!";
+      document.getElementById('npcText').innerText = "Пиксель: «" + msg + "»";
+      speakText(msg);
+      return;
+    }
+
+    const type = document.getElementById('funcType').value;
+    const a = parseFloat(document.getElementById('paramA').value);
+    const b = parseFloat(document.getElementById('paramB').value);
+
+    if (type === currentMission.type && a === currentMission.a && b === currentMission.b) {
+      score += 10;
+      document.getElementById('score').innerText = score;
+
+      // 🏆 Рекордты тексеру және сақтау
+      let newRecordText = "";
+      if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('fp_highscore', highScore);
+        document.getElementById('highScore').innerText = highScore;
+        newRecordText = " 🏆 Жаңа рекорд орнатылды!";
+      }
+
+      updateGarageUI();
+
+      let msg = "Өте тамаша! Жауап дұрыс." + newRecordText;
+      document.getElementById('npcText').innerText = "Пиксель: «" + msg + "»";
+      document.getElementById('feedback').style.color = '#16a34a';
+      document.getElementById('feedback').innerText = "🎉 Дұрыс! +10 ұпай!";
+      
+      speakText(msg);
+      startDrive();
+      currentMission = null;
+    } else {
+      let msg = "Қайта тексер! Функция түрі немесе параметрлер сәйкес келмейді.";
+      document.getElementById('npcText').innerText = "Пиксель: «" + msg + "»";
+      document.getElementById('feedback').style.color = '#dc2626';
+      document.getElementById('feedback').innerText = "❌ Дұрыс емес.";
+      speakText(msg);
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('highScore').innerText = highScore;
+    updateGraph();
+  });
+</script>
+
+</body>
+</html>

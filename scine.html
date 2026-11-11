@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Жүрек соғысы және математика</title>
+
+<style>
+
+body{
+margin:0;
+overflow:hidden;
+background:black;
+color:white;
+font-family:sans-serif;
+}
+
+#title{
+position:absolute;
+top:20px;
+width:100%;
+text-align:center;
+font-size:30px;
+}
+
+#coords{
+position:absolute;
+bottom:20px;
+left:20px;
+font-size:18px;
+color:#00ffff;
+}
+
+#heart{
+position:absolute;
+top:60px;
+width:100%;
+text-align:center;
+font-size:40px;
+transition:0.2s;
+}
+.axisLabel{
+position:absolute;
+color:white;
+font-size:16px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="title">ЖҮРЕК СОҒЫСЫ ЖӘНЕ МАТЕМАТИКА</div>
+<div id="heart">❤️</div>
+<div id="coords">x:0 y:0</div>
+<!-- X осі координаттары -->
+<div class="axisLabel" style="left:35%; top:52%">-2π</div>
+<div class="axisLabel" style="left:40%; top:52%">-3π/2</div>
+<div class="axisLabel" style="left:45%; top:52%">-π</div>
+<div class="axisLabel" style="left:46%; top:52%">-π/2</div>
+<div class="axisLabel" style="left:52%; top:52%">0</div>
+<div class="axisLabel" style="left:53%; top:52%">π/2</div>
+<div class="axisLabel" style="left:56%; top:52%">π</div>
+<div class="axisLabel" style="left:60%; top:52%">3π/2</div>
+<div class="axisLabel" style="left:65%; top:52%">2π</div>
+
+<!-- Y осі координаттары -->
+<div class="axisLabel" style="left:50%; top:40%">1</div>
+<div class="axisLabel" style="left:50%; top:60%">-1</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera(
+75,
+window.innerWidth/window.innerHeight,
+0.1,
+1000
+);
+
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth,window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+camera.position.z = 15;
+
+/* ЖАРЫҚ */
+
+const light = new THREE.PointLight(0xffffff,1);
+light.position.set(5,5,5);
+scene.add(light);
+
+/* ЖҰЛДЫЗДАР */
+
+const starsGeometry = new THREE.BufferGeometry();
+const starsVertices = [];
+
+for(let i=0;i<1000;i++){
+
+let x = (Math.random()-0.5)*200;
+let y = (Math.random()-0.5)*200;
+let z = -Math.random()*200;
+
+starsVertices.push(x,y,z);
+
+}
+
+starsGeometry.setAttribute(
+'position',
+new THREE.Float32BufferAttribute(starsVertices,3)
+);
+
+const starsMaterial = new THREE.PointsMaterial({color:0xffffff});
+
+const starField = new THREE.Points(starsGeometry,starsMaterial);
+
+scene.add(starField);
+
+/* ОСЬТЕР */
+
+const axisMaterial = new THREE.LineBasicMaterial({color:0xffffff});
+
+const xAxis = new THREE.Line(
+new THREE.BufferGeometry().setFromPoints([
+new THREE.Vector3(-10,0,0),
+new THREE.Vector3(10,0,0)
+]),
+axisMaterial
+);
+
+scene.add(xAxis);
+
+const yAxis = new THREE.Line(
+new THREE.BufferGeometry().setFromPoints([
+new THREE.Vector3(0,-5,0),
+new THREE.Vector3(0,5,0)
+]),
+axisMaterial
+);
+
+scene.add(yAxis);
+
+/* ЖҮРЕК ЭКГ ГРАФИГІ */
+
+const points = [];
+
+for(let x=-10;x<10;x+=0.05){
+
+let y =
+Math.sin(x)*0.5 +
+Math.sin(x*5)*0.2 +
+Math.sin(x*15)*0.1;
+
+points.push(new THREE.Vector3(x,y,0));
+
+}
+
+const graphGeometry =
+new THREE.BufferGeometry().setFromPoints(points);
+
+const graphMaterial =
+new THREE.LineBasicMaterial({color:0xff0000});
+
+const graph = new THREE.Line(graphGeometry,graphMaterial);
+
+scene.add(graph);
+
+/* НҮКТЕ */
+
+const dotGeometry = new THREE.SphereGeometry(0.1,16,16);
+
+const dotMaterial = new THREE.MeshBasicMaterial({color:0xffff00});
+
+const dot = new THREE.Mesh(dotGeometry,dotMaterial);
+
+scene.add(dot);
+
+/* АНИМАЦИЯ */
+
+let t = 0;
+
+function animate(){
+
+requestAnimationFrame(animate);
+
+t += 0.05;
+
+/* график бойымен нүкте */
+
+let x = Math.sin(t)*8;
+
+let y =
+Math.sin(x)*0.5 +
+Math.sin(x*5)*0.2 +
+Math.sin(x*15)*0.1;
+
+dot.position.set(x,y,0);
+
+/* пульс */
+
+let pulse = 1 + Math.sin(t*6)*0.05;
+
+graph.scale.set(1,pulse,1);
+
+/* камера */
+
+camera.position.x = Math.sin(t*0.2)*2;
+
+camera.lookAt(scene.position);
+
+renderer.render(scene,camera);
+
+}
+
+animate();
+function heartBeat(){
+
+let ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+let osc = ctx.createOscillator();
+let gain = ctx.createGain();
+
+osc.type = "sine";
+osc.frequency.value = 120;
+
+gain.gain.value = 0.4;
+
+osc.connect(gain);
+gain.connect(ctx.destination);
+
+osc.start();
+
+setTimeout(()=>{
+osc.stop();
+},150);
+
+}
+
+/* КООРДИНАТ */
+
+const coords = document.getElementById("coords");
+
+window.addEventListener("mousemove",(e)=>{
+
+let x = (e.clientX/window.innerWidth)*20-10;
+
+let y = -((e.clientY/window.innerHeight)*10-5);
+
+coords.innerHTML =
+"x: "+x.toFixed(2)+"  y: "+y.toFixed(2);
+
+});
+
+/* ЖҮРЕК */
+
+let heart = document.getElementById("heart");
+
+setInterval(()=>{
+
+heart.style.transform="scale(1.4)";
+
+setTimeout(()=>{
+heart.style.transform="scale(1)";
+},200)
+
+},800);
+/* ЖҮРЕК ДЫБЫСЫ */
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function heartBeat(){
+
+let osc = audioCtx.createOscillator();
+let gain = audioCtx.createGain();
+
+osc.type = "sine";
+osc.frequency.value = 150;
+
+gain.gain.value = 0.5;
+
+osc.connect(gain);
+gain.connect(audioCtx.destination);
+
+osc.start();
+
+setTimeout(()=>{
+osc.stop();
+},120);
+
+}
+
+renderer.domElement.addEventListener("click",()=>{
+
+heartBeat();
+
+});
+
+</script> 
+
+heartBeat();
+
+});
+
+</body>
+</html>

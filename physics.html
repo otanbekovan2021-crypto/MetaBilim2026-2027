@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Физика лабораториясы</title>
+
+<style>
+
+body{
+margin:0;
+overflow:hidden;
+font-family:sans-serif;
+color:white;
+}
+
+canvas{
+position:fixed;
+top:0;
+left:0;
+z-index:-1;
+}
+
+.container{
+height:100vh;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+}
+
+h1{
+font-size:50px;
+margin-bottom:40px;
+text-shadow:0 0 20px cyan;
+}
+
+button{
+
+width:220px;
+height:60px;
+font-size:20px;
+margin:20px;
+border:none;
+border-radius:12px;
+
+background:linear-gradient(45deg,#00c6ff,#0072ff);
+
+color:white;
+cursor:pointer;
+
+box-shadow:0 0 20px rgba(0,150,255,0.8);
+
+transition:0.3s;
+
+}
+
+button:hover{
+
+transform:scale(1.1);
+box-shadow:0 0 40px cyan;
+
+}
+
+</style>
+</head>
+
+<body>
+
+<canvas id="bg"></canvas>
+
+<div class="container">
+
+<h1>Физика әлемі</h1>
+
+<button onclick="location.href='atom.html'">
+Атом
+</button>
+
+<button onclick="location.href='mayatnik.html'">
+Математикалық маятник
+</button>
+
+</div>
+
+<script>
+
+let canvas=document.getElementById("bg");
+let ctx=canvas.getContext("2d");
+
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
+let particles=[];
+
+for(let i=0;i<120;i++){
+
+particles.push({
+
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+size:Math.random()*3,
+speed:Math.random()*0.5
+
+});
+
+}
+
+function animate(){
+
+ctx.fillStyle="black";
+ctx.fillRect(0,0,canvas.width,canvas.height);
+
+ctx.fillStyle="cyan";
+
+particles.forEach(p=>{
+
+p.y+=p.speed;
+
+if(p.y>canvas.height){
+p.y=0;
+}
+
+ctx.beginPath();
+ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+ctx.fill();
+
+});
+
+requestAnimationFrame(animate);
+
+}
+
+animate();
+
+</script>
+
+</body>
+</html>

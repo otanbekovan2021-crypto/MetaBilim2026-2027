@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <title>3D Координаталық әлем + Мәтін</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #050505; }
+    </style>
+</head>
+<body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js"></script>
+
+<script>
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+    camera.position.set(12, 12, 12);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+
+    // 1. Координаттық тор
+    const grid = new THREE.GridHelper(20, 20, 0x444444, 0x222222);
+    scene.add(grid);
+
+    // 2. Бағытталған осьтер (Стрелкалар)
+    const dirX = new THREE.Vector3(1, 0, 0);
+    const dirY = new THREE.Vector3(0, 1, 0);
+    const dirZ = new THREE.Vector3(0, 0, 1);
+    
+    const origin = new THREE.Vector3(0, 0, 0);
+    const length = 10;
+
+    scene.add(new THREE.ArrowHelper(dirX, origin, length, 0xff0000)); // X - Қызыл
+    scene.add(new THREE.ArrowHelper(dirY, origin, length, 0x00ff00)); // Y - Жасыл
+    scene.add(new THREE.ArrowHelper(dirZ, origin, length, 0x0000ff)); // Z - Көк
+
+    // 3. Мәтін (Label) жасау функциясы
+    function createLabel(text, position, color) {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = 256;
+        canvas.height = 128;
+        
+        context.fillStyle = color;
+        context.font = 'Bold 80px Arial';
+        context.fillText(text, 50, 80);
+
+        const texture = new THREE.CanvasTexture(canvas);
+        const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+        const sprite = new THREE.Sprite(spriteMaterial);
+        
+        sprite.position.copy(position);
+        sprite.scale.set(2, 1, 1);
+        return sprite;
+    }
+
+    // Мәтіндерді орналастыру
+    scene.add(createLabel('X осі', new THREE.Vector3(11, 0, 0), '#ff0000'));
+    scene.add(createLabel('Y осі', new THREE.Vector3(0, 11, 0), '#00ff00'));
+    scene.add(createLabel('Z осі', new THREE.Vector3(0, 0, 11), '#4444ff'));
+
+    // 4. Координаталық сандар (шкала)
+    for (let i = -10; i <= 10; i++) {
+        if (i === 0) continue;
+        // X осіндегі сандар
+        scene.add(createLabel(i.toString(), new THREE.Vector3(i, -0.5, 0), '#888888'));
+        // Z осіндегі сандар
+        scene.add(createLabel(i.toString(), new THREE.Vector3(0, -0.5, i), '#888888'));
+    }
+
+    // 5. Орталық нүкте (0,0,0)
+    const center = new THREE.Mesh(
+        new THREE.SphereGeometry(0.2, 16, 16),
+        new THREE.MeshBasicMaterial({ color: 0xffffff })
+    );
+    scene.add(center);
+
+    function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+    }
+
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    animate();
+</script>
+
+</body>
+</html>

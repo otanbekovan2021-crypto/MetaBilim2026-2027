@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Прогрессия әлемі</title>
+
+<style>
+*{box-sizing:border-box}
+
+html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:
+        radial-gradient(circle at 50% 15%,#263b91 0%,#101946 45%,#050816 100%);
+    color:white;
+}
+
+#game{
+    width:100vw;
+    height:100vh;
+    position:relative;
+    overflow:hidden;
+}
+
+/* Жұлдыздар */
+.star{
+    position:absolute;
+    width:5px;
+    height:5px;
+    background:white;
+    border-radius:50%;
+    animation:twinkle 2s infinite alternate;
+}
+
+@keyframes twinkle{
+    from{opacity:.2}
+    to{opacity:1;transform:scale(1.5)}
+}
+
+/* Ай */
+.moon{
+    position:absolute;
+    width:120px;
+    height:120px;
+    border-radius:50%;
+    right:8%;
+    top:8%;
+    background:#fff3b0;
+    box-shadow:0 0 50px #fff3b0;
+}
+
+/* Қамал */
+#castle{
+    position:absolute;
+    left:50%;
+    bottom:20%;
+    transform:translateX(-50%);
+    font-size:190px;
+    filter:drop-shadow(0 15px 25px rgba(0,0,0,.6));
+    transition:1.5s;
+}
+
+#castle.open{
+    transform:translateX(-50%) scale(1.15);
+    filter:
+        drop-shadow(0 0 30px gold)
+        drop-shadow(0 0 70px gold);
+}
+
+/* Жер */
+.ground{
+    position:absolute;
+    bottom:0;
+    width:100%;
+    height:25%;
+    background:
+        linear-gradient(to top,#071a12,#173b27);
+    border-top:3px solid #285d38;
+}
+
+/* Жол */
+.road{
+    position:absolute;
+    bottom:0;
+    left:0;
+    width:100%;
+    height:13%;
+    background:#252938;
+}
+
+.road:after{
+    content:"";
+    position:absolute;
+    top:50%;
+    width:100%;
+    height:7px;
+    background:repeating-linear-gradient(
+        to right,
+        white 0 70px,
+        transparent 70px 130px
+    );
+}
+
+/* HUD */
+#hud{
+    position:absolute;
+    top:20px;
+    left:25px;
+    right:25px;
+    display:flex;
+    justify-content:space-between;
+    z-index:30;
+}
+
+.logo{
+    font-size:25px;
+    font-weight:bold;
+    text-shadow:0 3px 10px black;
+}
+
+.stats{
+    display:flex;
+    gap:10px;
+}
+
+.stat{
+    padding:10px 17px;
+    background:rgba(0,0,0,.4);
+    border-radius:15px;
+    backdrop-filter:blur(8px);
+}
+
+/* Айдаһар */
+#dragon{
+    position:absolute;
+    left:7%;
+    bottom:18%;
+    width:280px;
+    z-index:20;
+    animation:dragonFloat 3s ease-in-out infinite;
+}
+
+@keyframes dragonFloat{
+    50%{transform:translateY(-15px)}
+}
+
+.dragonBody{
+    font-size:210px;
+    text-align:center;
+    filter:
+        drop-shadow(0 10px 15px rgba(0,0,0,.5))
+        drop-shadow(0 0 20px #ff4b32);
+}
+
+.dragonName{
+    text-align:center;
+    font-size:20px;
+    font-weight:bold;
+    color:#ffd65c;
+}
+
+/* Сөйлеу */
+#speech{
+    position:absolute;
+    left:25%;
+    bottom:43%;
+    max-width:550px;
+    padding:22px 28px;
+    border-radius:25px;
+    background:white;
+    color:#171b42;
+    font-size:21px;
+    font-weight:bold;
+    line-height:1.4;
+    z-index:40;
+    box-shadow:0 10px 35px rgba(0,0,0,.4);
+}
+
+#speech:before{
+    content:"";
+    position:absolute;
+    left:-22px;
+    bottom:25px;
+    border-width:13px 23px 13px 0;
+    border-style:solid;
+    border-color:transparent white transparent transparent;
+}
+
+/* Бастау */
+#intro{
+    position:absolute;
+    inset:0;
+    z-index:100;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(3,6,25,.7);
+    backdrop-filter:blur(6px);
+}
+
+.introBox{
+    width:min(750px,90%);
+    padding:45px;
+    border-radius:35px;
+    text-align:center;
+    background:rgba(18,27,72,.95);
+    border:2px solid rgba(255,255,255,.2);
+    box-shadow:0 20px 70px rgba(0,0,0,.6);
+}
+
+.introBox h1{
+    font-size:52px;
+    margin:0 0 15px;
+}
+
+.introBox p{
+    font-size:21px;
+    line-height:1.5;
+}
+
+.startBtn,
+.checkBtn,
+.restartBtn{
+    border:0;
+    border-radius:15px;
+    color:white;
+    font-size:19px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.startBtn{
+    margin-top:15px;
+    padding:17px 50px;
+    background:linear-gradient(90deg,#ff7b00,#ffb300);
+    box-shadow:0 8px 25px rgba(255,130,0,.35);
+}
+
+.startBtn:hover,
+.checkBtn:hover,
+.restartBtn:hover{
+    transform:scale(1.05);
+}
+
+/* Есеп */
+#questionBox{
+    display:none;
+    position:absolute;
+    z-index:50;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    width:min(850px,92%);
+    padding:24px;
+    border-radius:25px;
+    background:rgba(8,13,42,.96);
+    border:2px solid rgba(255,255,255,.18);
+    text-align:center;
+    box-shadow:0 10px 40px rgba(0,0,0,.55);
+}
+
+.level{
+    color:#ffd45c;
+    font-weight:bold;
+    margin-bottom:8px;
+}
+
+#question{
+    font-size:23px;
+    font-weight:bold;
+    line-height:1.5;
+    margin-bottom:18px;
+}
+
+#answer{
+    width:240px;
+    padding:13px;
+    border:0;
+    border-radius:12px;
+    text-align:center;
+    font-size:20px;
+}
+
+.checkBtn{
+    padding:13px 25px;
+    margin-left:8px;
+    background:#13b879;
+}
+
+#message{
+    min-height:28px;
+    margin-top:12px;
+    font-weight:bold;
+}
+
+/* Финал */
+#finish{
+    display:none;
+    position:absolute;
+    inset:0;
+    z-index:200;
+    align-items:center;
+    justify-content:center;
+    background:rgba(3,6,25,.82);
+    backdrop-filter:blur(8px);
+}
+
+.finishBox{
+    width:min(700px,90%);
+    padding:45px;
+    background:linear-gradient(135deg,#fff7c9,#fff);
+    color:#202044;
+    border-radius:35px;
+    text-align:center;
+    box-shadow:0 0 70px gold;
+}
+
+.finishBox h1{
+    font-size:50px;
+    color:#b77900;
+}
+
+.goldMath{
+    font-size:130px;
+}
+
+.restartBtn{
+    padding:15px 35px;
+    background:#6b4cff;
+}
+
+/* Математик */
+#mathematician{
+    display:none;
+    position:absolute;
+    right:8%;
+    bottom:18%;
+    z-index:35;
+    text-align:center;
+    animation:appear 1.5s ease;
+}
+
+.mathEmoji{
+    font-size:150px;
+    filter:drop-shadow(0 0 25px gold);
+}
+
+.mathText{
+    padding:10px 18px;
+    border-radius:15px;
+    background:white;
+    color:#332300;
+    font-weight:bold;
+}
+
+@keyframes appear{
+    from{
+        opacity:0;
+        transform:translateY(80px) scale(.5);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0) scale(1);
+    }
+}
+
+@media(max-width:700px){
+
+    .logo{
+        font-size:16px;
+    }
+
+    .stat{
+        padding:7px 9px;
+        font-size:12px;
+    }
+
+    #dragon{
+        left:0;
+        transform:scale(.6);
+        transform-origin:bottom left;
+    }
+
+    #castle{
+        font-size:120px;
+    }
+
+    #speech{
+        left:28%;
+        bottom:45%;
+        max-width:60%;
+        font-size:15px;
+    }
+
+    #question{
+        font-size:18px;
+    }
+
+}
+</style>
+</head>
+
+<body>
+
+<div id="game">
+
+<!-- Жұлдыздар -->
+<div class="star" style="top:10%;left:20%"></div>
+<div class="star" style="top:20%;left:35%"></div>
+<div class="star" style="top:12%;left:55%"></div>
+<div class="star" style="top:30%;left:72%"></div>
+<div class="star" style="top:15%;left:88%"></div>
+<div class="star" style="top:38%;left:60%"></div>
+
+<div class="moon"></div>
+
+<div class="ground"></div>
+<div class="road"></div>
+
+<!-- Қамал -->
+<div id="castle">🏰</div>
+
+<!-- Айдаһар -->
+<div id="dragon">
+    <div class="dragonBody">🐉</div>
+    <div class="dragonName">ҚАМАЛДЫҢ ҚОРҒАУШЫСЫ</div>
+</div>
+
+<!-- Алтын математик -->
+<div id="mathematician">
+    <div class="mathEmoji">🧙‍♂️</div>
+    <div class="mathText">
+        ✨ Математика әлеміне қош келдің!
+    </div>
+</div>
+
+<!-- HUD -->
+<div id="hud">
+
+    <div class="logo">
+        🏰 Прогрессия әлемі
+    </div>
+
+    <div class="stats">
+
+        <div class="stat">
+            ⭐ <span id="score">0</span>
+        </div>
+
+        <div class="stat">
+            💎 <span id="crystals">0</span>
+        </div>
+
+        <div class="stat">
+            📜 <span id="level">0</span>/8
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Сөйлеу -->
+<div id="speech">
+    🐉 Тоқта! Қамалға кіргің келсе,
+    менің математикалық сынақтарымнан өт!
+</div>
+
+<!-- Бастапқы экран -->
+<div id="intro">
+
+    <div class="introBox">
+
+        <h1>🐉 Прогрессия қамалы</h1>
+
+        <p>
+            Ежелгі қамалдың қақпасын айдаһар күзетіп тұр.
+        </p>
+
+        <p>
+            🐉 «Барлық математикалық сынақты шешсең,
+            мен саған қамалдың қақпасын ашуға рұқсат беремін!»
+        </p>
+
+        <button class="startBtn" onclick="startGame()">
+            ⚔️ Сынақты бастау
+        </button>
+
+    </div>
+
+</div>
+
+<!-- Есеп -->
+<div id="questionBox">
+
+    <div class="level">
+        🐉 СЫНАҚ <span id="currentLevel">1</span> / 8
+    </div>
+
+    <div id="question"></div>
+
+    <input
+        id="answer"
+        type="number"
+        placeholder="Жауабың"
+    >
+
+    <button class="checkBtn" onclick="checkAnswer()">
+        Тексеру ✓
+    </button>
+
+    <div id="message"></div>
+
+</div>
+
+<!-- Финал -->
+<div id="finish">
+
+    <div class="finishBox">
+
+        <div class="goldMath">🧙‍♂️</div>
+
+        <h1>🏆 Қамал ашылды!</h1>
+
+        <p style="font-size:22px">
+            Сен айдаһардың барлық сынағынан өттің!
+        </p>
+
+        <h2>
+            ⭐ Ұпай:
+            <span id="finalScore">0</span>
+        </h2>
+
+        <h2>
+            💎 Кристалдар:
+            <span id="finalCrystals">0</span>
+        </h2>
+
+        <h2>👑 Прогрессия шебері!</h2>
+
+        <button class="restartBtn" onclick="restartGame()">
+            🔄 Қайта ойнау
+        </button>
+
+    </div>
+
+</div>
+
+<script>
+
+/* ======================================
+   ДАУЫС
+====================================== */
+
+function speak(text){
+
+    if(!("speechSynthesis" in window)) return;
+
+    speechSynthesis.cancel();
+
+    const voice =
+        new SpeechSynthesisUtterance(text);
+
+    voice.lang = "kk-KZ";
+    voice.rate = 0.88;
+    voice.pitch = 0.9;
+
+    speechSynthesis.speak(voice);
+}
+
+
+/* ======================================
+   АЙДАҺАР СӨЙЛЕЙДІ
+====================================== */
+
+function dragonSay(text){
+
+    document.getElementById("speech")
+        .innerText = "🐉 " + text;
+
+    speak(text);
+}
+
+
+/* ======================================
+   ЕСЕПТЕР
+   ЖЕҢІЛ → КҮРДЕЛІ
+====================================== */
+
+const questions = [
+
+{
+    text:
+    "1-деңгей 🔢<br><br>" +
+    "5, 9, 13, 17, ... арифметикалық прогрессиясында " +
+    "a₁₀ мәнін тап.",
+    answer:41
+},
+
+{
+    text:
+    "2-деңгей 📈<br><br>" +
+    "a₁ = 7, d = 4. " +
+    "a₂₀ мәнін тап.",
+    answer:83
+},
+
+{
+    text:
+    "3-деңгей 🧮<br><br>" +
+    "a₁ = 4, d = 3. " +
+    "Алғашқы 24 мүшесінің қосындысын, S₂₄, тап.",
+    answer:924
+},
+
+{
+    text:
+    "4-деңгей 🏰<br><br>" +
+    "Арифметикалық прогрессияда " +
+    "a₁ = 7, a₁₅ = 49. " +
+    "Алғашқы 15 мүшесінің қосындысын тап.",
+    answer:420
+},
+
+{
+    text:
+    "5-деңгей ⚔️<br><br>" +
+    "Арифметикалық прогрессияның алғашқы 20 мүшесінің " +
+    "қосындысы 500-ге тең. a₁ = 5. " +
+    "Айырымын d тап.",
+    answer:0
+},
+
+{
+    text:
+    "6-деңгей 🌌<br><br>" +
+    "b₁ = 3, q = 2. " +
+    "Алғашқы 8 мүшесінің қосындысын, S₈, тап.",
+    answer:765
+},
+
+{
+    text:
+    "7-деңгей 🔮<br><br>" +
+    "b₁ = 5, q = 3. " +
+    "Алғашқы 6 мүшесінің қосындысын тап.",
+    answer:1820
+},
+
+{
+    text:
+    "8-деңгей 👑<br><br>" +
+    "Арифметикалық прогрессияда a₁ = 2, d = 3. " +
+    "Алғашқы 30 мүшесінің қосындысын тап.",
+    answer:1365
+}
+
+];
+
+
+/* ======================================
+   ОЙЫН АЙНЫМАЛЫЛАРЫ
+====================================== */
+
+let current = 0;
+let score = 0;
+let crystals = 0;
+
+
+/* ======================================
+   ЭЛЕМЕНТТЕР
+====================================== */
+
+const questionBox =
+    document.getElementById("questionBox");
+
+const question =
+    document.getElementById("question");
+
+const answer =
+    document.getElementById("answer");
+
+const message =
+    document.getElementById("message");
+
+
+/* ======================================
+   ОЙЫН БАСТАУ
+====================================== */
+
+function startGame(){
+
+    document.getElementById("intro")
+        .style.display = "none";
+
+    questionBox.style.display = "block";
+
+    dragonSay(
+        "Жақсы! Бірінші сынақты бастайық. " +
+        "Қамалдың алғашқы кілтін тап!"
+    );
+
+    setTimeout(
+        showQuestion,
+        1800
+    );
+}
+
+
+/* ======================================
+   СҰРАҚТЫ КӨРСЕТУ
+====================================== */
+
+function showQuestion(){
+
+    const q =
+        questions[current];
+
+    question.innerHTML =
+        q.text;
+
+    document.getElementById("currentLevel")
+        .innerText = current + 1;
+
+    document.getElementById("level")
+        .innerText = current + 1;
+
+    answer.value = "";
+
+    message.innerText = "";
+
+    answer.focus();
+
+}
+
+
+/* ======================================
+   ЖАУАПТЫ ТЕКСЕРУ
+====================================== */
+
+function checkAnswer(){
+
+    if(answer.value === ""){
+
+        dragonSay(
+            "Жауабыңды енгіз, батыр!"
+        );
+
+        return;
+    }
+
+    const userAnswer =
+        Number(answer.value);
+
+    const correctAnswer =
+        questions[current].answer;
+
+
+    if(userAnswer === correctAnswer){
+
+        score += 10;
+        crystals++;
+
+        document.getElementById("score")
+            .innerText = score;
+
+        document.getElementById("crystals")
+            .innerText = crystals;
+
+        message.innerText =
+            "✅ Дұрыс! 🔓 Қамалдың бір құлпы ашылды!";
+
+        message.style.color =
+            "#5cff9a";
+
+        dragonSay(
+            "Дұрыс! Сенің математикадан күшің мықты екен!"
+        );
+
+
+        setTimeout(function(){
+
+            current++;
+
+            if(current >= questions.length){
+
+                openCastle();
+
+            }else{
+
+                showQuestion();
+
+                dragonSay(
+                    "Келесі сынаққа дайындал! Бұл жолы қиынырақ."
+                );
+
+            }
+
+        },1800);
+
+
+    }else{
+
+        message.innerText =
+            "❌ Қате! Тағы бір рет есептеп көр.";
+
+        message.style.color =
+            "#ff7777";
+
+        dragonSay(
+            "Қате жауап. Формуланы есіңе түсіріп, тағы байқап көр!"
+        );
+
+    }
+
+}
+
+
+/* ======================================
+   ENTER
+====================================== */
+
+answer.addEventListener(
+    "keydown",
+    function(e){
+
+        if(e.key === "Enter"){
+            checkAnswer();
+        }
+
+    }
+);
+
+
+/* ======================================
+   ҚАМАЛДЫ АШУ
+====================================== */
+
+function openCastle(){
+
+    questionBox.style.display =
+        "none";
+
+    dragonSay(
+        "Жоқ... Сен барлық сынақты шештің! " +
+        "Уәдемде тұрамын. Қамал саған ашық!"
+    );
+
+    setTimeout(function(){
+
+        document.getElementById("dragon")
+            .style.display = "none";
+
+        document.getElementById("speech")
+            .style.display = "none";
+
+        document.getElementById("castle")
+            .classList.add("open");
+
+        document.getElementById("mathematician")
+            .style.display = "block";
+
+        setTimeout(function(){
+
+            document.getElementById("finalScore")
+                .innerText = score;
+
+            document.getElementById("finalCrystals")
+                .innerText = crystals;
+
+            document.getElementById("finish")
+                .style.display = "flex";
+
+            speak(
+                "Құттықтаймын! Сен Прогрессия әлемінің шебері атандың!"
+            );
+
+        },2500);
+
+    },2200);
+
+}
+
+
+/* ======================================
+   ҚАЙТА БАСТАУ
+====================================== */
+
+function restartGame(){
+
+    current = 0;
+    score = 0;
+    crystals = 0;
+
+    document.getElementById("score")
+        .innerText = "0";
+
+    document.getElementById("crystals")
+        .innerText = "0";
+
+    document.getElementById("level")
+        .innerText = "0";
+
+    document.getElementById("finish")
+        .style.display = "none";
+
+    document.getElementById("mathematician")
+        .style.display = "none";
+
+    document.getElementById("dragon")
+        .style.display = "block";
+
+    document.getElementById("speech")
+        .style.display = "block";
+
+    document.getElementById("castle")
+        .classList.remove("open");
+
+    questionBox.style.display = "block";
+
+    dragonSay(
+        "Қайтадан бастаймыз! Бұл жолы барлық сынақты жең!"
+    );
+
+    showQuestion();
+
+}
+
+</script>
+
+</body>
+</html>

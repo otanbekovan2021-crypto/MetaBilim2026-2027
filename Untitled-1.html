@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <title>DNA Virtual Lab - Zoom Fixed</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #000; }
+        #subtitle-container {
+            position: absolute;
+            bottom: 5%;
+            width: 80%;
+            left: 10%;
+            text-align: center;
+            color: #00fbff;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 20px;
+            text-shadow: 0 0 10px #00fbff;
+            background: rgba(0, 10, 20, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #00fbff;
+            pointer-events: none;
+        }
+        #ui-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #00fbff;
+            font-family: monospace;
+            text-align: right;
+            background: rgba(0, 251, 255, 0.1);
+            padding: 10px;
+            border-left: 3px solid #00fbff;
+        }
+    </style>
+</head>
+<body>
+    <div id="ui-info">
+        МАСШТАБ: <span id="zoom-val">100</span>%<br>
+        СТАТУС: ЖҮЙЕ ҚОСУЛЫ
+    </div>
+    <div id="subtitle-container">ДНҚ визуализациясына қош келдіңіз...</div>
+
+    <script>
+        let zoom = 0; // Масштаб айнымалысы
+        let angle = 0;
+        let subtitles = [
+            "ДНҚ — тіршіліктің ең терең құпиясы.",
+            "Тышқан дөңгелегімен жақындатып көріңіз.",
+            "Аденин-Тимин және Гуанин-Цитозин жұптары.",
+            "Генетикалық код 4 әріптен тұрады: A, T, G, C.",
+            "Виртуалды зертхана: Молекулалық деңгейге өту..."
+        ];
+        let subIndex = 0;
+
+        function setup() {
+            createCanvas(windowWidth, windowHeight, WEBGL);
+            
+            // Субтитрлерді ауыстыру
+            setInterval(() => {
+                subIndex = (subIndex + 1) % subtitles.length;
+                document.getElementById('subtitle-container').innerText = subtitles[subIndex];
+            }, 5000);
+        }
+
+        function draw() {
+            background(0, 5, 15);
+            
+            // Камераны қолмен басқару
+            // Мышкамен айналдыру үшін orbitControl әлі де керек, бірақ масштабты өзіміз реттейміз
+            orbitControl(1, 1, 0.1); 
+            
+            // Масштабтауды қолдану (Z осі бойынша жылжыту)
+            translate(0, 0, zoom);
+
+            // Фондағы лазерлік тор
+            push();
+            stroke(0, 150, 255, 30);
+            noFill();
+            for(let i = 0; i < 3; i++) {
+                rotateX(frameCount * 0.001);
+                box(2000);
+            }
+            pop();
+
+            // ДНҚ Молекуласы
+            let nodes = 50;
+            let radius = 100;
+
+            for (let i = 0; i < nodes; i++) {
+                let y = map(i, 0, nodes, -500, 500);
+                let speed = frameCount * 0.03;
+                let x1 = sin(i * 0.4 + speed) * radius;
+                let z1 = cos(i * 0.4 + speed) * radius;
+                
+                let x2 = sin(i * 0.4 + PI + speed) * radius;
+                let z2 = cos(i * 0.4 + PI + speed) * radius;
+
+                // Спираль 1 (Көк)
+                push();
+                translate(x1, y, z1);
+                fill(0, 255, 255);
+                noStroke();
+                sphere(7);
+                pop();
+
+                // Спираль 2 (Қызғылт)
+                push();
+                translate(x2, y, z2);
+                fill(255, 0, 150);
+                noStroke();
+                sphere(7);
+                pop();
+
+                // Байланыстырушы сызық (Нуклеотидтер)
+                stroke(255, 150);
+                strokeWeight(2);
+                line(x1, y, z1, x2, y, z2);
+            }
+            
+            // Экрандағы масштаб пайызын жаңарту
+            document.getElementById('zoom-val').innerText = Math.round(map(zoom, -1000, 500, 10, 200));
+        }
+
+        // Мышка дөңгелегін бақылау функциясы
+        function mouseWheel(event) {
+            // event.delta — дөңгелектің айналу бағыты мен күші
+            zoom -= event.delta;
+            
+            // Шекара қою (тым алыс немесе тым жақын кетпеу үшін)
+            zoom = constrain(zoom, -1500, 600);
+            
+            // Браузердің бетті айналдыруына жол бермеу
+            return false;
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+        }
+    </script>
+</body>
+</html>

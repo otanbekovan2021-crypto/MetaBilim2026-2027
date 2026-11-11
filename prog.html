@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GEOMETRIC PROGRESSION 2050</title>
+<style>
+*{box-sizing:border-box}
+:root{--cyan:#67e8f9;--gold:#facc15}
+body{margin:0;background:#020817;color:#effaff;font-family:Segoe UI,Arial,sans-serif;overflow-x:hidden}
+[hidden]{display:none!important}
+button{background:linear-gradient(120deg,#075985,#164e63);color:white;border:1px solid #67e8f966;border-radius:12px;padding:12px 19px;margin:4px;font-size:15px;font-weight:bold;cursor:pointer;transition:.2s}
+button:hover{background:#0284c7;transform:translateY(-2px)}
+button:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.gold{background:linear-gradient(120deg,#facc15,#f59e0b);color:#172033;border:0}
+.gold:hover{background:#fde047}
+h1,h2,h3{margin-top:0}
+#intro{min-height:100vh;position:relative;display:grid;place-items:center;text-align:center;padding:20px;overflow:hidden;background:#020817}
+.introBg,.labBg{position:absolute;inset:-35px;background:linear-gradient(#00102088,#020817bb),url("https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=1800&auto=format&fit=crop") center/cover;animation:cameraMove 24s ease-in-out infinite alternate}
+@keyframes cameraMove{to{transform:scale(1.14) translate(-1%,-1%)}}
+.introContent{position:relative;z-index:3;max-width:900px;padding:35px;background:#020817aa;border:1px solid #67e8f955;border-radius:24px;backdrop-filter:blur(10px)}
+#intro h1{font-size:clamp(38px,6vw,80px);color:#67e8f9;text-shadow:0 0 30px #0891b2}
+#intro p{font-size:clamp(17px,2vw,23px);line-height:1.6}
+header{text-align:center;padding:13px;background:#06182a;border-bottom:1px solid #67e8f955}
+header h1{color:var(--cyan);margin:5px;font-size:clamp(20px,3vw,31px)}
+header p{margin:4px;color:#a5d9eb}
+.toolbar{text-align:center;background:#06111e;padding:8px}
+.toolbar button{font-size:13px;padding:9px}
+#cinema{height:clamp(530px,73vh,780px);position:relative;overflow:hidden;isolation:isolate;background:#031323}
+.labBg{filter:brightness(.7) saturate(1.2)}
+#cinema:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#02081755,transparent,#02081744);z-index:1}
+.beam{position:absolute;top:-30%;left:10%;width:70%;height:150%;background:linear-gradient(110deg,transparent,#67e8f91c,transparent);filter:blur(25px);animation:beam 9s infinite alternate;z-index:1}
+@keyframes beam{to{transform:translateX(35%) rotate(12deg);opacity:.3}}
+.particle{position:absolute;width:3px;height:3px;background:#a5f3fc;border-radius:50%;box-shadow:0 0 10px #67e8f9;animation:particle 9s linear infinite;z-index:2}
+@keyframes particle{to{transform:translate(80px,-160px);opacity:0}}
+#stage{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;pointer-events:none}
+#chamber{position:relative;width:min(60vw,550px);height:min(48vh,420px);min-height:260px;border:2px solid #67e8f988;border-radius:50% / 20%;background:radial-gradient(ellipse,#0e749055,#06142a99 65%,#020817aa);box-shadow:inset 0 0 60px #22d3ee33,0 0 45px #22d3ee33;overflow:hidden;transition:.6s}
+#chamber:before{content:"";position:absolute;inset:8px;border:1px solid #a5f3fc33;border-radius:50% / 20%;pointer-events:none}
+#cells{position:absolute;inset:10%;display:flex;flex-wrap:wrap;align-content:center;align-items:center;justify-content:center;gap:9px}
+.cell{width:var(--cell-size,58px);height:var(--cell-size,58px);border-radius:50%;position:relative;flex-shrink:0;background:radial-gradient(circle at 32% 28%,#d9fffa,#5eead4 25%,#0d9488 65%,#064e3b);border:2px solid #a7f3d0;box-shadow:inset -8px -8px 14px #064e3baa,0 0 18px #2dd4bf88;animation:cellBirth .85s cubic-bezier(.2,1.6,.3,1) both,cellFloat 3s ease-in-out infinite alternate}
+.cell:after{content:"";position:absolute;width:29%;height:29%;border-radius:50%;background:#115e59;left:38%;top:37%;box-shadow:0 0 7px #ccfbf1}
+@keyframes cellBirth{from{transform:scale(.05);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes cellFloat{to{translate:0 -7px}}
+#dna{position:absolute;right:6%;top:15%;font-size:clamp(50px,8vw,100px);opacity:.65;animation:dnaFloat 6s ease-in-out infinite alternate;z-index:2}
+@keyframes dnaFloat{to{transform:translateY(-25px) rotate(12deg)}}
+#hologram{position:absolute;top:7%;right:4%;z-index:5;background:#03182bcc;border:1px solid #67e8f988;border-radius:16px;padding:14px 19px;text-align:center;box-shadow:0 0 25px #06b6d433}
+#cellCount{font-size:clamp(30px,4vw,52px);color:#6ee7b7;font-weight:bold}
+#hologram small{color:#a5d9eb}
+#formulaBox{position:absolute;top:7%;left:4%;z-index:5;padding:15px;background:#03182bdd;border:1px solid #67e8f966;border-radius:14px;font-size:clamp(20px,3vw,32px);color:#fde68a;font-weight:bold}
+#narrator{position:absolute;bottom:17px;left:3%;z-index:6;width:min(590px,94%);background:#031322e9;border:1px solid #67e8f977;border-radius:17px;padding:18px 22px;backdrop-filter:blur(12px);box-shadow:0 15px 35px #0009}
+#narrator h2{color:#67e8f9;font-size:clamp(20px,2.5vw,27px);margin:0 0 8px}
+#narrator p{font-size:clamp(16px,1.8vw,20px);line-height:1.55;margin:0}
+#sceneControls{text-align:center;padding:15px;background:#061424}
+#sceneCounter{color:#93c5fd;margin-bottom:7px}
+#graphPanel{position:absolute;top:18%;right:5%;width:min(38vw,450px);height:240px;background:#020817e8;border:1px solid #67e8f988;border-radius:15px;padding:12px;z-index:4}
+#growthGraph{width:100%;height:100%}
+#alarm{position:absolute;inset:0;background:#ef444422;z-index:4;pointer-events:none;animation:alarmFlash .65s infinite alternate}
+@keyframes alarmFlash{to{background:#ef444455}}
+#alarmText{position:absolute;top:25%;left:50%;transform:translateX(-50%);z-index:5;background:#450a0ae8;border:2px solid #f87171;color:#fecaca;padding:18px;text-align:center;border-radius:15px;font-size:clamp(21px,3vw,35px);font-weight:bold;white-space:nowrap}
+#quiz{max-width:1050px;margin:28px auto;padding:30px;border:1px solid #67e8f955;border-radius:22px;background:linear-gradient(140deg,#0c2540,#06101f)}
+#quiz h2{color:#67e8f9;font-size:30px}
+#question{font-size:22px;line-height:1.6}
+#missionVisual{min-height:180px;background:#020817;border:1px solid #164e63;border-radius:15px;margin:16px 0;padding:20px;text-align:center;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px}
+.numberBubble{min-width:60px;padding:12px;border-radius:12px;background:#134e4a;border:1px solid #5eead4;font-size:23px;color:#ccfbf1;animation:cellBirth .5s both}
+#answer{width:220px;max-width:65%;padding:14px;border:2px solid #67e8f9;border-radius:11px;background:#f0fdfa;color:#082f49;font-size:21px;text-align:center}
+#feedback{font-size:20px;font-weight:bold;min-height:35px;margin:15px 0}
+#solution{background:#020817;border-left:5px solid #facc15;border-radius:12px;padding:20px;font-size:19px;line-height:1.9;margin-top:16px}
+#progress{height:13px;border-radius:20px;background:#164e63;overflow:hidden;margin:15px 0}
+#progressBar{width:0;height:100%;background:linear-gradient(90deg,#14b8a6,#a3e635);transition:.5s}
+#score{color:#fde68a;font-size:20px}
+#finish{max-width:850px;margin:40px auto;padding:45px;text-align:center;background:radial-gradient(circle,#164e63,#06101f);border:1px solid #67e8f9;border-radius:25px;box-shadow:0 0 50px #0891b244}
+#finish h1{font-size:clamp(35px,5vw,60px);color:#86efac}
+#labControls{margin-top:14px;text-align:center}
+#labControls label{margin:0 10px}
+#labControls select{padding:10px;border-radius:10px;font-size:17px;background:#082f49;color:white;border:1px solid #67e8f9}
+@media(max-width:700px){
+#cinema{height:620px}
+#chamber{width:92vw;height:310px;margin-top:-80px}
+#hologram{top:4%;right:3%;padding:8px}
+#formulaBox{top:4%;left:3%;padding:8px;font-size:17px}
+#graphPanel{top:21%;right:3%;width:65vw;height:175px}
+#narrator{bottom:10px;padding:12px}
+#quiz{margin:10px;padding:17px}
+#dna{opacity:.3}
+}
+</style>
+</head>
+<body>
+
+<section id="intro">
+<div class="introBg"></div>
+<div class="introContent">
+<div style="font-size:65px">🧬 🔬 🎬</div>
+<h1>GEOMETRIC<br>PROGRESSION 2050</h1>
+<h2 style="color:#fde68a">ҚҰПИЯ ЗЕРТХАНА</h2>
+<p>2050 жыл. Болашақтың биотехнологиялық зертханасында жасушалар таңғажайып жылдамдықпен көбейе бастады. Олардың құпиясын тек математика аша алады!</p>
+<p style="font-size:15px;color:#a5f3fc">🎥 Кино • 🧬 Анимация • 🎵 Әуен • 📈 График • 🧠 8 миссия</p>
+<button class="gold" onclick="startMovie()" style="font-size:22px;padding:18px 32px">▶ ҒЫЛЫМИ МИССИЯНЫ БАСТАУ</button>
+</div>
+</section>
+
+<div id="app" hidden>
+<header>
+<h1>🧬 GEOMETRIC PROGRESSION: 2050</h1>
+<p>9-сынып • Геометриялық прогрессия • Интерактивті кино-зертхана</p>
+</header>
+<div class="toolbar">
+<button id="musicBtn" onclick="toggleMusic()">🎵 Әуен: қосулы</button>
+<button onclick="toggleFullscreen()">⛶ Толық экран</button>
+<button onclick="restartMovie()">🎬 Киноны қайта көру</button>
+</div>
+
+<section id="cinema">
+<div class="labBg"></div>
+<div class="beam"></div>
+<div id="particles"></div>
+<div id="dna">🧬</div>
+
+<div id="stage">
+<div id="chamber"><div id="cells"></div></div>
+</div>
+
+<div id="formulaBox" hidden>bₙ = b₁ · qⁿ⁻¹</div>
+
+<div id="hologram">
+<small>ЖАСУШАЛАР САНЫ</small>
+<div id="cellCount">1</div>
+<small id="generation">1-кезең</small>
+</div>
+
+<div id="graphPanel" hidden>
+<canvas id="growthGraph" width="600" height="300"></canvas>
+</div>
+
+<div id="alarm" hidden></div>
+<div id="alarmText" hidden>⚠️ ЖҮЙЕ ШЕГІНЕ ЖЕТТІ!</div>
+
+<div id="narrator">
+<h2 id="sceneTitle"></h2>
+<p id="sceneText"></p>
+</div>
+</section>
+
+<div id="sceneControls">
+<div id="sceneCounter"></div>
+<button onclick="previousScene()">◀ Алдыңғы</button>
+<button id="pauseBtn" onclick="togglePause()">⏸ Тоқтату</button>
+<button class="gold" onclick="nextScene()">Келесі ▶</button>
+<button onclick="startQuiz()">🧠 Миссияларға өту</button>
+</div>
+
+<section id="experiment" class="labSection" hidden>
+</section>
+
+<section id="quiz" hidden>
+<h2>🔬 МАТЕМАТИКАЛЫҚ МИССИЯЛАР</h2>
+<div id="score">⭐ Ұпай: <span id="scoreValue">0</span></div>
+<div id="progress"><div id="progressBar"></div></div>
+<h3 id="questionNumber"></h3>
+<p id="question"></p>
+<div id="missionVisual"></div>
+<div style="text-align:center">
+<input id="answer" type="number" step="any" placeholder="Жауабың">
+<button class="gold" onclick="checkAnswer()">✓ Тексеру</button>
+</div>
+<div id="feedback"></div>
+<button onclick="showHint()">💡 Кеңес</button>
+<button onclick="showSolution()">📖 Толық шешімін көрсету</button>
+<div id="solution" hidden></div>
+<div style="text-align:center;margin-top:20px">
+<button id="nextQuestionBtn" class="gold" onclick="nextQuestion()" hidden>Келесі миссия ➜</button>
+</div>
+</section>
+
+<section id="finish" hidden>
+<div style="font-size:80px">🏆 🧬 ✨</div>
+<h1>МИССИЯ ОРЫНДАЛДЫ!</h1>
+<h2>ЗЕРТХАНА ТҰРАҚТАНДЫРЫЛДЫ</h2>
+<p style="font-size:21px">Сен геометриялық прогрессияның құпиясын аштың!</p>
+<h2 id="finalScore"></h2>
+<button class="gold" onclick="restartQuiz()">🔄 Қайта ойнау</button>
+<button onclick="restartMovie()">🎬 Киноны қайта көру</button>
+</section>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+
+/* ================================
+   1. КИНО АТМОСФЕРАСЫ
+================================ */
+for(let i=0;i<75;i++){
+const p=document.createElement("div");
+p.className="particle";
+p.style.left=Math.random()*100+"%";
+p.style.top=Math.random()*100+"%";
+p.style.animationDelay=-Math.random()*10+"s";
+p.style.animationDuration=(5+Math.random()*9)+"s";
+$("particles").appendChild(p);
+}
+
+/* ================================
+   2. ЖАСУШАЛАРДЫҢ АНИМАЦИЯСЫ
+================================ */
+function renderCells(count){
+const holder=$("cells");
+holder.innerHTML="";
+const shown=Math.min(count,64);
+const size=shown<=2?90:shown<=8?65:shown<=16?45:shown<=32?33:25;
+holder.style.setProperty("--cell-size",size+"px");
+
+for(let i=0;i<shown;i++){
+const cell=document.createElement("div");
+cell.className="cell";
+cell.style.animationDelay=(i*0.025)+"s";
+holder.appendChild(cell);
+}
+$("cellCount").textContent=count.toLocaleString("kk-KZ");
+}
+
+function renderGeneration(n,q=2){
+const count=Math.pow(q,n-1);
+renderCells(count);
+$("generation").textContent=n+"-кезең • q = "+q;
+}
+
+/* ================================
+   3. КИНО ӘУЕНІ
+================================ */
+let audioCtx=null;
+let musicTimer=null;
+let musicEnabled=true;
+let musicStep=0;
+
+const melody=[
+261.63,329.63,392,523.25,
+493.88,392,329.63,293.66,
+261.63,349.23,440,523.25,
+587.33,523.25,440,392,
+329.63,392,493.88,659.25,
+587.33,493.88,392,329.63,
+293.66,349.23,392,440,
+392,329.63,261.63,0
+];
+
+function tone(freq,duration=.5,volume=.04,type="sine"){
+if(!audioCtx||!freq)return;
+const t=audioCtx.currentTime;
+const osc=audioCtx.createOscillator();
+const gain=audioCtx.createGain();
+osc.type=type;
+osc.frequency.setValueAtTime(freq,t);
+gain.gain.setValueAtTime(.0001,t);
+gain.gain.exponentialRampToValueAtTime(Math.max(.001,volume),t+.06);
+gain.gain.exponentialRampToValueAtTime(.0001,t+duration);
+osc.connect(gain);
+gain.connect(audioCtx.destination);
+osc.start(t);
+osc.stop(t+duration+.02);
+}
+
+function playMusicStep(){
+const index=musicStep%melody.length;
+tone(melody[index],.55,.045,"sine");
+if(index%4===0){
+tone(melody[index]/2,1.8,.018,"triangle");
+}
+musicStep++;
+}
+
+function startMusic(){
+if(!musicEnabled)return;
+if(!audioCtx){
+audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+}
+audioCtx.resume();
+if(musicTimer)return;
+playMusicStep();
+musicTimer=setInterval(playMusicStep,620);
+}
+
+function stopMusic(){
+clearInterval(musicTimer);
+musicTimer=null;
+if(audioCtx)audioCtx.suspend();
+}
+
+function toggleMusic(){
+musicEnabled=!musicEnabled;
+if(musicEnabled)startMusic();
+else stopMusic();
+$("musicBtn").textContent=musicEnabled?"🎵 Әуен: қосулы":"🔇 Әуен: өшірулі";
+}
+
+function successSound(){
+if(!audioCtx||!musicEnabled)return;
+tone(523.25,.22,.08);
+setTimeout(()=>tone(659.25,.25,.08),150);
+setTimeout(()=>tone(783.99,.5,.08),300);
+}
+
+function errorSound(){
+if(!audioCtx||!musicEnabled)return;
+tone(220,.25,.06,"triangle");
+}
+
+/* ================================
+   4. ГРАФИК
+================================ */
+function drawGrowthGraph(q=2,steps=6){
+const canvas=$("growthGraph");
+const ctx=canvas.getContext("2d");
+const w=canvas.width,h=canvas.height;
+ctx.clearRect(0,0,w,h);
+const L=48,R=w-25,T=20,B=h-42;
+const max=Math.pow(q,steps-1);
+const px=n=>L+(n-1)/(steps-1)*(R-L);
+const py=v=>B-v/max*(B-T);
+
+ctx.strokeStyle="#164e63";
+ctx.lineWidth=1;
+for(let i=0;i<=5;i++){
+const y=T+i*(B-T)/5;
+ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(R,y);ctx.stroke();
+}
+ctx.strokeStyle="#a5f3fc";
+ctx.lineWidth=2;
+ctx.beginPath();ctx.moveTo(L,T);ctx.lineTo(L,B);ctx.lineTo(R,B);ctx.stroke();
+
+ctx.beginPath();
+for(let n=1;n<=steps;n++){
+const x=px(n),y=py(Math.pow(q,n-1));
+if(n===1)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+}
+ctx.strokeStyle="#facc15";
+ctx.lineWidth=3;
+ctx.stroke();
+
+for(let n=1;n<=steps;n++){
+const x=px(n),y=py(Math.pow(q,n-1));
+ctx.beginPath();ctx.arc(x,y,6,0,Math.PI*2);
+ctx.fillStyle="#67e8f9";ctx.fill();
+ctx.fillStyle="#fff";
+ctx.font="15px Arial";
+ctx.fillText(n,x-4,B+23);
+ctx.fillText(String(Math.pow(q,n-1)),x-7,Math.max(15,y-13));
+}
+ctx.fillStyle="#a5f3fc";
+ctx.font="16px Arial";
+ctx.fillText("n",R-5,B+30);
+}
+
+/* ================================
+   5. ФИЛЬМ СЦЕНАРИЙІ
+================================ */
+const scenes=[
+{
+title:"1. 2050 ЖЫЛ. ҚҰПИЯ ЗЕРТХАНА",
+text:"2050 жыл. Болашақтың ғылыми орталығында ерекше тәжірибе басталды. Ғалымдар жасушалардың көбею заңдылығын зерттеп жатыр. Сен осы миссияның басты зерттеушісісің!",
+count:1,duration:9000
+},
+{
+title:"2. БІРІНШІ ЖАСУША",
+text:"Мөлдір камераның ішінде бір жасуша бар. Біздің математикалық моделімізде ол әр кезең сайын екі еселенеді. Не болатынын бақыла!",
+count:1,duration:8000
+},
+{
+title:"3. ЖАСУША ЕКІГЕ БӨЛІНДІ",
+text:"Бір жасушадан екі жасуша пайда болды! Бірінші кезеңде 1, екінші кезеңде 2 жасуша. Бұл — еселік өсудің алғашқы қадамы.",
+count:2,duration:8000
+},
+{
+title:"4. КӨБЕЮ ЖАЛҒАСУДА",
+text:"Енді 2 жасуша 4-ке айналды. Келесі кезеңде олардың саны 8 болады. Әр кезеңде сан алдыңғы саннан екі есе артады!",
+count:4,duration:8000
+},
+{
+title:"5. ГЕОМЕТРИЯЛЫҚ ПРОГРЕССИЯ",
+text:"Экранға қара: 1, 2, 4, 8, 16. Бұл — геометриялық прогрессия. Әрбір келесі мүшені алу үшін алдыңғы мүшені тұрақты q санына көбейтеміз. Біздің жағдайда q = 2.",
+count:16,duration:10000,formula:true
+},
+{
+title:"6. ПРОГРЕССИЯНЫҢ ФОРМУЛАСЫ",
+text:"Геометриялық прогрессияның n-ші мүшесі: bₙ = b₁ · qⁿ⁻¹. Мысалы, бесінші мүшені табайық: 1 · 2⁴ = 16. Осы формула арқылы кез келген кезеңдегі санды анықтай аламыз.",
+count:16,duration:11000,formula:true
+},
+{
+title:"7. ӨСУ ГРАФИГІ",
+text:"Жасушалар саны 1, 2, 4, 8, 16, 32 болып өседі. Графиктегі нүктелер барған сайын жоғары көтеріледі. Бұл — геометриялық прогрессиядағы еселік өсудің көрінісі!",
+count:32,duration:10000,formula:true,graph:true
+},
+{
+title:"8. ҒЫЛЫМИ ДАБЫЛ!",
+text:"Назар аудар! Модельдегі жасушалар саны жылдам артып жатыр. Жүйе шегіне жетті! Зертхананы тұрақтандыру үшін геометриялық прогрессия есептерін дұрыс шешу қажет!",
+count:64,duration:10000,formula:true,alarm:true
+},
+{
+title:"9. СЕНІҢ МИССИЯҢ",
+text:"Сен енді зертхананың бас математигісің! Алда 8 тапсырма күтіп тұр. Әр дұрыс жауап зертхананың бір бөлігін тұрақтандырады. Барлық миссияны орында!",
+count:16,duration:9000,formula:true
+}
+];
+
+let sceneIndex=0;
+let movieTimer=null;
+let paused=false;
+
+function startMovie(){
+$("intro").hidden=true;
+$("app").hidden=false;
+$("cinema").hidden=false;
+$("sceneControls").hidden=false;
+$("quiz").hidden=true;
+$("finish").hidden=true;
+sceneIndex=0;
+paused=false;
+startMusic();
+renderScene();
+}
+
+function renderScene(){
+clearTimeout(movieTimer);
+const s=scenes[sceneIndex];
+$("sceneTitle").textContent=s.title;
+$("sceneText").textContent=s.text;
+$("sceneCounter").textContent="🎞️ Көрініс "+(sceneIndex+1)+" / "+scenes.length;
+$("formulaBox").hidden=!s.formula;
+$("graphPanel").hidden=!s.graph;
+$("alarm").hidden=!s.alarm;
+$("alarmText").hidden=!s.alarm;
+$("chamber").style.opacity=s.graph?".35":"1";
+renderCells(s.count);
+$("generation").textContent="Модель • q = 2";
+if(s.graph)drawGrowthGraph();
+$("pauseBtn").textContent=paused?"▶ Жалғастыру":"⏸ Тоқтату";
+if(!paused){
+movieTimer=setTimeout(()=>{
+if(sceneIndex<scenes.length-1){
+sceneIndex++;
+renderScene();
+}else{
+startQuiz();
+}
+},s.duration);
+}
+}
+
+function nextScene(){
+if(sceneIndex<scenes.length-1){
+sceneIndex++;paused=false;renderScene();
+}else startQuiz();
+}
+
+function previousScene(){
+sceneIndex=Math.max(0,sceneIndex-1);
+paused=false;renderScene();
+}
+
+function togglePause(){
+paused=!paused;
+renderScene();
+}
+
+function restartMovie(){
+clearTimeout(movieTimer);
+$("app").hidden=false;
+$("intro").hidden=true;
+$("cinema").hidden=false;
+$("sceneControls").hidden=false;
+$("quiz").hidden=true;
+$("finish").hidden=true;
+sceneIndex=0;paused=false;
+startMusic();renderScene();
+window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* ================================
+   6. СЕГІЗ МАТЕМАТИКАЛЫҚ МИССИЯ
+================================ */
+const questions=[
+{
+text:"Бірінші кезеңде 1 жасуша бар. Әр кезеңде саны екі еселенеді. 5-кезеңде неше жасуша болады?",
+sequence:[1,2,4,8,"?"],
+answer:16,
+hint:"bₙ = b₁ · qⁿ⁻¹ формуласын қолдан. b₁ = 1, q = 2, n = 5.",
+solution:"Берілгені: b₁ = 1, q = 2, n = 5.<br>Формула: bₙ = b₁ · qⁿ⁻¹.<br>b₅ = 1 · 2⁴ = 1 · 16 = 16.<br>Жауабы: 16 жасуша."
+},
+{
+text:"Геометриялық прогрессия: 3, 6, 12, 24, ... Келесі мүшесін тап.",
+sequence:[3,6,12,24,"?"],
+answer:48,
+hint:"Еселік коэффициент q = 6 ÷ 3 = 2.",
+solution:"q = 6 ÷ 3 = 2.<br>b₅ = b₄ · q = 24 · 2 = 48.<br>Жауабы: 48."
+},
+{
+text:"Бірінші кезеңде 2 жасуша бар. Әр кезеңде саны 3 есе көбейеді. 4-кезеңде қанша жасуша болады?",
+sequence:[2,6,18,"?"],
+answer:54,
+hint:"b₁ = 2, q = 3, n = 4.",
+solution:"b₄ = b₁ · q³.<br>b₄ = 2 · 3³ = 2 · 27 = 54.<br>Жауабы: 54 жасуша."
+},
+{
+text:"Прогрессияның алғашқы мүшелері: 5, 15, 45, ... Еселік коэффициентін тап.",
+sequence:[5,15,45,"?"],
+answer:3,
+hint:"q = b₂ ÷ b₁.",
+solution:"q = b₂ ÷ b₁ = 15 ÷ 5 = 3.<br>Тексеру: 45 ÷ 15 = 3.<br>Жауабы: q = 3."
+},
+{
+text:"Бірінші мүше 4, еселік коэффициент 2. Прогрессияның 6-мүшесін тап.",
+sequence:[4,8,16,32,64,"?"],
+answer:128,
+hint:"b₆ = 4 · 2⁵.",
+solution:"b₆ = b₁ · q⁵.<br>b₆ = 4 · 2⁵ = 4 · 32 = 128.<br>Жауабы: 128."
+},
+{
+text:"Геометриялық прогрессия: 81, 27, 9, 3, ... Келесі мүшесін тап.",
+sequence:[81,27,9,3,"?"],
+answer:1,
+hint:"Бұл кемімелі прогрессия. q = 27 ÷ 81.",
+solution:"q = 27 ÷ 81 = 1/3.<br>b₅ = 3 · 1/3 = 1.<br>Жауабы: 1."
+},
+{
+text:"Геометриялық прогрессияның алғашқы төрт мүшесі 2, 4, 8, 16. Олардың қосындысын тап.",
+sequence:[2,4,8,16],
+answer:30,
+hint:"S₄ = b₁(q⁴ − 1)/(q − 1), мұнда q = 2.",
+solution:"S₄ = 2(2⁴ − 1)/(2 − 1).<br>S₄ = 2(16 − 1)/1 = 30.<br>Тексеру: 2 + 4 + 8 + 16 = 30.<br>Жауабы: 30."
+},
+{
+text:"Финалдық миссия! Алғашқы кезеңде 3 жасуша бар. Әр кезеңде саны екі еселенеді. 7-кезеңдегі жасушалар санын тап.",
+sequence:[3,6,12,24,48,96,"?"],
+answer:192,
+hint:"b₇ = 3 · 2⁶.",
+solution:"Берілгені: b₁ = 3, q = 2, n = 7.<br>b₇ = b₁ · q⁶.<br>b₇ = 3 · 2⁶ = 3 · 64 = 192.<br>Жауабы: 192 жасуша."
+}
+];
+
+let currentQuestion=0;
+let score=0;
+let answered=false;
+
+function startQuiz(){
+clearTimeout(movieTimer);
+$("cinema").hidden=true;
+$("sceneControls").hidden=true;
+$("quiz").hidden=false;
+$("finish").hidden=true;
+currentQuestion=0;score=0;
+showQuestion();
+$("quiz").scrollIntoView({behavior:"smooth"});
+}
+
+function showQuestion(){
+answered=false;
+const q=questions[currentQuestion];
+$("questionNumber").textContent="🔐 МИССИЯ "+(currentQuestion+1)+" / "+questions.length;
+$("question").textContent=q.text;
+$("answer").value="";
+$("answer").disabled=false;
+$("feedback").textContent="";
+$("solution").hidden=true;
+$("nextQuestionBtn").hidden=true;
+$("scoreValue").textContent=score;
+$("progressBar").style.width=(currentQuestion/questions.length*100)+"%";
+
+$("missionVisual").innerHTML="";
+q.sequence.forEach((value,i)=>{
+const bubble=document.createElement("div");
+bubble.className="numberBubble";
+bubble.style.animationDelay=i*.1+"s";
+bubble.textContent=value;
+$("missionVisual").appendChild(bubble);
+if(i<q.sequence.length-1){
+const arrow=document.createElement("span");
+arrow.textContent="→";
+arrow.style.fontSize="23px";
+arrow.style.color="#67e8f9";
+$("missionVisual").appendChild(arrow);
+}
+});
+$("answer").focus();
+}
+
+function checkAnswer(){
+if(answered)return;
+const raw=$("answer").value.trim();
+if(raw===""){
+$("feedback").textContent="✏️ Алдымен жауабыңды енгіз!";
+$("feedback").style.color="#fde68a";
+return;
+}
+const value=Number(raw);
+const q=questions[currentQuestion];
+if(Number.isFinite(value)&&Math.abs(value-q.answer)<.00001){
+answered=true;
+score+=10;
+$("scoreValue").textContent=score;
+$("answer").disabled=true;
+$("feedback").textContent="🌟 ДҰРЫС! ЗЕРТХАНА БӨЛІГІ ТҰРАҚТАНДЫ! +10 ҰПАЙ";
+$("feedback").style.color="#4ade80";
+$("nextQuestionBtn").hidden=false;
+$("progressBar").style.width=((currentQuestion+1)/questions.length*100)+"%";
+successSound();
+
+const bubbles=$("missionVisual").querySelectorAll(".numberBubble");
+const last=bubbles[bubbles.length-1];
+if(last&&last.textContent==="?"){
+last.textContent=q.answer;
+last.style.background="#166534";
+}
+}else{
+$("feedback").textContent="❌ Жауап дұрыс емес. Кеңесті қарап, қайта есепте!";
+$("feedback").style.color="#f87171";
+errorSound();
+}
+}
+
+function showHint(){
+$("feedback").textContent="💡 "+questions[currentQuestion].hint;
+$("feedback").style.color="#fde68a";
+}
+
+function showSolution(){
+const q=questions[currentQuestion];
+$("solution").hidden=false;
+$("solution").innerHTML="<b style='color:#fde68a'>📖 ТОЛЫҚ ШЕШІМІ:</b><br>"+q.solution;
+}
+
+function nextQuestion(){
+if(!answered)return;
+currentQuestion++;
+if(currentQuestion>=questions.length){
+finishQuiz();
+}else showQuestion();
+}
+
+function finishQuiz(){
+$("quiz").hidden=true;
+$("finish").hidden=false;
+$("finalScore").textContent="⭐ "+score+" / "+(questions.length*10)+" ұпай";
+$("finish").scrollIntoView({behavior:"smooth"});
+successSound();
+}
+
+function restartQuiz(){
+currentQuestion=0;score=0;
+$("finish").hidden=true;
+$("quiz").hidden=false;
+showQuestion();
+}
+
+$("answer").addEventListener("keydown",e=>{
+if(e.key==="Enter"){
+if(answered)nextQuestion();
+else checkAnswer();
+}
+});
+
+/* ================================
+   7. ПРОЕКТОР РЕЖИМІ
+================================ */
+function toggleFullscreen(){
+if(!document.fullscreenElement){
+document.documentElement.requestFullscreen?.();
+}else{
+document.exitFullscreen?.();
+}
+}
+</script>
+</body>
+</html>

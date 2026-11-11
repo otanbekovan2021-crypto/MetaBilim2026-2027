@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Координаталар бойынша Дельфин</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Нүктелер бойынша Дельфин салу</h1>
+        
+        <canvas id="graphCanvas"></canvas>
+        
+        <div class="controls">
+            <button onclick="drawGrid()">1. Торды сызу</button>
+            <button onclick="drawDolphin()">2. Дельфинді салу</button>
+            <button onclick="clearCanvas()">Тазалау</button>
+        </div>
+        
+        <p class="info">Нүктелер: (12, 2), (5, 5), (2, 5), ..., (7.5, 3)</p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('graphCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Кенеп өлшемін баптау
+        const size = 600; // Кенептің ені мен биіктігі
+        canvas.width = size;
+        canvas.height = size;
+
+        // Координаталық жүйенің параметрлері
+        const scale = 20; // Әрбір координаталық бірліктің пиксельдегі өлшемі (20px = 1 бірлік)
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+
+        // 1. Торды және осьтерді сызу функциясы
+        function drawGrid() {
+            clearCanvas();
+            
+            ctx.strokeStyle = '#e0e0e0'; // Тор сызықтарының түсі
+            ctx.lineWidth = 0.5;
+
+            // Көлденең тор
+            for (let y = 0; y <= canvas.height; y += scale) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+
+            // Тік тор
+            for (let x = 0; x <= canvas.width; x += scale) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+
+            // Негізгі осьтер (X және Y)
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+
+            // X осі
+            ctx.beginPath();
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(canvas.width, centerY);
+            ctx.stroke();
+
+            // Y осі
+            ctx.beginPath();
+            ctx.moveTo(centerX, 0);
+            ctx.lineTo(centerX, canvas.height);
+            ctx.stroke();
+            
+            // Осьтерді белгілеу
+            ctx.fillStyle = '#333';
+            ctx.font = '14px Arial';
+            ctx.fillText('X', canvas.width - 15, centerY + 20);
+            ctx.fillText('Y', centerX - 20, 15);
+        }
+
+        // 2. Дельфинді сызу функциясы
+        function drawDolphin() {
+            // Егер тор салынбаса, оны сал
+            if (ctx.lineWidth !== 0.5) drawGrid(); 
+
+            // Суреттегі барлық координаттар
+            const points = [
+                {x: 12, y: 2}, {x: 5, y: 5}, {x: 2, y: 5}, {x: -3, y: 7},
+                {x: -1, y: 4.5}, {x: -6, y: 4}, {x: -11, y: -1}, {x: -7, y: -5},
+                {x: -1, y: -7}, {x: 3, y: -8}, {x: 5, y: -11}, {x: 4, y: -7},
+                {x: 6, y: -5}, {x: 3, y: -6}, {x: 2, y: -6}, {x: -1, y: -5},
+                {x: -6, y: -2}, {x: 0, y: -1}, {x: -1, y: -3}, {x: 2, y: -2},
+                {x: 3, y: -1}, {x: 5, y: -1}, {x: 4, y: 0}, {x: 8, y: 0},
+                {x: 9, y: 1}, {x: 12, y: 2} // Сөңғы нүкте басына қайтады
+            ];
+
+            // Дельфинді сызу стилі
+            ctx.strokeStyle = '#007bff'; // Көк түс
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+
+            // Координаттарды пиксельге айналдыру және сызу
+            points.forEach((point, index) => {
+                const pxX = centerX + point.x * scale;
+                // Y осін төменнен жоғарыға қарату (Canvas-та ол жоғарыдан төмен)
+                const pxY = centerY - point.y * scale; 
+
+                if (index === 0) {
+                    ctx.moveTo(pxX, pxY); // Бірінші нүктеге барады
+                } else {
+                    ctx.lineTo(pxX, pxY); // Келесі нүктеге сызық тартады
+                }
+            });
+
+            ctx.stroke(); // Сызықтарды көрсетеді
+            
+            // Көзді салу (ерекше нүкте)
+            const eyeX = centerX + 7.5 * scale;
+            const eyeY = centerY - 3 * scale;
+            ctx.fillStyle = '#007bff';
+            ctx.beginPath();
+            ctx.arc(eyeX, eyeY, 5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Кенепті тазалау
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MetaBilim — Құрылыс алаңы</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family:"Segoe UI",Arial,sans-serif;
+    overflow:hidden;
+    background:#87ceeb;
+}
+
+.game{
+    width:100vw;
+    height:100vh;
+    position:relative;
+    overflow:hidden;
+    background:
+        linear-gradient(
+            to bottom,
+            #68c7ff 0%,
+            #b9ecff 58%,
+            #75bd57 59%,
+            #3e8d3d 100%
+        );
+}
+
+/* КҮН */
+.sun{
+    position:absolute;
+    width:110px;
+    height:110px;
+    border-radius:50%;
+    background:#ffe45c;
+    right:8%;
+    top:7%;
+    box-shadow:0 0 50px #fff2a8;
+}
+
+/* БҰЛТ */
+.cloud{
+    position:absolute;
+    width:160px;
+    height:45px;
+    background:white;
+    border-radius:50px;
+    opacity:.85;
+    animation:cloudMove 35s linear infinite;
+}
+
+.cloud:before,
+.cloud:after{
+    content:"";
+    position:absolute;
+    background:white;
+    border-radius:50%;
+}
+
+.cloud:before{
+    width:70px;
+    height:70px;
+    left:25px;
+    top:-30px;
+}
+
+.cloud:after{
+    width:85px;
+    height:85px;
+    right:20px;
+    top:-40px;
+}
+
+.cloud1{
+    top:15%;
+    left:-200px;
+}
+
+.cloud2{
+    top:28%;
+    left:-500px;
+    transform:scale(.7);
+    animation-delay:12s;
+}
+
+@keyframes cloudMove{
+    from{left:-250px}
+    to{left:110%}
+}
+
+/* ҚАЛА */
+.city{
+    position:absolute;
+    bottom:42%;
+    left:0;
+    width:100%;
+    height:120px;
+    display:flex;
+    align-items:end;
+    gap:15px;
+    opacity:.35;
+}
+
+.building{
+    width:70px;
+    background:#64748b;
+    border-radius:4px 4px 0 0;
+}
+
+.b1{height:80px}
+.b2{height:110px}
+.b3{height:65px}
+.b4{height:95px}
+.b5{height:75px}
+
+/* ЖЕР */
+.ground{
+    position:absolute;
+    bottom:0;
+    width:100%;
+    height:43%;
+    background:
+        repeating-linear-gradient(
+            45deg,
+            #c28b4b 0,
+            #c28b4b 18px,
+            #b77d3d 18px,
+            #b77d3d 36px
+        );
+}
+
+/* ЖОЛ */
+.road{
+    position:absolute;
+    bottom:0;
+    left:40%;
+    width:22%;
+    height:43%;
+    background:#59616b;
+    transform:skewX(-8deg);
+}
+
+.roadLine{
+    position:absolute;
+    height:10px;
+    width:55px;
+    background:#f8d34f;
+    left:50%;
+    transform:translateX(-50%);
+}
+
+.r1{top:15%}
+.r2{top:38%}
+.r3{top:61%}
+.r4{top:84%}
+
+/* ҮЙ ЖӘНЕ ОНЫҢ БӨЛІКТЕРІ (КЕЗЕҢДЕР БОЙЫНША ПАЙДА БОЛУЫ) */
+.house{
+    position:absolute;
+    left:58%;
+    bottom:16%;
+    width:300px;
+    height:270px;
+}
+
+/* БАРЛЫҚ ЭЛЕМЕНТТЕР БАСЫНДА ЖАСЫРУЛЫ */
+.foundation, .wall, .roof, .window, .door {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+    transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+}
+
+.foundation {
+    position: absolute;
+    bottom: -10px;
+    left: 10px;
+    width: 280px;
+    height: 20px;
+    background: #475569;
+    border: 3px solid #1e293b;
+    border-radius: 4px;
+    box-shadow: 0 8px 12px rgba(0,0,0,0.3);
+}
+
+.wall{
+    position:absolute;
+    bottom:10px;
+    left:20px;
+    width:260px;
+    height:180px;
+    background:#e9b56d;
+    border:6px solid #8b572a;
+    box-shadow:10px 12px 0 rgba(0,0,0,.2);
+}
+
+.brick{
+    position:absolute;
+    width:100%;
+    height:2px;
+    background:#b8793d;
+}
+
+.br1{top:45px}
+.br2{top:90px}
+.br3{top:135px}
+
+.roof{
+    position:absolute;
+    left:0;
+    top:-5px;
+    width:300px;
+    height:100px;
+    background:#b94b38;
+    clip-path:polygon(50% 0,100% 100%,0 100%);
+    border:5px solid #803225;
+}
+
+.window{
+    position:absolute;
+    width:60px;
+    height:70px;
+    background:#7dd3fc;
+    border:6px solid #754c28;
+    top:55px;
+    left:55px;
+}
+
+.window:before{
+    content:"";
+    position:absolute;
+    width:5px;
+    height:100%;
+    background:#754c28;
+    left:50%;
+    transform: translateX(-50%);
+}
+
+.window:after{
+    content:"";
+    position:absolute;
+    width:100%;
+    height:5px;
+    background:#754c28;
+    top:50%;
+    transform: translateY(-50%);
+}
+
+.door{
+    position:absolute;
+    width:55px;
+    height:100px;
+    bottom:0;
+    right:55px;
+    background:#754c28;
+    border:5px solid #51341c;
+}
+
+/* КӨРІНЕТІН СИНФ (КЛАСС) */
+.part-visible {
+    opacity: 1 !important;
+    transform: translateY(0) scale(1) !important;
+}
+
+/* КРАН */
+.crane{
+    position:absolute;
+    left:8%;
+    bottom:30%;
+    width:250px;
+    height:300px;
+}
+
+.craneTower{
+    position:absolute;
+    bottom:0;
+    left:20px;
+    width:25px;
+    height:250px;
+    background:#facc15;
+    border:4px solid #a16207;
+}
+
+.craneArm{
+    position:absolute;
+    top:0;
+    left:0;
+    width:230px;
+    height:18px;
+    background:#facc15;
+    border:4px solid #a16207;
+}
+
+.cable{
+    position:absolute;
+    top:18px;
+    left:175px;
+    width:4px;
+    height:110px;
+    background:#334155;
+}
+
+.hook{
+    position:absolute;
+    top:125px;
+    left:165px;
+    font-size:35px;
+}
+
+/* ҚҰРЫЛЫСШЫ */
+.worker{
+    position:absolute;
+    z-index:40;
+    left:28%;
+    bottom:17%;
+    width:110px;
+    text-align:center;
+    animation:workerMove 3s ease-in-out infinite;
+}
+
+@keyframes workerMove{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-6px)}
+}
+
+.helmet{
+    width:65px;
+    height:35px;
+    margin:auto;
+    background:#facc15;
+    border-radius:40px 40px 10px 10px;
+    border:4px solid #a16207;
+}
+
+.head{
+    width:55px;
+    height:55px;
+    background:#f5c9a5;
+    border-radius:50%;
+    margin:-5px auto 0;
+    border:3px solid #7c4a2b;
+}
+
+.body{
+    width:70px;
+    height:90px;
+    margin:auto;
+    background:#2563eb;
+    border-radius:20px 20px 8px 8px;
+}
+
+/* ТАҚТА */
+.board{
+    position:absolute;
+    z-index:30;
+    left:4%;
+    bottom:9%;
+    width:270px;
+    padding:18px;
+    background:#783f1d;
+    border:8px solid #51250e;
+    border-radius:10px;
+    color:white;
+    box-shadow:8px 10px 0 rgba(0,0,0,.3);
+}
+
+.board h2{
+    color:#facc15;
+    font-size:19px;
+    margin-bottom:8px;
+}
+
+.board p{
+    font-size:14px;
+    line-height:1.4;
+}
+
+/* HUD */
+.hud{
+    position:absolute;
+    z-index:50;
+    top:15px;
+    left:50%;
+    transform:translateX(-50%);
+    width:min(1000px,94%);
+    padding:12px 20px;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    background:rgba(15,23,42,.88);
+    color:white;
+
+    border-radius:18px;
+    border:2px solid rgba(255,255,255,.3);
+}
+
+.logo{
+    font-weight:900;
+    color:#facc15;
+}
+
+.stats{
+    display:flex;
+    gap:20px;
+    font-weight:bold;
+    align-items:center;
+}
+
+.sound-btn {
+    background: #334155;
+    border: 1px solid #475569;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.progress{
+    position:absolute;
+    bottom:-7px;
+    left:2%;
+    width:96%;
+    height:7px;
+    background:#334155;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.progressFill{
+    width:0%;
+    height:100%;
+    background:#22c55e;
+    transition:.5s;
+}
+
+/* БАСТАУ */
+.start{
+    position:fixed;
+    inset:0;
+    z-index:1000;
+    background:rgba(2,6,23,.9);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.startCard{
+    width:min(600px,90%);
+    padding:40px;
+    text-align:center;
+    color:white;
+    background:#172554;
+    border:3px solid #38bdf8;
+    border-radius:30px;
+}
+
+.startCard h1{
+    color:#facc15;
+    margin-bottom:15px;
+}
+
+.startCard button{
+    margin-top:25px;
+    padding:15px 40px;
+    border:0;
+    border-radius:15px;
+    background:#22c55e;
+    color:white;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+/* МОДАЛКА */
+.modal{
+    position:fixed;
+    inset:0;
+    z-index:200;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,.7);
+    backdrop-filter:blur(6px);
+}
+
+.modal.show{
+    display:flex;
+}
+
+.card{
+    width:min(650px,94%);
+    padding:30px;
+    background:#0f172a;
+    color:white;
+    border:3px solid #facc15;
+    border-radius:25px;
+    box-shadow:0 30px 80px rgba(0,0,0,.7);
+    animation:pop .35s ease;
+}
+
+@keyframes pop{
+    from{
+        transform:scale(.7);
+        opacity:0;
+    }
+    to{
+        transform:scale(1);
+        opacity:1;
+    }
+}
+
+.card h2{
+    color:#facc15;
+    margin-bottom:12px;
+}
+
+.situation{
+    padding:15px;
+    background:#1e293b;
+    border-radius:15px;
+    line-height:1.6;
+    margin:15px 0;
+}
+
+.formula{
+    text-align:center;
+    font-size:30px;
+    font-weight:900;
+    margin:20px;
+    color:#38bdf8;
+}
+
+.answer{
+    width:100%;
+    padding:15px;
+    font-size:19px;
+    border-radius:12px;
+    border:2px solid #475569;
+    background:#020617;
+    color:white;
+}
+
+.answer:focus{
+    border-color:#38bdf8;
+    outline:none;
+}
+
+.check{
+    width:100%;
+    margin-top:12px;
+    padding:15px;
+    border:0;
+    border-radius:12px;
+    background:#22c55e;
+    color:white;
+    font-size:17px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.feedback{
+    text-align:center;
+    min-height:25px;
+    margin-top:12px;
+    font-weight:bold;
+}
+
+/* СОҢЫ */
+.finish{
+    position:fixed;
+    inset:0;
+    z-index:500;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(2,6,23,.85);
+}
+
+.finish.show{
+    display:flex;
+}
+
+.finishCard{
+    text-align:center;
+    padding:40px;
+    background:#172554;
+    border:3px solid #facc15;
+    border-radius:30px;
+    color:white;
+}
+
+.finishCard h1{
+    color:#facc15;
+    margin-bottom:15px;
+}
+
+.finishCard button{
+    margin-top:20px;
+    padding:14px 30px;
+    border:0;
+    border-radius:12px;
+    background:#22c55e;
+    color:white;
+    font-weight:bold;
+}
+
+@media(max-width:700px){
+
+    .hud{
+        font-size:12px;
+    }
+
+    .stats{
+        gap:8px;
+    }
+
+    .house{
+        transform:scale(.65);
+        transform-origin:bottom right;
+        right:0;
+        left:auto;
+    }
+
+    .crane{
+        transform:scale(.6);
+        transform-origin:bottom left;
+    }
+
+    .worker{
+        left:30%;
+        transform:scale(.7);
+    }
+
+    .board{
+        width:210px;
+        font-size:11px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="game">
+
+    <div class="sun"></div>
+
+    <div class="cloud cloud1"></div>
+    <div class="cloud cloud2"></div>
+
+    <div class="city">
+        <div class="building b1"></div>
+        <div class="building b2"></div>
+        <div class="building b3"></div>
+        <div class="building b4"></div>
+        <div class="building b5"></div>
+    </div>
+
+    <div class="ground"></div>
+
+    <div class="road">
+        <div class="roadLine r1"></div>
+        <div class="roadLine r2"></div>
+        <div class="roadLine r3"></div>
+        <div class="roadLine r4"></div>
+    </div>
+
+    <div class="crane">
+        <div class="craneTower"></div>
+        <div class="craneArm"></div>
+        <div class="cable"></div>
+        <div class="hook">🪝</div>
+    </div>
+
+    <!-- ҮЙ БӨЛІКТЕРІ БӨЛЕК ҚҰРЫЛҒАН -->
+    <div class="house" id="house">
+
+        <div class="foundation" id="part-0"></div>
+
+        <div class="wall" id="part-1">
+            <div class="brick br1"></div>
+            <div class="brick br2"></div>
+            <div class="brick br3"></div>
+            <div class="door" id="part-2"></div>
+            <div class="window" id="part-3"></div>
+        </div>
+
+        <div class="roof" id="part-4"></div>
+
+    </div>
+
+    <div class="worker">
+
+        <div class="helmet"></div>
+        <div class="head"></div>
+        <div class="body"></div>
+
+    </div>
+
+    <div class="board">
+
+        <h2>🏗️ Құрылыс алаңы</h2>
+
+        <p id="boardText">
+            Сәлем! Мен үй салып жатырмын.
+            Маған математикалық көмек керек!
+        </p>
+
+    </div>
+
+    <div class="hud">
+
+        <div class="logo">
+            🏗️ MetaBilim
+        </div>
+
+        <div>
+            Кезең:
+            <b id="stage">1</b>/5
+        </div>
+
+        <div class="stats">
+            ⭐ <span id="score">0</span>
+            <button class="sound-btn" onclick="toggleMute()" id="soundBtn">🔊 Дыбыс</button>
+        </div>
+
+        <div class="progress">
+            <div
+                class="progressFill"
+                id="progress">
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- БАСТАУ -->
+
+<div class="start" id="start">
+
+    <div class="startCard">
+
+        <h1>🏗️ Құрылыс алаңына қош келдің!</h1>
+
+        <p>
+            Бір құрылысшы жаңа үй салып жатыр.
+            Бірақ әр құрылыс кезеңінде
+            математикалық мәселе туындайды.
+        </p>
+
+        <br>
+
+        <p>
+            Қысқаша көбейту формулаларын қолданып,
+            үйді кезең-кезеңмен тұрғызуға көмектес!
+        </p>
+
+        <button onclick="startGame()">
+            🚧 Құрылысқа кірісу
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- ЕСЕП -->
+
+<div class="modal" id="modal">
+
+    <div class="card">
+
+        <h2 id="title"></h2>
+
+        <div
+            class="situation"
+            id="situation">
+        </div>
+
+        <div
+            class="formula"
+            id="formula">
+        </div>
+
+        <input
+            class="answer"
+            id="answer"
+            placeholder="Жауабыңды енгіз..."
+            autocomplete="off"
+        >
+
+        <button
+            class="check"
+            onclick="checkAnswer()">
+            🔨 Тексеру
+        </button>
+
+        <div
+            class="feedback"
+            id="feedback">
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- СОҢЫ -->
+
+<div class="finish" id="finish">
+
+    <div class="finishCard">
+
+        <h1>🏠 ҮЙ ТОЛЫҚТАЙ ДАЙЫН!</h1>
+
+        <p>
+            Керемет! Сен барлық құрылыс кезеңінен өтіп, үйді тұрғыздың!
+        </p>
+
+        <br>
+
+        <h2>
+            ⭐ Ұпай:
+            <span id="finalScore">0</span>
+        </h2>
+
+        <br>
+
+        <p>
+            Қысқаша көбейту формулаларын
+            өмірлік жағдайда қолдандың!
+        </p>
+
+        <button onclick="location.reload()">
+            🔄 Қайта ойнау
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   СИНТЕЗДЕЛГЕН ДЫБЫСТАР ЖӘНЕ МЕЛОДИЯ (WEB AUDIO API)
+===================================================== */
+
+let audioCtx = null;
+let isMuted = false;
+let bgmInterval = null;
+
+function initAudio() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+}
+
+function toggleMute() {
+    isMuted = !isMuted;
+    document.getElementById("soundBtn").innerText = isMuted ? "🔇 Дыбыс" : "🔊 Дыбыс";
+}
+
+// Дұрыс жауап дыбысы (Соққы + Дың)
+function playCorrectSound() {
+    if (isMuted || !audioCtx) return;
+
+    // Балға соққысы
+    const osc1 = audioCtx.createOscillator();
+    const gain1 = audioCtx.createGain();
+    osc1.type = 'triangle';
+    osc1.frequency.setValueAtTime(120, audioCtx.currentTime);
+    osc1.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.15);
+    gain1.gain.setValueAtTime(0.8, audioCtx.currentTime);
+    gain1.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+    osc1.connect(gain1);
+    gain1.connect(audioCtx.destination);
+    osc1.start();
+    osc1.stop(audioCtx.currentTime + 0.15);
+
+    // Сәттілік нотасы
+    setTimeout(() => {
+        if (isMuted) return;
+        const osc2 = audioCtx.createOscillator();
+        const gain2 = audioCtx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+        osc2.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+        gain2.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+        osc2.connect(gain2);
+        gain2.connect(audioCtx.destination);
+        osc2.start();
+        osc2.stop(audioCtx.currentTime + 0.3);
+    }, 100);
+}
+
+// Қате жауап дыбысы
+function playWrongSound() {
+    if (isMuted || !audioCtx) return;
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+    osc.frequency.linearRampToValueAtTime(80, audioCtx.currentTime + 0.3);
+    gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.3);
+}
+
+// Жеңіс фанфары
+function playWinSound() {
+    if (isMuted || !audioCtx) return;
+
+    const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99];
+    notes.forEach((freq, index) => {
+        setTimeout(() => {
+            if (isMuted) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.4);
+        }, index * 120);
+    });
+}
+
+// Фондық жеңіл мелодия
+function startBGM() {
+    if (bgmInterval) return;
+
+    const notes = [261.63, 329.63, 392.00, 329.63, 293.66, 349.23, 440.00, 349.23];
+    let noteIdx = 0;
+
+    bgmInterval = setInterval(() => {
+        if (isMuted || !audioCtx) return;
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(notes[noteIdx], audioCtx.currentTime);
+
+        gain.gain.setValueAtTime(0.04, audioCtx.currentTime); // Өте бәсең фонограмма
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.4);
+
+        noteIdx = (noteIdx + 1) % notes.length;
+    }, 500);
+}
+
+
+/* =====================================================
+   ДЕҢГЕЙЛЕР
+===================================================== */
+
+const levels = [
+
+    {
+        title:"🏗️ 1-кезең — Іргетас кую",
+
+        situation:
+        "Құрылысшы үйдің шаршы тәрізді іргетасын жоспарлап жатыр. Бір қабырғасының ұзындығы (x + 3) метр. Іргетастың ауданын табуға көмектес.",
+
+        formula:
+        "(x + 3)² = ?",
+
+        answers:[
+            "x²+6x+9",
+            "x^2+6x+9",
+            "x2+6x+9"
+        ],
+        partId: "part-0",
+        boardMsg: "Керемет! Мықты іргетас құйылды!"
+    },
+
+    {
+        title:"🪵 2-кезең — Қабырға тұрғызу",
+
+        situation:
+        "Құрылысшының қолында қабырғасы (a − 4) метр болатын шаршы тақтайлар бар. Тақтайдың ауданын есептеп, қабырғаны тұрғызу керек.",
+
+        formula:
+        "(a − 4)² = ?",
+
+        answers:[
+            "a²-8a+16",
+            "a^2-8a+16",
+            "a2-8a+16"
+        ],
+        partId: "part-1",
+        boardMsg: "Тамаша! Қабырғалар көтерілді!"
+    },
+
+    {
+        title:"🚪 3-кезең — Есік орнату",
+
+        situation:
+        "Үйге кіретін ойық пен есік өлшемдері берілген. Екі ауданның айырмасын көбейткіштерге жіктеу арқылы есікті орынына қой.",
+
+        formula:
+        "x² − 25 = ?",
+
+        answers:[
+            "(x-5)(x+5)",
+            "(x+5)(x-5)",
+            "(x−5)(x+5)",
+            "(x+5)(x−5)"
+        ],
+        partId: "part-2",
+        boardMsg: "Тамаша! Берік есік орнатылды!"
+    },
+
+    {
+        title:"🪟 4-кезең — Терезе салу",
+
+        situation:
+        "Терезенің ұзындығы (x + 2), ал ені (x − 2) метр. Терезенің ауданын ықшам түрде жазып, терезе сал.",
+
+        formula:
+        "(x + 2)(x − 2) = ?",
+
+        answers:[
+            "x²-4",
+            "x^2-4",
+            "x2-4"
+        ],
+        partId: "part-3",
+        boardMsg: "Үй жарық болды! Терезе салынды!"
+    },
+
+    {
+        title:"🏠 5-кезең — Шатырды жабу",
+
+        situation:
+        "Үйдің төбесіне шаршы пішінді шатыр орнатылады. Оның қабырғасы (x + 7) метр. Ауданын ықшам түрде есептеп, құрылысты аяқта!",
+
+        formula:
+        "(x + 7)² = ?",
+
+        answers:[
+            "x²+14x+49",
+            "x^2+14x+49",
+            "x2+14x+49"
+        ],
+        partId: "part-4",
+        boardMsg: "Орасан зор жұмыс! Үй толығымен дайын!"
+    }
+
+];
+
+
+/* =====================================================
+   ОЙЫН КҮЙІ
+===================================================== */
+
+let currentLevel = 0;
+let score = 0;
+
+
+/* =====================================================
+   ЖАУАПТЫ ҚАЛЫПҚА КЕЛТІРУ
+===================================================== */
+
+function normalizeAnswer(text){
+
+    return text
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g,"")
+        .replace(/x²/g,"x^2")
+        .replace(/x2/g,"x^2")
+        .replace(/a²/g,"a^2")
+        .replace(/a2/g,"a^2")
+        .replace(/[−–—]/g,"-")
+        .replace(/[·×*]/g,"")
+        .replace(/\)\(/g,")(");
+}
+
+
+/* =====================================================
+   ОЙЫНДЫ БАСТАУ
+===================================================== */
+
+function startGame(){
+    initAudio();
+    startBGM();
+
+    document
+        .getElementById("start")
+        .style.display="none";
+
+    openLevel();
+}
+
+
+/* =====================================================
+   ЕСЕПТІ АШУ
+===================================================== */
+
+function openLevel(){
+
+    const level = levels[currentLevel];
+
+    document.getElementById("title").innerText = level.title;
+    document.getElementById("situation").innerText = level.situation;
+    document.getElementById("formula").innerText = level.formula;
+    document.getElementById("answer").value="";
+    document.getElementById("feedback").innerText="";
+    document.getElementById("stage").innerText = currentLevel+1;
+
+    document.getElementById("modal").classList.add("show");
+
+    setTimeout(()=>{
+        document.getElementById("answer").focus();
+    },100);
+
+}
+
+
+/* =====================================================
+   ЖАУАПТЫ ТЕКСЕРУ
+===================================================== */
+
+function checkAnswer(){
+
+    const input = document.getElementById("answer");
+    const feedback = document.getElementById("feedback");
+    const user = normalizeAnswer(input.value);
+    const possibleAnswers = levels[currentLevel].answers;
+
+    const correct = possibleAnswers.some(
+        item => normalizeAnswer(item) === user
+    );
+
+
+    /* =========================
+       ДҰРЫС
+    ========================= */
+
+    if(correct){
+
+        score++;
+        playCorrectSound();
+
+        document.getElementById("score").innerText = score;
+
+        feedback.style.color="#22c55e";
+        feedback.innerText= "✅ Дұрыс! +1 ⭐ Ұпай!";
+
+        // Үйдің сәйкес бөлігін көрсету
+        const currentPart = document.getElementById(levels[currentLevel].partId);
+        if(currentPart) {
+            currentPart.classList.add("part-visible");
+        }
+
+        // Тақтадағы мәтінді жаңарту
+        document.getElementById("boardText").innerText = levels[currentLevel].boardMsg;
+
+        /* Үй анимациясы */
+        const house = document.getElementById("house");
+        house.animate(
+            [
+                { transform:"scale(1)" },
+                { transform:"scale(1.06)" },
+                { transform:"scale(1)" }
+            ],
+            { duration:500 }
+        );
+
+        /* Прогресс бар */
+        document.getElementById("progress").style.width = ((currentLevel+1)/levels.length*100)+"%";
+
+
+        setTimeout(()=>{
+
+            document.getElementById("modal").classList.remove("show");
+            currentLevel++;
+
+            if(currentLevel >= levels.length){
+                setTimeout(finishGame, 600);
+            }
+            else{
+                setTimeout(openLevel, 600);
+            }
+
+        },1000);
+
+    }
+
+
+    /* =========================
+       ҚАТЕ
+    ========================= */
+
+    else{
+
+        playWrongSound();
+        feedback.style.color="#ef4444";
+        feedback.innerText= "❌ Қате. Формуланы тағы бір рет тексер!";
+
+        input.style.borderColor="#ef4444";
+
+        setTimeout(()=>{
+            input.style.borderColor="#475569";
+        },800);
+
+    }
+
+}
+
+
+/* =====================================================
+   ENTER
+===================================================== */
+
+document.getElementById("answer").addEventListener(
+    "keydown",
+    function(event){
+        if(event.key==="Enter"){
+            checkAnswer();
+        }
+    }
+);
+
+
+/* =====================================================
+   ОЙЫН СОҢЫ
+===================================================== */
+
+function finishGame(){
+    playWinSound();
+    document.getElementById("finalScore").innerText = score;
+    document.getElementById("finish").classList.add("show");
+}
+
+</script>
+
+</body>
+</html>

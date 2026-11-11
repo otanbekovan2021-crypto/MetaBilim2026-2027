@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <title>Түзетілген 3D Геометрия</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #050505; }
+        #ui { position: absolute; top: 20px; width: 100%; text-align: center; color: #00ffff; font-family: sans-serif; pointer-events: none; }
+    </style>
+</head>
+<body>
+    <div id="ui">ФИГУРАЛАР ТҮЗЕТІЛДІ (КӨЛЕМДІ КӨРІНІС)<br>Тінтуірмен айналдырып көріңіз</div>
+
+<script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+</script>
+
+<script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    camera.position.set(0, 5, 35);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+
+    // 1. ЖАРЫҚ ҚОСУ (Фигуралар теріс көрінбеуі үшін маңызды)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Жалпы жарық
+    scene.add(ambientLight);
+
+    const pointLight = new THREE.PointLight(0xffffff, 1000); // Нүктелік жарық
+    pointLight.position.set(20, 20, 20);
+    scene.add(pointLight);
+
+    // 2. ФИГУРАЛАРДЫҢ МАТЕРИАЛЫН ӨЗГЕРТУ
+    function createSolidShape(geometry, color, x, y, z) {
+        // MeshStandardMaterial нақты көлем береді
+        const material = new THREE.MeshStandardMaterial({ 
+            color: color, 
+            metalness: 0.1, 
+            roughness: 0.5,
+            flatShading: true // Қырларын анық көрсетеді
+        });
+        const mesh = new THREE.Mesh(geometry, material);
+        
+        // Жиектерін сызу (контур)
+        const edges = new THREE.EdgesGeometry(geometry);
+        const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xffffff }));
+        mesh.add(line);
+
+        mesh.position.set(x, y, z);
+        scene.add(mesh);
+        return mesh;
+    }
+
+    const shapes = [];
+
+    // Түзетілген позициялар (Фигуралардың өлшемін 1.5 есе үлкейттік)
+    shapes.push(createSolidShape(new THREE.BoxGeometry(4, 4, 4), 0xff4444, -15, 10, 0)); // Куб
+    shapes.push(createSolidShape(new THREE.BoxGeometry(3, 7, 3), 0x44ff44, -5, 10, 0));  // Параллелепипед
+    shapes.push(createSolidShape(new THREE.ConeGeometry(3, 6, 4), 0x4444ff, 5, 10, 0));  // Пирамида
+    shapes.push(createSolidShape(new THREE.CylinderGeometry(3, 3, 6, 3), 0xffff44, 15, 10, 0)); // Призма
+
+    shapes.push(createSolidShape(new THREE.CylinderGeometry(3, 3, 7, 32), 0xff44ff, -15, -2, 0)); // Цилиндр
+    shapes.push(createSolidShape(new THREE.ConeGeometry(3.5, 7, 32), 0x44ffff, -5, -2, 0));      // Конус
+    shapes.push(createSolidShape(new THREE.SphereGeometry(3.5, 32, 32), 0xffffff, 5, -2, 0));   // Сфера
+    shapes.push(createSolidShape(new THREE.OctahedronGeometry(4), 0xffa500, 15, -2, 0));        // Октаэдр
+
+    shapes.push(createSolidShape(new THREE.IcosahedronGeometry(4), 0x7cfc00, -5, -12, 0));      // Икосаэдр
+    shapes.push(createSolidShape(new THREE.DodecahedronGeometry(4), 0x9370db, 5, -12, 0));      // Додекаэдр
+
+    function animate() {
+        requestAnimationFrame(animate);
+        shapes.forEach(s => {
+            s.rotation.y += 0.01;
+        });
+        controls.update();
+        renderer.render(scene, camera);
+    }
+
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    animate();
+</script>
+</body>
+</html>

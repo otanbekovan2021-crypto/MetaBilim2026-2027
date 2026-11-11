@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STAT-LAB — 3D Динамикалық Зерттеу Орталығы</title>
+
+<!-- Three.js & Controls CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+<style>
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+}
+
+body{
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+    background: #090d16;
+    color: white;
+}
+
+#canvas-container {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+/* UI ОВЕРЛЕЙ */
+.ui-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+/* ЖОҒАРҒЫ HUD */
+.hud {
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(12px);
+    border: 2px solid #38bdf8;
+    border-radius: 20px;
+    padding: 15px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 0 25px rgba(56, 189, 248, 0.3);
+    pointer-events: auto;
+}
+
+.hud-title {
+    font-size: 22px;
+    font-weight: 900;
+    color: #facc15;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stats-badge {
+    background: #1e293b;
+    padding: 8px 16px;
+    border-radius: 12px;
+    border: 1px solid #475569;
+    font-weight: bold;
+    color: #38bdf8;
+}
+
+/* БӨЛМЕЛЕРДІ ТАҢДАУ */
+.room-selector {
+    position: absolute;
+    top: 90px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: auto;
+}
+
+.room-btn {
+    background: rgba(15, 23, 42, 0.88);
+    border: 2px solid #1e293b;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 14px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.room-btn:hover, .room-btn.active {
+    background: #0284c7;
+    border-color: #38bdf8;
+    transform: translateX(8px);
+}
+
+/* ЗЕРТТЕУ ИНТЕРФЕЙСІ */
+.lab-panel {
+    background: rgba(15, 23, 42, 0.92);
+    backdrop-filter: blur(16px);
+    border: 2px solid #facc15;
+    border-radius: 24px;
+    padding: 22px;
+    width: min(900px, 95%);
+    margin: 0 auto;
+    pointer-events: auto;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+    animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.step-indicator {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #334155;
+    padding-bottom: 10px;
+}
+
+.step {
+    font-size: 13px;
+    font-weight: bold;
+    color: #64748b;
+    padding: 6px 12px;
+    border-radius: 8px;
+}
+
+.step.active {
+    background: #facc15;
+    color: #020617;
+}
+
+.data-stream {
+    background: #020617;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 12px;
+    margin: 12px 0;
+    font-family: monospace;
+    font-size: 18px;
+    color: #38bdf8;
+    text-align: center;
+    word-spacing: 12px;
+}
+
+.control-row {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.lab-input {
+    flex: 1;
+    background: #0f172a;
+    border: 2px solid #38bdf8;
+    padding: 12px;
+    border-radius: 12px;
+    color: white;
+    font-size: 16px;
+    outline: none;
+}
+
+.action-btn {
+    background: #22c55e;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.action-btn:hover {
+    background: #16a34a;
+    transform: scale(1.03);
+}
+
+.feedback {
+    margin-top: 8px;
+    font-weight: bold;
+    min-height: 20px;
+    text-align: center;
+}
+</style>
+</head>
+<body>
+
+<div id="canvas-container"></div>
+
+<div class="ui-layer">
+    <div class="hud">
+        <div class="hud-title">
+            🧪 STAT-LAB — 3D Математикалық Зерттеу Орталығы
+        </div>
+        <div class="stats-badge" id="room-title">
+            🏫 Мектеп Зертханасы
+        </div>
+    </div>
+
+    <!-- БӨЛМЕЛЕРДІ ТАҢДАУ -->
+    <div class="room-selector">
+        <button class="room-btn active" onclick="switchRoom(0)">🏫 Мектеп зертханасы</button>
+        <button class="room-btn" onclick="switchRoom(1)">🌦️ Ауа райы станциясы</button>
+        <button class="room-btn" onclick="switchRoom(2)">🏀 Спорт зертханасы</button>
+        <button class="room-btn" onclick="switchRoom(3)">🛒 Сауда орталығы</button>
+        <button class="room-btn" onclick="switchRoom(4)">🌱 Экология орталығы</button>
+        <button class="room-btn" onclick="switchRoom(5)">📱 Digital Lab</button>
+    </div>
+
+    <!-- ТӨМЕНГІ ТАПСЫРМА ТАҚТАСЫ -->
+    <div class="lab-panel">
+        <div class="step-indicator">
+            <span class="step active" id="st-1">1. Деректер</span>
+            <span class="step" id="st-2">2. Орташа мән</span>
+            <span class="step" id="st-3">3. Медиана</span>
+            <span class="step" id="st-4">4. Мода</span>
+            <span class="step" id="st-5">5. Диаграмма</span>
+        </div>
+
+        <h3 id="task-desc">10 оқушының мектепке келу уақыты (минутпен):</h3>
+        
+        <div class="data-stream" id="data-display">
+            15, 20, 18, 25, 20, 17, 22, 20, 19, 24
+        </div>
+
+        <div class="control-row">
+            <input type="text" class="lab-input" id="user-input" placeholder="Жауабыңызды жазыңыз...">
+            <button class="action-btn" onclick="checkStep()">Тексеру 🔬</button>
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+    </div>
+</div>
+
+<script>
+/* =========================================================
+   1. СИТУАЦИЯЛАР ДЕРЕКТӨРІ (ROOMS)
+========================================================= */
+const roomsData = [
+    {
+        name: "🏫 Мектеп Зертханасы",
+        desc: "Оқушылардың сабаққа келу уақыты (мин):",
+        data: [15, 20, 18, 25, 20, 17, 22, 20, 19, 24],
+        bgColor: 0x0f172a,
+        fogColor: 0x0f172a
+    },
+    {
+        name: "🌦️ Ауа райы Станциясы",
+        desc: "Апталық орташа температура (°C):",
+        data: [12, 15, 15, 18, 20, 15, 21],
+        bgColor: 0x0369a1,
+        fogColor: 0x0369a1
+    },
+    {
+        name: "🏀 Спорт Зертханасы",
+        desc: "Баскетболшылардың жинаған ұпайлары:",
+        data: [8, 12, 12, 16, 20, 12, 24],
+        bgColor: 0x451a03,
+        fogColor: 0x451a03
+    },
+    {
+        name: "🛒 Сауда Орталығы",
+        desc: "Күнделікті шығындар (мың ₸):",
+        data: [3, 5, 5, 8, 10, 5, 13],
+        bgColor: 0x4c1d95,
+        fogColor: 0x4c1d95
+    },
+    {
+        name: "🌱 Экология Орталығы",
+        desc: "Бір аптада сұрыпталған қоқыс (кг):",
+        data: [4, 6, 6, 10, 12, 6, 16],
+        bgColor: 0x064e3b,
+        fogColor: 0x064e3b
+    },
+    {
+        name: "📱 Digital Lab",
+        desc: "Күнделікті экран уақыты (сағат):",
+        data: [2, 3, 3, 5, 6, 3, 7],
+        bgColor: 0x020617,
+        fogColor: 0x020617
+    }
+];
+
+let currentRoomIdx = 0;
+let currentStep = 1;
+
+/* =========================================================
+   2. THREE.JS 3D ӘЛЕМІ ЖӘНЕ ДИНАМИКАЛЫҚ ОРТА
+========================================================= */
+const container = document.getElementById('canvas-container');
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0f172a);
+scene.fog = new THREE.FogExp2(0x0f172a, 0.025);
+
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set(0, 9, 19);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+container.appendChild(renderer.domElement);
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+controls.maxPolarAngle = Math.PI / 2 - 0.05;
+
+/* ЖАРЫҚТАР */
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+scene.add(ambientLight);
+
+const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
+dirLight.position.set(12, 20, 10);
+dirLight.castShadow = true;
+scene.add(dirLight);
+
+// Орталықтар мен нысандар тобы
+let envGroup = new THREE.Group();
+scene.add(envGroup);
+
+let barChartGroup = new THREE.Group();
+scene.add(barChartGroup);
+
+// Анимацияланатын нысандар тізімі
+let animatableObjects = [];
+
+/* =========================================================
+   3. ВАРТИУАЛДЫ ОРТАЛАРДЫ ДИНАМИКАЛЫҚ ҚҰРУ (3D SCENES)
+========================================================= */
+function buildEnvironment(roomIdx) {
+    // Ескі нысандарды тазалау
+    while(envGroup.children.length > 0){ 
+        envGroup.remove(envGroup.children[0]); 
+    }
+    animatableObjects = [];
+
+    const room = roomsData[roomIdx];
+    scene.background.setHex(room.bgColor);
+    scene.fog.color.setHex(room.fogColor);
+
+    // 1. МЕКТЕП ЗЕРТХАНАСЫ
+    if (roomIdx === 0) {
+        // Еден
+        const floorGeo = new THREE.PlaneGeometry(30, 30);
+        const floorMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3 });
+        const floor = new THREE.Mesh(floorGeo, floorMat);
+        floor.rotation.x = -Math.PI / 2;
+        floor.receiveShadow = true;
+        envGroup.add(floor);
+
+        // Тақта
+        const boardGeo = new THREE.BoxGeometry(14, 6, 0.2);
+        const boardMat = new THREE.MeshStandardMaterial({ color: 0x064e3b });
+        const board = new THREE.Mesh(boardGeo, boardMat);
+        board.position.set(0, 5, -8);
+        envGroup.add(board);
+
+        // Химиялық колбалар
+        const flaskGeo = new THREE.ConeGeometry(0.8, 1.8, 16);
+        const flaskMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.8 });
+        const flask1 = new THREE.Mesh(flaskGeo, flaskMat);
+        flask1.position.set(-4, 1, -2);
+        envGroup.add(flask1);
+
+        const flask2 = flask1.clone();
+        flask2.material = new THREE.MeshStandardMaterial({ color: 0xef4444, transparent: true, opacity: 0.8 });
+        flask2.position.set(4, 1, -2);
+        envGroup.add(flask2);
+    } 
+
+    // 2. АУА РАЙЫ СТАНЦИЯСЫ
+    else if (roomIdx === 1) {
+        // Еден (Мұз/Қар)
+        const floorGeo = new THREE.PlaneGeometry(30, 30);
+        const floorMat = new THREE.MeshStandardMaterial({ color: 0xe0f2fe, roughness: 0.1 });
+        const floor = new THREE.Mesh(floorGeo, floorMat);
+        floor.rotation.x = -Math.PI / 2;
+        floor.receiveShadow = true;
+        envGroup.add(floor);
+
+        // Бұлттар (Clouds)
+        for(let i=0; i<6; i++) {
+            const cloudGroup = new THREE.Group();
+            const cloudMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 });
+            for(let j=0; j<5; j++) {
+                const sphere = new THREE.Mesh(new THREE.SphereGeometry(1 + Math.random()*0.8, 16, 16), cloudMat);
+                sphere.position.set(j*0.8, Math.random()*0.4, Math.random()*0.5);
+                cloudGroup.add(sphere);
+            }
+            cloudGroup.position.set(-10 + Math.random()*20, 7 + Math.random()*3, -10 + Math.random()*15);
+            envGroup.add(cloudGroup);
+            animatableObjects.push({ obj: cloudGroup, type: 'float' });
+        }
+
+        // Жел турбинасы (Windmill)
+        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.4, 10), new THREE.MeshStandardMaterial({color:0xffffff}));
+        pole.position.set(-8, 5, -5);
+        envGroup.add(pole);
+
+        const propGroup = new THREE.Group();
+        for(let k=0; k<3; k++) {
+            const prop = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3, 0.05), new THREE.MeshStandardMaterial({color:0x38bdf8}));
+            prop.rotation.z = (k * Math.PI * 2) / 3;
+            propGroup.add(prop);
+        }
+        propGroup.position.set(-8, 10, -4.8);
+        envGroup.add(propGroup);
+        animatableObjects.push({ obj: propGroup, type: 'rotate' });
+    }
+
+    // 3. СПОРТ ЗЕРТХАНАСЫ
+    else if (roomIdx === 2) {
+        // Баскетбол Паркеті
+        const floorGeo = new THREE.PlaneGeometry(30, 30);
+        const floorMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.2 });
+        const floor = new THREE.Mesh(floorGeo, floorMat);
+        floor.rotation.x = -Math.PI / 2;
+        floor.receiveShadow = true;
+        envGroup.add(floor);
+
+        // Сызықтар
+        const grid = new THREE.GridHelper(30, 10, 0xffffff, 0xffffff);
+        grid.position.y = 0.01;
+        envGroup.add(grid);
+
+        // Баскетбол Тор Шіті (Hoop Backboard)
+        const board = new THREE.Mesh(new THREE.BoxGeometry(6, 4, 0.2), new THREE.MeshStandardMaterial({color: 0xffffff}));
+        board.position.set(0, 7, -8);
+        envGroup.add(board);
+
+        const rim = new THREE.Mesh(new THREE.TorusGeometry(1, 0.1, 16, 32), new THREE.MeshStandardMaterial({color: 0xef4444}));
+        rim.rotation.x = Math.PI / 2;
+        rim.position.set(0, 5.5, -7);
+        envGroup.add(rim);
+
+        // 3D Доптар
+        for(let b=0; b<3; b++) {
+            const ball = new THREE.Mesh(new THREE.SphereGeometry(0.8, 32, 32), new THREE.MeshStandardMaterial({color: 0xea580c, roughness:0.4}));
+            ball.position.set(-5 + b*5, 0.8, -3);
+            envGroup.add(ball);
+        }
+    }
+
+    // 4. САУДА ОРТАЛЫҒЫ
+    else if (roomIdx === 3) {
+        // Мәрмәр Еден
+        const floorGeo = new THREE.PlaneGeometry(30, 30);
+        const floorMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.1, metalness: 0.3 });
+        const floor = new THREE.Mesh(floorGeo, floorMat);
+        floor.rotation.x = -Math.PI / 2;
+        floor.receiveShadow = true;
+        envGroup.add(floor);
+
+        // Сөрелер мен Сыйлық Қораптары
+        for(let s=0; s<5; s++) {
+            const box = new THREE.Mesh(
+                new THREE.BoxGeometry(1.5, 1.5, 1.5), 
+                new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff })
+            );
+            box.position.set(-6 + s*3, 0.75, -5);
+            envGroup.add(box);
+        }
+
+        // Неон Жарнама Витринасы
+        const neon = new THREE.Mesh(new THREE.TorusGeometry(3, 0.2, 16, 100), new THREE.MeshBasicMaterial({color: 0xf43f5e}));
+        neon.position.set(0, 6, -7);
+        envGroup.add(neon);
+    }
+
+    // 5. ЭКОЛОГИЯ ОРТАЛЫҒЫ
+    else if (roomIdx === 4) {
+        // Жасыл Шөп Еден
+        const floorGeo = new THREE.PlaneGeometry(30, 30);
+        const floorMat = new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.8 });
+        const floor = new THREE.Mesh(floorGeo, floorMat);
+        floor.rotation.x = -Math.PI / 2;
+        floor.receiveShadow = true;
+        envGroup.add(floor);
+
+        // Low-poly Ағаштар (Trees)
+        for(let t=0; t<6; t++) {
+            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.4, 2), new THREE.MeshStandardMaterial({color: 0x78350f}));
+            const foliage = new THREE.Mesh(new THREE.ConeGeometry(1.8, 3.5, 8), new THREE.MeshStandardMaterial({color: 0x22c55e}));
+            
+            const treeGroup = new THREE.Group();
+            trunk.position.y = 1;
+            foliage.position.y = 3;
+            treeGroup.add(trunk);
+            treeGroup.add(foliage);
+
+            treeGroup.position.set(-10 + t*4, 0, -6 + (t%2)*4);
+            envGroup.add(treeGroup);
+        }
+
+        // Қоқыс Сұрыптау Контейнерлері
+        const colors = [0x2563eb, 0x16a34a, 0xeab308];
+        colors.forEach((col, i) => {
+            const bin = new THREE.Mesh(new THREE.BoxGeometry(1.2, 2, 1.2), new THREE.MeshStandardMaterial({color: col}));
+            bin.position.set(-3 + i*3, 1, 2);
+            envGroup.add(bin);
+        });
+    }
+
+    // 6. DIGITAL LAB
+    else if (roomIdx === 5) {
+        // Кибер Тор
+        const grid = new THREE.GridHelper(30, 30, 0x06b6d4, 0x3b82f6);
+        grid.position.y = 0.01;
+        envGroup.add(grid);
+
+        // Қалқыған Цифрлық Кубтар
+        for(let c=0; c<12; c++) {
+            const cube = new THREE.Mesh(
+                new THREE.BoxGeometry(0.8, 0.8, 0.8),
+                new THREE.MeshStandardMaterial({ color: 0x06b6d4, wireframe: true })
+            );
+            cube.position.set(-8 + Math.random()*16, 2 + Math.random()*5, -8 + Math.random()*12);
+            envGroup.add(cube);
+            animatableObjects.push({ obj: cube, type: 'cubeSpin' });
+        }
+    }
+
+    // Орталық Голограмма Үстелі (Барлық бөлмеде)
+    const tableGeo = new THREE.CylinderGeometry(3.5, 4, 0.8, 32);
+    const tableMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8 });
+    const table = new THREE.Mesh(tableGeo, tableMat);
+    table.position.y = 0.4;
+    envGroup.add(table);
+}
+
+/* 3D БАҒАНДЫҚ ДИАГРАММА */
+function update3DChart(dataArray) {
+    while(barChartGroup.children.length > 0){ 
+        barChartGroup.remove(barChartGroup.children[0]); 
+    }
+
+    const startX = - (dataArray.length * 0.6) / 2;
+    
+    dataArray.forEach((val, i) => {
+        const height = val * 0.25;
+        const geo = new THREE.BoxGeometry(0.4, height, 0.4);
+        const mat = new THREE.MeshStandardMaterial({ 
+            color: 0x38bdf8, 
+            emissive: 0x0284c7, 
+            roughness: 0.2 
+        });
+        const bar = new THREE.Mesh(geo, mat);
+        
+        bar.position.set(startX + i * 0.6, height / 2 + 0.8, 0);
+        bar.castShadow = true;
+
+        bar.scale.y = 0.01;
+        barChartGroup.add(bar);
+        
+        let currentScale = 0;
+        let anim = setInterval(() => {
+            currentScale += 0.05;
+            bar.scale.y = currentScale;
+            if(currentScale >= 1) clearInterval(anim);
+        }, 20);
+    });
+}
+
+/* =========================================================
+   4. ОЙЫН ЛОГИКАСЫ ЖӘНЕ ИНТЕРФЕЙС
+========================================================= */
+function updateRoomUI() {
+    const room = roomsData[currentRoomIdx];
+    document.getElementById('room-title').innerText = room.name;
+    document.getElementById('data-display').innerText = room.data.join(', ');
+    
+    const btns = document.querySelectorAll('.room-btn');
+    btns.forEach((btn, idx) => {
+        btn.classList.toggle('active', idx === currentRoomIdx);
+    });
+
+    currentStep = 1;
+    setStepUI();
+    buildEnvironment(currentRoomIdx);
+    update3DChart(room.data);
+}
+
+function switchRoom(index) {
+    currentRoomIdx = index;
+    updateRoomUI();
+    
+    // Камера бұрышын ауыстыру
+    camera.position.set(Math.sin(index) * 12, 9, Math.cos(index) * 12 + 10);
+    controls.update();
+}
+
+function setStepUI() {
+    const room = roomsData[currentRoomIdx];
+    document.querySelectorAll('.step').forEach((s, idx) => {
+        s.classList.toggle('active', idx + 1 === currentStep);
+    });
+
+    const taskDesc = document.getElementById('task-desc');
+    document.getElementById('user-input').value = '';
+    document.getElementById('feedback').innerText = '';
+
+    if (currentStep === 1) {
+        taskDesc.innerText = `${room.desc} Сандарды өсу ретімен тізіп жазыңыз (үтірмен):`;
+    } else if (currentStep === 2) {
+        taskDesc.innerText = "Зертхана есебі: Берілген сандардың ОРТАША МӘНІН табыңыз:";
+    } else if (currentStep === 3) {
+        taskDesc.innerText = "Реттелген сандардың МЕДИАНАСЫН (ортасындағы мәнін) табыңыз:";
+    } else if (currentStep === 4) {
+        taskDesc.innerText = "Ең жиі кездесетін санды (МОДАНЫ) анықтаңыз:";
+    } else if (currentStep === 5) {
+        taskDesc.innerText = "Зерттеу аяқталды! 3D Голограммалық диаграмма толық жүктелді.";
+    }
+}
+
+function checkStep() {
+    const room = roomsData[currentRoomIdx];
+    const inputVal = document.getElementById('user-input').value.trim();
+    const feedback = document.getElementById('feedback');
+
+    const sortedData = [...room.data].sort((a,b) => a - b);
+    
+    if (currentStep === 1) {
+        const userArr = inputVal.split(',').map(n => parseFloat(n.trim()));
+        if (JSON.stringify(userArr) === JSON.stringify(sortedData)) {
+            feedback.style.color = "#22c55e";
+            feedback.innerText = "✅ Дұрыс! Сандар сұрыпталды.";
+            currentStep++;
+            setTimeout(setStepUI, 1200);
+        } else {
+            feedback.style.color = "#ef4444";
+            feedback.innerText = "❌ Қате. Сандарды өсу ретімен үтір арқылы жазыңыз.";
+        }
+    } 
+    else if (currentStep === 2) {
+        const sum = room.data.reduce((a,b) => a + b, 0);
+        const avg = (sum / room.data.length).toFixed(1);
+        if (parseFloat(inputVal) === parseFloat(avg) || parseFloat(inputVal) === Math.round(avg)) {
+            feedback.style.color = "#22c55e";
+            feedback.innerText = `✅ Дұрыс! Орташа мән = ${avg}`;
+            currentStep++;
+            setTimeout(setStepUI, 1200);
+        } else {
+            feedback.style.color = "#ef4444";
+            feedback.innerText = `❌ Қате. Барлық санды қосып, сандар санына (${room.data.length}) бөліңіз.`;
+        }
+    }
+    else if (currentStep === 3) {
+        let median;
+        const mid = Math.floor(sortedData.length / 2);
+        if (sortedData.length % 2 !== 0) {
+            median = sortedData[mid];
+        } else {
+            median = (sortedData[mid - 1] + sortedData[mid]) / 2;
+        }
+
+        if (parseFloat(inputVal) === parseFloat(median)) {
+            feedback.style.color = "#22c55e";
+            feedback.innerText = `✅ Дұрыс! Медиана = ${median}`;
+            currentStep++;
+            setTimeout(setStepUI, 1200);
+        } else {
+            feedback.style.color = "#ef4444";
+            feedback.innerText = "❌ Қате. Реттелген қатардың ортасындағы санды табыңыз.";
+        }
+    }
+    else if (currentStep === 4) {
+        const counts = {};
+        room.data.forEach(x => { counts[x] = (counts[x] || 0) + 1; });
+        let maxFreq = 0, mode = null;
+        for (let k in counts) {
+            if (counts[k] > maxFreq) {
+                maxFreq = counts[k];
+                mode = parseFloat(k);
+            }
+        }
+
+        if (parseFloat(inputVal) === mode) {
+            feedback.style.color = "#22c55e";
+            feedback.innerText = `✅ Тамаша! Мода = ${mode}`;
+            currentStep++;
+            setStepUI();
+        } else {
+            feedback.style.color = "#ef4444";
+            feedback.innerText = "❌ Қате. Ең жиі қайталанатын санды табыңыз.";
+        }
+    }
+}
+
+/* =========================================================
+   5. АНИМАЦИЯЛАР ЖӘНЕ РЕНДЕР
+========================================================= */
+function animate() {
+    requestAnimationFrame(animate);
+
+    // Диаграмма айналуы
+    barChartGroup.rotation.y += 0.005;
+
+    // Ортадағы анимациялық нысандар (желдеткіш, бұлттар, кубтар)
+    animatableObjects.forEach(item => {
+        if(item.type === 'rotate') item.obj.rotation.z += 0.05;
+        if(item.type === 'float') item.obj.position.x += 0.01;
+        if(item.type === 'cubeSpin') {
+            item.obj.rotation.x += 0.01;
+            item.obj.rotation.y += 0.01;
+        }
+    });
+
+    controls.update();
+    renderer.render(scene, camera);
+}
+
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// Іске қосу
+updateRoomUI();
+animate();
+</script>
+</body>
+</html>

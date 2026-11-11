@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MetaBilim | Қызықты математика</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ font-family:Arial,sans-serif;
+ background:#eef6ff;
+ color:#183153;
+ text-align:center;
+}
+header{
+ background:linear-gradient(120deg,#2563eb,#8b5cf6);
+ color:white;
+ padding:22px;
+}
+h1{margin:5px;font-size:36px}
+button{
+ border:0;
+ border-radius:15px;
+ padding:15px 25px;
+ margin:6px;
+ font-size:22px;
+ font-weight:bold;
+ cursor:pointer;
+ background:#dbeafe;
+ color:#183153;
+}
+button:hover{filter:brightness(.94)}
+button.active{background:#facc15}
+main{
+ max-width:1100px;
+ margin:20px auto;
+ padding:15px;
+}
+.panel{
+ background:white;
+ border-radius:24px;
+ padding:25px;
+ box-shadow:0 5px 20px #cbd5e1;
+}
+#question{
+ font-size:38px;
+ font-weight:bold;
+ margin:20px;
+}
+#visual{
+ font-size:52px;
+ line-height:1.7;
+ min-height:100px;
+ overflow-wrap:anywhere;
+}
+#answers button{
+ background:#bfdbfe;
+ min-width:110px;
+ font-size:30px;
+}
+#message{
+ font-size:27px;
+ font-weight:bold;
+ min-height:45px;
+ margin:15px;
+}
+#steps{
+ font-size:25px;
+ line-height:1.7;
+}
+.correct{color:#15803d}
+.wrong{color:#dc2626}
+.controls{margin:15px}
+#score{font-size:24px}
+@media(max-width:600px){
+ h1{font-size:26px}
+ button{font-size:18px;padding:12px}
+ #question{font-size:29px}
+ #visual{font-size:38px}
+}
+</style>
+</head>
+<body>
+
+<header>
+<h1>🌈 Қызықты математика</h1>
+<p>MetaBilim — математиканы көзбен үйрен!</p>
+</header>
+
+<main>
+<div class="controls">
+<button id="teachBtn" onclick="setMode('teach')">
+📖 Түсіндіру
+</button>
+<button id="gameBtn" onclick="setMode('game')">
+🎮 Ойын
+</button>
+<button onclick="toggleFull()">⛶ Толық экран</button>
+</div>
+
+<div class="controls">
+<button onclick="setTopic('add')">🍎 Қосу</button>
+<button onclick="setTopic('sub')">🍬 Азайту</button>
+<button onclick="setTopic('line')">🔢 Сан сәулесі</button>
+<button onclick="setTopic('compare')">⚖️ Салыстыру</button>
+<button onclick="setTopic('shape')">🔺 Геометрия</button>
+</div>
+
+<div class="panel">
+<h2 id="topicTitle"></h2>
+<div id="score">⭐ Жұлдызша: 0</div>
+<div id="question"></div>
+<div id="visual"></div>
+<div id="answers"></div>
+<div id="steps"></div>
+<div id="message" aria-live="polite"></div>
+
+<div class="controls">
+<button id="showBtn" onclick="showSteps()">
+💡 Жауабын көрсету
+</button>
+<button onclick="newQuestion()">
+➡️ Келесі есеп
+</button>
+</div>
+</div>
+</main>
+
+<script>
+let mode="teach";
+let topic="add";
+let score=0;
+let current={};
+let answered=false;
+
+const $=id=>document.getElementById(id);
+const random=(a,b)=>
+ Math.floor(Math.random()*(b-a+1))+a;
+
+function setMode(value){
+ mode=value;
+ $("teachBtn").classList.toggle(
+  "active",mode==="teach"
+ );
+ $("gameBtn").classList.toggle(
+  "active",mode==="game"
+ );
+ newQuestion();
+}
+
+function setTopic(value){
+ topic=value;
+ newQuestion();
+}
+
+function icons(symbol,n){
+ return Array(n).fill(symbol).join(" ");
+}
+
+function makeQuestion(){
+ let a,b,answer,visual,question,steps,options;
+
+ if(topic==="add" || topic==="line"){
+  a=random(1,9);
+  b=random(1,6);
+  answer=a+b;
+  question=`${a} + ${b} = ?`;
+  visual=topic==="add"
+   ? icons("🍎",a)+"<hr>"+icons("🍏",b)
+   : numberLine(a,b);
+  steps=`Алдымен ${a} санын аламыз.
+  Оған ${b} қосамыз.
+  Жауабы: ${answer}.`;
+ }
+ else if(topic==="sub"){
+  a=random(5,15);
+  b=random(1,a-1);
+  answer=a-b;
+  question=`${a} − ${b} = ?`;
+  visual=icons("🍬",a);
+  steps=`Барлығы ${a} кәмпит.
+  Оның ${b} кәмпитін аламыз.
+  ${answer} кәмпит қалады.`;
+ }
+ else if(topic==="compare"){
+  a=random(1,12);
+  b=random(1,12);
+  answer=a>b?">":a<b?"<":"=";
+  question=`${a}  □  ${b}`;
+  visual=icons("🔵",a)+"<hr>"+icons("🟡",b);
+  steps=`${a} және ${b} сандарын
+  салыстырамыз. Дұрыс таңба: ${answer}`;
+ }
+ else{
+  let shapes=[
+   ["🔺","Үшбұрыш"],
+   ["🟦","Шаршы"],
+   ["🔴","Шеңбер"],
+   ["▭","Тіктөртбұрыш"]
+  ];
+  let selected=shapes[random(0,3)];
+  answer=selected[1];
+  question="Бұл қандай фигура?";
+  visual=selected[0];
+  steps=`Бұл — ${answer}.`;
+ }
+ if(topic==="compare"){
+  options=[">","<","="];
+ }else if(topic==="shape"){
+  options=[
+   "Үшбұрыш","Шаршы",
+   "Шеңбер","Тіктөртбұрыш"
+  ];
+ }else{
+  let values=new Set([answer]);
+  while(values.size<3){
+   let n=answer+random(-4,4);
+   if(n>=0 && n!==answer)values.add(n);
+  }
+  options=[...values].sort(()=>Math.random()-.5);
+ }
+ return {question,visual,answer,steps,options};
+}
+
+function numberLine(a,b){
+ let html='<div style="font-size:24px">';
+ for(let i=0;i<=15;i++){
+  let color=i===a+b?"#16a34a":
+   i===a?"#2563eb":"#64748b";
+  html+=`<span style="
+   display:inline-block;
+   margin:4px;
+   color:${color};
+   font-weight:bold">${i}</span>`;
+ }
+ html+=`</div><div style="font-size:28px">
+ Бастау: ${a} → ${b} қадам алға
+ </div>`;
+ return html;
+}
+
+function newQuestion(){
+ current=makeQuestion();
+ answered=false;
+ const names={
+  add:"🍎 Заттарды қосу",
+  sub:"🍬 Заттарды азайту",
+  line:"🔢 Сан сәулесі",
+  compare:"⚖️ Сандарды салыстыру",
+  shape:"🔺 Геометриялық фигуралар"
+ };
+ $("topicTitle").textContent=names[topic];
+ $("question").textContent=current.question;
+ $("visual").innerHTML=current.visual;
+ $("message").textContent="";
+ $("steps").textContent="";
+ $("answers").innerHTML="";
+ $("showBtn").style.display=
+  mode==="teach"?"inline-block":"none";
+
+ if(mode==="game"){
+  current.options.forEach(value=>{
+   const btn=document.createElement("button");
+   btn.textContent=value;
+   btn.onclick=()=>checkAnswer(value);
+   $("answers").appendChild(btn);
+  });
+ }else{
+  $("steps").textContent=
+   "Суретке қарап, бірге ойланып көрейік.";
+ }
+}
+
+function showSteps(){
+ $("steps").textContent=current.steps;
+ $("message").textContent=
+  "✅ Жауабы: "+current.answer;
+ $("message").className="correct";
+}
+
+function checkAnswer(value){
+ if(answered)return;
+ if(String(value)===String(current.answer)){
+  answered=true;
+  score++;
+  $("score").textContent="⭐ Жұлдызша: "+score;
+  $("message").textContent=
+   "🌟 Жарайсың! Дұрыс жауап!";
+  $("message").className="correct";
+  $("steps").textContent=current.steps;
+  $("answers").querySelectorAll("button")
+   .forEach(b=>b.disabled=true);
+ }else{
+  $("message").textContent=
+   "💛 Тағы бір рет ойланып көр!";
+  $("message").className="wrong";
+ }
+}
+
+function toggleFull(){
+ if(!document.fullscreenElement){
+  document.documentElement.requestFullscreen?.();
+ }else{
+  document.exitFullscreen?.();
+ }
+}
+
+setMode("teach");
+</script>
+</body>
+</html>

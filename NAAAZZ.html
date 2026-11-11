@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PROBABILITY LAB 4.0 — Cinematic Sci-Fi Edition</title>
+<!-- Google Fonts & Tailwind CSS -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+:root {
+  --cyan: #00f3ff;
+  --cyan-glow: rgba(0, 243, 255, 0.4);
+  --gold: #ffcf36;
+  --gold-glow: rgba(255, 207, 54, 0.4);
+  --deep-bg: #030712;
+  --panel-bg: rgba(6, 18, 38, 0.65);
+  --panel-border: rgba(0, 243, 255, 0.25);
+  --neon-pink: #ff007f;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background-color: var(--deep-bg);
+  color: #e2f1ff;
+  font-family: 'Rajdhani', sans-serif;
+  overflow-x: hidden;
+  position: relative;
+}
+
+h1, h2, h3, .logo, .score-tag {
+  font-family: 'Orbitron', sans-serif;
+}
+
+/* Background Animated Canvas */
+#space-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2;
+  pointer-events: none;
+}
+
+/* Cybernetic Sci-Fi Grid Overlay */
+.sci-fi-grid {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: 
+    linear-gradient(to right, rgba(0, 243, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  z-index: -1;
+  pointer-events: none;
+  mask-image: radial-gradient(circle at 50% 50%, black 40%, transparent 80%);
+}
+
+/* Glassmorphism Panels */
+.glass-panel {
+  background: var(--panel-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(0, 243, 255, 0.05);
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  opacity: 0.6;
+}
+
+/* Holographic Glow Card */
+.holo-card {
+  background: rgba(10, 25, 47, 0.6);
+  border: 1px solid rgba(0, 243, 255, 0.2);
+  border-radius: 16px;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.holo-card::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(0, 243, 255, 0.15) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+
+.holo-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: var(--cyan);
+  box-shadow: 0 0 30px rgba(0, 243, 255, 0.3), inset 0 0 20px rgba(0, 243, 255, 0.1);
+}
+
+.holo-card:hover::after {
+  opacity: 1;
+}
+
+/* Cybernetic Glowing Buttons */
+button {
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, rgba(6, 40, 68, 0.8), rgba(0, 110, 145, 0.6));
+  color: #ffffff;
+  border: 1px solid rgba(0, 243, 255, 0.5);
+  border-radius: 10px;
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+button::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.4), transparent);
+  transition: left 0.5s ease;
+}
+
+button:hover::before {
+  left: 100%;
+}
+
+button:hover {
+  border-color: var(--cyan);
+  box-shadow: 0 0 25px var(--cyan-glow), inset 0 0 10px rgba(0, 243, 255, 0.3);
+  transform: translateY(-2px);
+  color: #fff;
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: wait;
+  box-shadow: none;
+}
+
+/* Custom Select & Inputs */
+select, input {
+  background: rgba(3, 16, 33, 0.85);
+  color: var(--cyan);
+  border: 1px solid rgba(0, 243, 255, 0.4);
+  border-radius: 10px;
+  padding: 10px 14px;
+  outline: none;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+select:focus, input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 15px var(--cyan-glow);
+}
+
+/* Hero Hologram Rings */
+.hero-holo-ring {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.ring-outer {
+  width: 480px;
+  height: 480px;
+  border: 2px dashed rgba(0, 243, 255, 0.25);
+  animation: spinSlow 25s linear infinite;
+}
+
+.ring-inner {
+  width: 320px;
+  height: 320px;
+  border: 2px solid rgba(0, 243, 255, 0.4);
+  box-shadow: 0 0 50px rgba(0, 243, 255, 0.2), inset 0 0 40px rgba(0, 243, 255, 0.15);
+  animation: spinSlow 12s linear infinite reverse;
+}
+
+@keyframes spinSlow {
+  to { transform: rotate(360deg); }
+}
+
+/* Sci-fi Level Tabs */
+.level-btn {
+  background: rgba(7, 27, 50, 0.7);
+  border: 1px solid rgba(0, 243, 255, 0.2);
+  color: #94a3b8;
+}
+
+.level-btn.active {
+  background: linear-gradient(135deg, rgba(0, 195, 255, 0.4), rgba(0, 81, 145, 0.8));
+  border-color: var(--cyan);
+  color: #ffffff;
+  box-shadow: 0 0 20px var(--cyan-glow);
+}
+
+/* Stage Container */
+#stage {
+  position: relative;
+  height: 480px;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 243, 255, 0.3);
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8);
+}
+
+#stage canvas { display: block; }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #030712;
+}
+::-webkit-scrollbar-thumb {
+  background: #0c3852;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 243, 255, 0.3);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--cyan);
+}
+</style>
+</head>
+<body>
+
+<!-- Animated Cosmic Background Canvas -->
+<canvas id="space-bg"></canvas>
+<div class="sci-fi-grid"></div>
+
+<!-- Header HUD -->
+<header class="sticky top-0 z-50 backdrop-blur-xl bg-slate-950/70 border-b border-cyan-500/20 px-6 py-4 transition-all">
+  <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
+    <div class="logo text-2xl font-black tracking-wider text-white flex items-center gap-2">
+      <span class="inline-block w-3 h-3 bg-cyan-400 rounded-full animate-ping"></span>
+      PROBABILITY <span class="text-cyan-400 drop-shadow-[0_0_12px_rgba(0,243,255,0.8)]">LAB 4.0</span>
+    </div>
+    
+    <div id="score" class="score-tag text-lg font-bold text-yellow-400 bg-yellow-950/40 border border-yellow-500/40 px-4 py-1.5 rounded-full shadow-[0_0_15px_rgba(255,207,54,0.2)]">
+      ★ 0 ҰПАЙ
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button onclick="toggleMusic()" id="musicBtn" class="text-xs sm:text-sm">♫ Әуен</button>
+      <button onclick="toggleFull()" class="text-xs sm:text-sm">⛶ Проектор</button>
+    </div>
+  </div>
+</header>
+
+<!-- Hero Section -->
+<section class="hero min-h-[75vh] flex flex-col justify-center items-center text-center px-4 relative overflow-hidden my-4">
+  <!-- Glowing Flares & Hologram effects -->
+  <div class="hero-holo-ring ring-outer"></div>
+  <div class="hero-holo-ring ring-inner"></div>
+  <div class="absolute w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+  <div class="relative z-10 max-w-4xl mx-auto flex flex-col items-center gap-4">
+    <div class="inline-block px-4 py-1 rounded-full bg-cyan-950/60 border border-cyan-400/40 text-cyan-300 text-xs sm:text-sm font-semibold tracking-widest uppercase shadow-[0_0_15px_rgba(0,243,255,0.2)]">
+      10-СЫНЫП • ГОЛОГРАФИЯЛЫҚ ЗЕРТХАНА
+    </div>
+    
+    <h1 class="text-5xl sm:text-7xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-white to-cyan-500 drop-shadow-[0_0_35px_rgba(0,243,255,0.6)] tracking-tight">
+      PROBABILITY LAB
+    </h1>
+    
+    <p class="text-lg sm:text-2xl text-cyan-100/90 font-medium max-w-2xl drop-shadow-md">
+      Кездейсоқтықтың математикалық құпиясын аш!
+    </p>
+    
+    <button onclick="document.getElementById('missions').scrollIntoView()" class="mt-4 text-base sm:text-lg px-8 py-4 font-bold rounded-xl shadow-[0_0_25px_rgba(0,243,255,0.4)]">
+      МИССИЯНЫ БАСТАУ →
+    </button>
+  </div>
+</section>
+
+<!-- Main Interactive Content Container -->
+<main class="max-w-7xl mx-auto px-4 py-8 relative z-10 space-y-12" id="missions">
+  <div>
+    <h2 class="text-2xl sm:text-4xl font-extrabold text-center text-cyan-400 mb-8 tracking-wider drop-shadow-[0_0_15px_rgba(0,243,255,0.4)]">
+      5 ИНТЕРАКТИВТІ ЗЕРТХАНА
+    </h2>
+
+    <div class="cards grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div class="holo-card p-6 text-center cursor-pointer flex flex-col items-center justify-center gap-3" onclick="openLab(0)">
+        <div class="text-5xl text-cyan-400 drop-shadow-[0_0_15px_rgba(0,243,255,0.8)]">⚄</div>
+        <h3 class="text-lg font-bold text-white tracking-wide">QUANTUM DICE</h3>
+        <p class="text-xs text-cyan-200/70">2–10 кубик</p>
+      </div>
+
+      <div class="holo-card p-6 text-center cursor-pointer flex flex-col items-center justify-center gap-3" onclick="openLab(1)">
+        <div class="text-5xl text-yellow-400 drop-shadow-[0_0_15px_rgba(255,207,54,0.8)]">◉</div>
+        <h3 class="text-lg font-bold text-white tracking-wide">GOLD COIN</h3>
+        <p class="text-xs text-yellow-200/70">2–10 алтын монета</p>
+      </div>
+
+      <div class="holo-card p-6 text-center cursor-pointer flex flex-col items-center justify-center gap-3" onclick="openLab(2)">
+        <div class="text-5xl text-pink-500 drop-shadow-[0_0_15px_rgba(255,0,127,0.8)]">●</div>
+        <h3 class="text-lg font-bold text-white tracking-wide">CRYSTAL REACTOR</h3>
+        <p class="text-xs text-pink-200/70">2–20 түрлі түсті шар</p>
+      </div>
+
+      <div class="holo-card p-6 text-center cursor-pointer flex flex-col items-center justify-center gap-3" onclick="openLab(3)">
+        <div class="text-5xl text-emerald-400 drop-shadow-[0_0_15px_rgba(52,211,153,0.8)]">⑂</div>
+        <h3 class="text-lg font-bold text-white tracking-wide">DECISION TREE</h3>
+        <p class="text-xs text-emerald-200/70">Ықтималдық ағашы</p>
+      </div>
+
+      <div class="holo-card p-6 text-center cursor-pointer flex flex-col items-center justify-center gap-3 col-span-2 sm:col-span-1" onclick="openLab(4)">
+        <div class="text-5xl text-indigo-400 drop-shadow-[0_0_15px_rgba(129,140,248,0.8)]">∞</div>
+        <h3 class="text-lg font-bold text-white tracking-wide">INFINITY LAB</h3>
+        <p class="text-xs text-indigo-200/70">Үлкен сандар заңы</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Lab Simulation Section -->
+  <section id="lab" class="hidden space-y-8">
+    <h2 id="labTitle" class="text-2xl sm:text-3xl font-black text-center text-cyan-300 tracking-widest drop-shadow-[0_0_20px_rgba(0,243,255,0.6)]"></h2>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- 3D Canvas Box -->
+      <div class="glass-panel lg:col-span-7 p-5 flex flex-col justify-between space-y-4">
+        <div id="stage">
+          <div id="stageLabel" class="absolute top-4 left-4 z-20 text-cyan-300 text-xs font-mono tracking-widest bg-slate-950/70 px-3 py-1 rounded-full border border-cyan-500/30">
+            3D HOLOGRAPHIC SIMULATION
+          </div>
+        </div>
+
+        <div class="controls flex flex-wrap gap-3 items-center justify-center pt-2" id="controls"></div>
+        
+        <div class="result text-center text-cyan-200 text-lg font-bold min-h-[50px] flex items-center justify-center bg-cyan-950/30 border border-cyan-500/20 rounded-xl px-4" id="result">
+          Зертхана дайын
+        </div>
+      </div>
+
+      <!-- Real-time Chart & Stats Box -->
+      <div class="glass-panel lg:col-span-5 p-6 flex flex-col justify-between space-y-4">
+        <h3 class="text-xl font-extrabold text-cyan-300 tracking-wide border-b border-cyan-500/20 pb-3">
+          ТӘЖІРИБЕ НӘТИЖЕЛЕРІ
+        </h3>
+        
+        <canvas class="chart w-full h-[240px] rounded-xl bg-slate-950/80 border border-cyan-500/20" id="chart"></canvas>
+        
+        <div id="stats" class="text-base text-cyan-100 font-medium leading-relaxed bg-slate-900/60 p-4 rounded-xl border border-cyan-500/10"></div>
+      </div>
+    </div>
+
+    <!-- Missions & Quiz Section -->
+    <div class="glass-panel p-6 sm:p-8 space-y-6">
+      <h2 class="text-xl sm:text-2xl font-black text-center text-cyan-300 tracking-wider">
+        МАТЕМАТИКАЛЫҚ МИССИЯ
+      </h2>
+
+      <div class="levels flex gap-3 max-w-md mx-auto">
+        <button onclick="setLevel(0)" class="level-btn flex-1 py-2 text-sm font-bold rounded-lg">A деңгейі</button>
+        <button onclick="setLevel(1)" class="level-btn flex-1 py-2 text-sm font-bold rounded-lg">B деңгейі</button>
+        <button onclick="setLevel(2)" class="level-btn flex-1 py-2 text-sm font-bold rounded-lg">C деңгейі</button>
+      </div>
+
+      <div class="question bg-slate-950/80 border-l-4 border-cyan-400 p-5 rounded-r-xl text-lg sm:text-xl leading-relaxed text-cyan-50" id="question"></div>
+
+      <input id="answer" class="w-full text-lg p-3" placeholder="Жауап: 0.5, 1/2 немесе 50%">
+
+      <div class="controls flex flex-wrap gap-4 justify-center">
+        <button onclick="checkAnswer()" class="px-8 py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl">ТЕКСЕРУ</button>
+        <button onclick="showSolution()" class="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold rounded-xl border border-cyan-500/30">ТОЛЫҚ ШЕШІМІ</button>
+      </div>
+
+      <div id="feedback" class="min-h-[30px] text-center font-bold text-lg"></div>
+
+      <div class="solution hidden bg-slate-950/90 border border-cyan-500/30 p-6 rounded-xl text-cyan-100 font-mono leading-relaxed whitespace-pre-line text-sm sm:text-base" id="solution"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="text-center py-8 text-cyan-400/60 font-mono text-sm border-t border-cyan-500/10 mt-16 relative z-10">
+  PROBABILITY LAB 4.0 • 10-СЫНЫП • CINEMATIC SCI-FI EDITION
+</footer>
+
+<!-- Background Space Animation JS -->
+<script>
+  // Cosmic Stars Background Effect
+  const canvas = document.getElementById('space-bg');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+
+  function resizeSpace() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    initStars();
+  }
+
+  function initStars() {
+    stars = [];
+    const numStars = Math.floor((canvas.width * canvas.height) / 3000);
+    for (let i = 0; i < numStars; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 1.5 + 0.5,
+        color: ['#00f3ff', '#ffffff', '#79c7ff', '#ffcf36'][Math.floor(Math.random() * 4)],
+        alpha: Math.random(),
+        speed: Math.random() * 0.01 + 0.005
+      });
+    }
+  }
+
+  function drawSpace() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Dynamic Nebulae background glow
+    const grad = ctx.createRadialGradient(
+      canvas.width * 0.5, canvas.height * 0.4, 100,
+      canvas.width * 0.5, canvas.height * 0.5, canvas.width * 0.8
+    );
+    grad.addColorStop(0, 'rgba(6, 30, 60, 0.5)');
+    grad.addColorStop(0.5, 'rgba(4, 15, 35, 0.8)');
+    grad.addColorStop(1, 'rgba(3, 7, 18, 1)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    stars.forEach(s => {
+      s.alpha += s.speed;
+      if (s.alpha > 1 || s.alpha < 0) s.speed = -s.speed;
+      ctx.globalAlpha = Math.abs(s.alpha);
+      ctx.fillStyle = s.color;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(drawSpace);
+  }
+
+  window.addEventListener('resize', resizeSpace);
+  resizeSpace();
+  drawSpace();
+</script>
+
+<!-- Main Logic & 3D Simulation Engine -->
+<script type="module">
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js";
+
+const $ = id => document.getElementById(id);
+let lab = 0, level = 0, score = 0;
+let diceCount = 2, coinCount = 2, redCount = 3, blueCount = 2;
+let trials = 0, success = 0, history = [], busy = false;
+let scene, camera, renderer, world, raf;
+let dice = [], coins = [], balls = [], treeLines = [], infinityObject;
+let audioCtx, musicTimer, musicOn = false;
+const solved = new Set();
+
+const names = [
+ "QUANTUM DICE — КУБИКТЕР",
+ "GOLD COIN MATRIX — МОНЕТАЛАР",
+ "CRYSTAL REACTOR — ШАРЛАР",
+ "DECISION TREE — ЫҚТИМАЛДЫҚ АҒАШЫ",
+ "INFINITY LAB — ҮЛКЕН САНДАР ЗАҢЫ"
+];
+
+const tasks = [
+[
+ ["Бір кубик лақтырылды. Жұп сан түсу ықтималдығын тап.", .5,
+ "Барлық нәтижелер: 1,2,3,4,5,6.\nҚолайлы нәтижелер: 2,4,6.\nP=3/6=1/2=0.5.\nЖауабы: 50%."],
+ ["Екі кубик лақтырылды. Екеуінде де 6 түсу ықтималдығын тап.", 1/36,
+ "P=1/6 × 1/6=1/36.\nЖауабы: 1/36."],
+ ["Екі кубиктің қосындысы 7 болу ықтималдығын тап.", 1/6,
+ "Барлығы 36 нәтиже.\nҚолайлы жұптар: (1,6),(2,5),(3,4),(4,3),(5,2),(6,1).\nP=6/36=1/6."]
+],
+[
+ ["Монетаның елтаңба жағы түсу ықтималдығын тап.", .5,
+ "P=1/2=0.5."],
+ ["Монета 3 рет лақтырылды. Үшеуінде де елтаңба түсу ықтималдығын тап.", .125,
+ "P=(1/2)^3=1/8=0.125."],
+ ["Монета 4 рет лақтырылды. Дәл екі елтаңба түсу ықтималдығын тап.", .375,
+ "C(4,2)=6.\nБарлығы 16 нәтиже.\nP=6/16=3/8=0.375."]
+],
+[
+ ["3 қызыл, 2 көк шар бар. Қызыл шар түсу ықтималдығын тап.", .6,
+ "P=3/5=0.6."],
+ ["4 қызыл, 3 көк, 3 жасыл шар бар. Көк емес шар түсу ықтималдығын тап.", .7,
+ "P=(4+3)/10=0.7."],
+ ["5 қызыл, 4 көк шардан қайтармай екі шар алынды. Екеуі де қызыл болу ықтималдығын тап.", 5/18,
+ "P=5/9 × 4/8=20/72=5/18."]
+],
+[
+ ["P(A)=0.5, P(B)=0.4. Тәуелсіз A және B бірге орындалу ықтималдығын тап.", .2,
+ "P(A∩B)=0.5×0.4=0.2."],
+ ["P(A)=0.6, P(B)=0.5, P(A∩B)=0.2. A немесе B ықтималдығын тап.", .9,
+ "P(A∪B)=0.6+0.5-0.2=0.9."],
+ ["P(A)=0.4, P(B|A)=0.75. Бірлескен ықтималдықты тап.", .3,
+ "P(A∩B)=0.4×0.75=0.3."]
+],
+[
+ ["100 тәжірибеде 48 рет елтаңба түсті. Салыстырмалы жиілікті тап.", .48,
+ "W=48/100=0.48."],
+ ["Кубик 600 рет лақтырылды. 6 санының күтілетін түсу санын тап.", 100,
+ "E=600×1/6=100."],
+ ["1000 рет монета лақтырғанда елтаңба санының дисперсиясын тап.", 250,
+ "D(X)=1000×0.5×0.5=250."]
+]
+];
+
+function button(text, fn) {
+ const b = document.createElement("button");
+ b.textContent = text; b.onclick = fn;
+ $("controls").appendChild(b);
+ return b;
+}
+
+function selector(label, min, max, value, change) {
+ const box = document.createElement("label");
+ box.className = "flex items-center gap-2 text-cyan-200 font-bold text-sm bg-slate-900/60 border border-cyan-500/30 px-3 py-1.5 rounded-xl";
+ box.textContent = label + " ";
+ const s = document.createElement("select");
+ for(let n = min; n <= max; n++) {
+  const o = document.createElement("option");
+  o.value = n; o.textContent = n;
+  s.appendChild(o);
+ }
+ s.value = value;
+ s.onchange = () => change(Number(s.value));
+ box.appendChild(s);
+ $("controls").appendChild(box);
+ return s;
+}
+
+function reset() {
+ if(busy) return;
+ trials = success = 0; history = [];
+ $("result").textContent = "Зертхана дайын";
+ updateStats();
+}
+
+window.openLab = i => {
+ if(busy) return;
+ lab = i;
+ $("lab").style.display = "block";
+ $("labTitle").textContent = names[i];
+ $("controls").innerHTML = "";
+ createScene();
+
+ if(i === 0) {
+  selector("Кубик саны:", 2, 10, diceCount, n => {
+   diceCount = n; createDice(); reset();
+  });
+  button("🎲 ЛАҚТЫРУ", rollDice);
+  button("100 ТӘЖІРИБЕ", () => experiment(100));
+ }
+ if(i === 1) {
+  selector("Монета саны:", 2, 10, coinCount, n => {
+   coinCount = n; createCoins(); reset();
+  });
+  button("🪙 ЛАҚТЫРУ", flipCoins);
+  button("100 ТӘЖІРИБЕ", () => experiment(100));
+ }
+ if(i === 2) {
+  const red = selector("Қызыл:", 0, 20, redCount, n => {
+   redCount = n;
+   if(redCount + blueCount < 2) blueCount = 2 - redCount;
+   if(redCount + blueCount > 20) blueCount = 20 - redCount;
+   blue.value = blueCount; createBalls(); reset();
+  });
+  const blue = selector("Көк:", 0, 20, blueCount, n => {
+   blueCount = n;
+   if(redCount + blueCount < 2) redCount = 2 - blueCount;
+   if(redCount + blueCount > 20) redCount = 20 - blueCount;
+   red.value = redCount; createBalls(); reset();
+  });
+  button("ШАР ТАҢДАУ", pickBall);
+  button("100 ТӘЖІРИБЕ", () => experiment(100));
+ }
+ if(i === 3) {
+  button("ОҚИҒАНЫ МОДЕЛЬДЕУ", animateTree);
+  button("100 ТӘЖІРИБЕ", () => experiment(100));
+ }
+ if(i === 4) {
+  button("100 ТӘЖІРИБЕ", () => experiment(100));
+  button("10000 ТӘЖІРИБЕ", () => experiment(10000));
+ }
+ button("ҚАЙТА БАСТАУ", reset);
+ reset();
+ setLevel(0);
+ $("lab").scrollIntoView({ behavior: "smooth" });
+};
+
+window.setLevel = i => {
+ level = i;
+ document.querySelectorAll(".levels button").forEach((b, j) => {
+  b.classList.toggle("active", i === j);
+ });
+ $("question").textContent = tasks[lab][i][0];
+ $("answer").value = "";
+ $("feedback").textContent = "";
+ $("solution").style.display = "none";
+ $("solution").textContent = tasks[lab][i][2];
+};
+
+window.showSolution = () => {
+ $("solution").style.display = "block";
+};
+
+window.checkAnswer = () => {
+ const raw = $("answer").value.trim().replace(",", ".");
+ let value;
+ if(raw.endsWith("%")) value = parseFloat(raw) / 100;
+ else if(raw.includes("/")) {
+  const a = raw.split("/");
+  value = Number(a[0]) / Number(a[1]);
+ } else value = Number(raw);
+ 
+ if(!raw || !Number.isFinite(value)) {
+  $("feedback").textContent = "Жауапты дұрыс енгізіңіз.";
+  $("feedback").style.color = "#ff4976";
+  return;
+ }
+ if(Math.abs(value - tasks[lab][level][1]) < .0001) {
+  $("feedback").textContent = "✓ ДҰРЫС!";
+  $("feedback").style.color = "#00f3ff";
+  const key = lab + "-" + level;
+  if(!solved.has(key)) {
+   solved.add(key); score += 100;
+   $("score").textContent = "★ " + score + " ҰПАЙ";
+  }
+ } else {
+  $("feedback").textContent = "Қайта есептеп көріңіз.";
+  $("feedback").style.color = "#ff4976";
+ }
+};
+
+// 3D Visualizer Setup
+function createScene() {
+ if(raf) cancelAnimationFrame(raf);
+ if(renderer) {
+  renderer.dispose(); renderer.domElement.remove();
+ }
+ const holder = $("stage");
+ scene = new THREE.Scene();
+ scene.background = new THREE.Color(
+  [0x030d1a, 0x120a1c, 0x041622, 0x050e24, 0x041021][lab]
+ );
+ 
+ camera = new THREE.PerspectiveCamera(
+  45, holder.clientWidth / 480, .1, 150
+ );
+ camera.position.set(0, 5, 12);
+ camera.lookAt(0, 0, 0);
+ 
+ renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+ renderer.setSize(holder.clientWidth, 480);
+ renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+ renderer.shadowMap.enabled = true;
+ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+ renderer.toneMapping = THREE.ACESFilmicToneMapping;
+ renderer.toneMappingExposure = 1.6;
+ holder.appendChild(renderer.domElement);
+ 
+ world = new THREE.Group(); scene.add(world);
+ scene.add(new THREE.AmbientLight(0x79c7ff, 2.5));
+ 
+ const light = new THREE.DirectionalLight(0xffffff, 3.5);
+ light.position.set(4, 9, 7); light.castShadow = true;
+ scene.add(light);
+ 
+ const glow = new THREE.PointLight(
+  lab === 1 ? 0xffc16a : 0x00f3ff, 120, 35
+ );
+ glow.position.set(-4, 5, 4); scene.add(glow);
+
+ // Holographic Light Bars in Background
+ for(let i = -4; i <= 4; i++) {
+  const bar = new THREE.Mesh(
+   new THREE.BoxGeometry(.12, 11, .12),
+   new THREE.MeshBasicMaterial({
+    color: lab === 1 ? 0xffb35b : 0x00f3ff
+   })
+  );
+  bar.position.set(i * 3.8, 4, -12);
+  scene.add(bar);
+ }
+ 
+ const floor = new THREE.Mesh(
+  new THREE.PlaneGeometry(100, 100),
+  new THREE.MeshStandardMaterial({
+   color: 0x071526, metalness: .8, roughness: .2
+  })
+ );
+ floor.rotation.x = -Math.PI / 2;
+ floor.position.y = -2.1;
+ floor.receiveShadow = true;
+ scene.add(floor);
+ 
+ const grid = new THREE.GridHelper(40, 30, 0x00f3ff, 0x0c3452);
+ grid.position.y = -2.08; scene.add(grid);
+ 
+ const table = new THREE.Mesh(
+  new THREE.CylinderGeometry(5, 5.2, .3, 64),
+  new THREE.MeshStandardMaterial({
+   color: 0x0e273c, metalness: .75, roughness: .15
+  })
+ );
+ table.position.y = -1.85;
+ table.receiveShadow = true; scene.add(table);
+
+ if(lab === 0) createDice();
+ if(lab === 1) createCoins();
+ if(lab === 2) createBalls();
+ if(lab === 3) createTree();
+ if(lab === 4) createInfinity();
+
+ function animate(t) {
+  raf = requestAnimationFrame(animate);
+  if(!busy) {
+   if(lab === 1) {
+    coins.forEach((c, i) => {
+     c.position.y = c.userData.baseY + Math.sin(t * .0015 + i) * .035;
+    });
+   }
+   if(lab === 4 && infinityObject) {
+    infinityObject.rotation.y += .006;
+    infinityObject.rotation.x += .002;
+   }
+  }
+  renderer.render(scene, camera);
+ }
+ animate(0);
+}
+
+// 1. QUANTUM DICE
+function pipTexture(n) {
+ const c = document.createElement("canvas");
+ c.width = c.height = 256;
+ const x = c.getContext("2d");
+ x.fillStyle = "#e2f8ff"; x.fillRect(0, 0, 256, 256);
+ x.fillStyle = "#031424";
+ const positions = {
+  1: [[128, 128]],
+  2: [[65, 65], [191, 191]],
+  3: [[65, 65], [128, 128], [191, 191]],
+  4: [[65, 65], [191, 65], [65, 191], [191, 191]],
+  5: [[65, 65], [191, 65], [128, 128], [65, 191], [191, 191]],
+  6: [[65, 55], [191, 55], [65, 128], [191, 128], [65, 201], [191, 201]]
+ };
+ positions[n].forEach(([a, b]) => {
+  x.beginPath(); x.arc(a, b, 20, 0, Math.PI * 2); x.fill();
+ });
+ return new THREE.CanvasTexture(c);
+}
+
+const diceMat = [1, 6, 2, 5, 3, 4].map(n =>
+ new THREE.MeshStandardMaterial({
+  map: pipTexture(n), roughness: .2, metalness: .1
+ })
+);
+
+function createDice() {
+ world.clear(); dice = [];
+ const cols = Math.min(diceCount, 5);
+ const rows = Math.ceil(diceCount / cols);
+ const spacing = 1.9;
+ for(let i = 0; i < diceCount; i++) {
+  const d = new THREE.Mesh(
+   new THREE.BoxGeometry(1.1, 1.1, 1.1), diceMat
+  );
+  d.position.set(
+   (i % cols - (cols - 1) / 2) * spacing,
+   -.85,
+   (Math.floor(i / cols) - (rows - 1) / 2) * spacing
+  );
+  d.castShadow = true;
+  world.add(d); dice.push(d);
+ }
+ camera.position.set(0, diceCount > 5 ? 7 : 5, diceCount > 5 ? 16 : 12);
+ camera.lookAt(0, -.2, 0);
+}
+
+const diceRot = {
+ 1: [0, 0, -Math.PI / 2],
+ 2: [0, 0, 0],
+ 3: [Math.PI / 2, 0, 0],
+ 4: [-Math.PI / 2, 0, 0],
+ 5: [Math.PI, 0, 0],
+ 6: [0, 0, Math.PI / 2]
+};
+
+function rollDice() {
+ if(busy) return;
+ busy = true;
+ const values = dice.map(() => 1 + Math.floor(Math.random() * 6));
+ const start = performance.now();
+ const bases = dice.map(d => d.position.y);
+ function frame(now) {
+  const t = Math.min((now - start) / 1800, 1);
+  const e = 1 - Math.pow(1 - t, 3);
+  dice.forEach((d, i) => {
+   const r = diceRot[values[i]];
+   const spin = 4 * Math.PI * (1 - e);
+   d.rotation.set(r[0] + spin, r[1] + spin * .8, r[2] + spin * .6);
+   d.position.y = bases[i] + Math.sin(Math.PI * t) * 2.8;
+  });
+  if(t < 1) requestAnimationFrame(frame);
+  else {
+   dice.forEach((d, i) => {
+    d.rotation.set(...diceRot[values[i]]);
+    d.position.y = bases[i];
+   });
+   $("result").innerHTML =
+    "Нәтижелер: " + values.join(" + ") +
+    "<br>Қосынды: <b class='text-cyan-300'>" + values.reduce((a, b) => a + b, 0) + "</b>";
+   record(values.every(v => v % 2 === 0));
+   busy = false;
+  }
+ }
+ requestAnimationFrame(frame);
+}
+
+// 2. GOLD COIN MATRIX
+function coinTexture(front) {
+ const c = document.createElement("canvas");
+ c.width = c.height = 512;
+ const x = c.getContext("2d");
+ const g = x.createRadialGradient(180, 120, 20, 256, 256, 280);
+ g.addColorStop(0, "#fff7c7");
+ g.addColorStop(.5, "#e8b54b");
+ g.addColorStop(1, "#8a5412");
+ x.fillStyle = g; x.fillRect(0, 0, 512, 512);
+ x.strokeStyle = "#fff0a2"; x.lineWidth = 22;
+ x.beginPath(); x.arc(256, 256, 218, 0, Math.PI * 2); x.stroke();
+ x.fillStyle = "#543306"; x.textAlign = "center";
+ x.textBaseline = "middle";
+ if(front) {
+  x.font = "bold 170px Georgia";
+  x.fillText("★", 256, 235);
+  x.font = "bold 37px Arial";
+  x.fillText("ЕЛТАҢБА", 256, 360);
+ } else {
+  x.font = "bold 175px Georgia";
+  x.fillText("1", 256, 235);
+  x.font = "bold 45px Arial";
+  x.fillText("ТЕҢГЕ", 256, 360);
+ }
+ return new THREE.CanvasTexture(c);
+}
+
+const coinMaterials = [
+ new THREE.MeshStandardMaterial({
+  color: 0xd6a23f, metalness: .85, roughness: .2
+ }),
+ new THREE.MeshStandardMaterial({
+  map: coinTexture(true), metalness: .4, roughness: .25
+ }),
+ new THREE.MeshStandardMaterial({
+  map: coinTexture(false), metalness: .4, roughness: .25
+ })
+];
+
+function createCoins() {
+ world.clear(); coins = [];
+ const cols = Math.min(coinCount, 5);
+ const rows = Math.ceil(coinCount / cols);
+ const spacing = 2.05;
+ for(let i = 0; i < coinCount; i++) {
+  const group = new THREE.Group();
+  const mesh = new THREE.Mesh(
+   new THREE.CylinderGeometry(.78, .78, .12, 64),
+   coinMaterials
+  );
+  mesh.castShadow = true;
+  group.add(mesh);
+  group.position.set(
+   (i % cols - (cols - 1) / 2) * spacing,
+   -.65,
+   (Math.floor(i / cols) - (rows - 1) / 2) * spacing
+  );
+  group.userData.baseY = group.position.y;
+  group.rotation.z = .3;
+  world.add(group); coins.push(group);
+ }
+ camera.position.set(0, coinCount > 5 ? 7 : 5, coinCount > 5 ? 16 : 12);
+ camera.lookAt(0, -.2, 0);
+}
+
+function flipCoins() {
+ if(busy) return;
+ busy = true;
+ const values = coins.map(() => Math.random() < .5);
+ const start = performance.now();
+ function frame(now) {
+  const t = Math.min((now - start) / 1900, 1);
+  const e = 1 - Math.pow(1 - t, 3);
+  coins.forEach((c, i) => {
+   const end = values[i] ? 0 : Math.PI;
+   c.rotation.z = 8 * Math.PI * (1 - e) + end * e;
+   c.position.y = c.userData.baseY + Math.sin(Math.PI * t) * 3;
+  });
+  if(t < 1) requestAnimationFrame(frame);
+  else {
+   coins.forEach((c, i) => {
+    c.rotation.z = values[i] ? 0 : Math.PI;
+    c.position.y = c.userData.baseY;
+   });
+   const heads = values.filter(Boolean).length;
+   $("result").innerHTML =
+    "Елтаңба: <b class='text-yellow-400'>" + heads + "</b> | Сан жағы: <b class='text-yellow-400'>" +
+    (coinCount - heads) + "</b><br>" +
+    values.map(v => v ? "★" : "1").join(" · ");
+   record(values.every(Boolean));
+   busy = false;
+  }
+ }
+ requestAnimationFrame(frame);
+}
+
+// 3. CRYSTAL REACTOR
+function createBalls() {
+ world.clear(); balls = [];
+ const total = redCount + blueCount;
+ const glass = new THREE.Mesh(
+  new THREE.CylinderGeometry(2.4, 2.1, 3.5, 64, 1, true),
+  new THREE.MeshPhysicalMaterial({
+   color: 0x00f3ff, transparent: true,
+   opacity: .2, roughness: .05,
+   side: THREE.DoubleSide, depthWrite: false
+  })
+ );
+ glass.position.y = -.1; world.add(glass);
+ const bottom = new THREE.Mesh(
+  new THREE.CylinderGeometry(2.1, 2.1, .12, 64),
+  new THREE.MeshStandardMaterial({
+   color: 0x113e54, metalness: .6, roughness: .2
+  })
+ );
+ bottom.position.y = -1.9; world.add(bottom);
+ for(let i = 0; i < total; i++) {
+  const red = i < redCount;
+  const b = new THREE.Mesh(
+   new THREE.SphereGeometry(.36, 32, 24),
+   new THREE.MeshPhysicalMaterial({
+    color: red ? 0xff0055 : 0x00d9ff,
+    roughness: .15, metalness: .2, clearcoat: 1
+   })
+  );
+  const layer = Math.floor(i / 7);
+  const angle = i * 2.39996;
+  const radius = .5 + Math.sqrt(i % 7) * .42;
+  b.position.set(
+   Math.cos(angle) * radius,
+   -1.35 + layer * .75,
+   Math.sin(angle) * radius
+  );
+  b.userData.red = red;
+  b.userData.base = b.position.clone();
+  b.castShadow = true;
+  world.add(b); balls.push(b);
+ }
+ camera.position.set(0, 3.5, 10);
+ camera.lookAt(0, 0, 0);
+}
+
+function pickBall() {
+ if(busy || !balls.length) return;
+ busy = true;
+ const i = Math.floor(Math.random() * balls.length);
+ const ball = balls[i];
+ const start = performance.now();
+ const base = ball.userData.base.clone();
+ function frame(now) {
+  const t = Math.min((now - start) / 1600, 1);
+  ball.position.y = base.y + Math.sin(Math.PI * t) * 3;
+  ball.scale.setScalar(1 + Math.sin(Math.PI * t) * .4);
+  if(t < 1) requestAnimationFrame(frame);
+  else {
+   ball.position.copy(base);
+   ball.scale.setScalar(1);
+   $("result").innerHTML = ball.userData.red ?
+    "<span class='text-pink-500 font-bold'>🔴 ҚЫЗЫЛ ШАР</span>" : "<span class='text-cyan-400 font-bold'>🔵 КӨК ШАР</span>";
+   record(ball.userData.red);
+   busy = false;
+  }
+ }
+ requestAnimationFrame(frame);
+}
+
+// 4. DECISION TREE
+function createTree() {
+ world.clear(); treeLines = [];
+ const pts = [[0, 2, 0], [-2, 0, 0], [2, 0, 0],
+ [-3, -2, 0], [-1, -2, 0], [1, -2, 0], [3, -2, 0]];
+ pts.forEach(p => {
+  const s = new THREE.Mesh(
+   new THREE.SphereGeometry(.25, 24, 16),
+   new THREE.MeshStandardMaterial({
+    color: 0x00f3ff, emissive: 0x0088aa
+   })
+  );
+  s.position.set(...p); world.add(s);
+ });
+ [[0, 1], [0, 2], [1, 3], [1, 4], [2, 5], [2, 6]].forEach(([a, b]) => {
+  const geo = new THREE.BufferGeometry().setFromPoints([
+   new THREE.Vector3(...pts[a]),
+   new THREE.Vector3(...pts[b])
+  ]);
+  const line = new THREE.Line(geo,
+   new THREE.LineBasicMaterial({ color: 0x114666 }));
+  world.add(line); treeLines.push(line);
+ });
+ camera.position.set(0, 0, 12);
+ camera.lookAt(0, 0, 0);
+}
+
+function animateTree() {
+ if(busy) return;
+ busy = true;
+ const a = Math.random() < .5;
+ const b = Math.random() < .4;
+ treeLines.forEach(l => l.material.color.setHex(0x114666));
+ const path = a ? [0, b ? 2 : 3] : [1, b ? 4 : 5];
+ path.forEach((index, i) => {
+  setTimeout(() => {
+   treeLines[index].material.color.setHex(0xffcf36);
+  }, 450 * (i + 1));
+ });
+ setTimeout(() => {
+  $("result").textContent =
+   "A: " + (a ? "Иә" : "Жоқ") +
+   " | B: " + (b ? "Иә" : "Жоқ");
+  record(a && b); busy = false;
+ }, 1300);
+}
+
+// 5. INFINITY LAB
+function createInfinity() {
+ world.clear();
+ infinityObject = new THREE.Mesh(
+  new THREE.TorusKnotGeometry(1.7, .32, 220, 28),
+  new THREE.MeshPhysicalMaterial({
+   color: 0x00f3ff, metalness: .6,
+   roughness: .1, emissive: 0x005577
+  })
+ );
+ world.add(infinityObject);
+ camera.position.set(0, 3, 10);
+ camera.lookAt(0, 0, 0);
+}
+
+// Statistics Engine
+function record(hit) {
+ trials++; if(hit) success++;
+ history.push(success / trials);
+ if(history.length > 350) history.shift();
+ updateStats();
+}
+
+function experiment(n) {
+ if(busy) return;
+ let last = "";
+ for(let i = 0; i < n; i++) {
+  let hit = false;
+  if(lab === 0) {
+   const v = Array.from({ length: diceCount },
+    () => 1 + Math.floor(Math.random() * 6));
+   hit = v.every(x => x % 2 === 0);
+   last = "Қосынды: " + v.reduce((a, b) => a + b, 0);
+  } else if(lab === 1) {
+   const v = Array.from({ length: coinCount },
+    () => Math.random() < .5);
+   hit = v.every(Boolean);
+   last = "Елтаңба саны: " + v.filter(Boolean).length;
+  } else if(lab === 2) {
+   hit = Math.random() < redCount / (redCount + blueCount);
+   last = hit ? "Қызыл" : "Көк";
+  } else if(lab === 3) {
+   hit = Math.random() < .2;
+   last = hit ? "A және B" : "Басқа нәтиже";
+  } else {
+   hit = Math.random() < .5;
+   last = hit ? "Елтаңба" : "Сан жағы";
+  }
+  trials++; if(hit) success++;
+  if(i === n - 1 || i % Math.max(1, Math.floor(n / 300)) === 0)
+   history.push(success / trials);
+ }
+ if(history.length > 350) history = history.slice(-350);
+ $("result").textContent = n + " тәжірибе аяқталды. " + last;
+ updateStats();
+}
+
+function updateStats() {
+ const p = lab === 0 ? Math.pow(.5, diceCount) :
+ lab === 1 ? Math.pow(.5, coinCount) :
+ lab === 2 ? redCount / (redCount + blueCount) :
+ lab === 3 ? .2 : .5;
+ 
+ $("stats").innerHTML =
+ "Тәжірибе саны: <b class='text-cyan-300'>" + trials + "</b><br>" +
+ "Қолайлы нәтиже: <b class='text-cyan-300'>" + success + "</b><br>" +
+ "Тәжірибелік ықтималдық: <b class='text-cyan-300'>" +
+ (trials ? 100 * success / trials : 0).toFixed(2) + "%</b><br>" +
+ "Теориялық ықтималдық: <b class='text-yellow-400'>" +
+ (100 * p).toFixed(3) + "%</b><br>" +
+ (lab === 0 ? "Оқиға: барлық кубик жұп сан" : lab === 1 ?
+ "Оқиға: барлық монета елтаңба" : lab === 2 ?
+ "Оқиға: қызыл шар" : "Оқиға ықтималдығы");
+ drawChart(p);
+}
+
+function drawChart(p) {
+ const canvas = $("chart");
+ const c = canvas.getContext("2d");
+ const w = canvas.width = canvas.clientWidth * devicePixelRatio;
+ const h = canvas.height = 240 * devicePixelRatio;
+ c.clearRect(0, 0, w, h);
+ 
+ c.strokeStyle = "rgba(0, 243, 255, 0.15)";
+ c.lineWidth = 1;
+ for(let i = 0; i <= 5; i++) {
+  c.beginPath(); c.moveTo(0, h * i / 5);
+  c.lineTo(w, h * i / 5); c.stroke();
+ }
+ 
+ c.strokeStyle = "#ffcf36"; c.setLineDash([8, 6]);
+ c.lineWidth = 2 * devicePixelRatio;
+ c.beginPath(); c.moveTo(0, h * (1 - p));
+ c.lineTo(w, h * (1 - p)); c.stroke();
+ c.setLineDash([]);
+ 
+ if(history.length < 2) return;
+ c.strokeStyle = "#00f3ff";
+ c.lineWidth = 3 * devicePixelRatio;
+ c.beginPath();
+ history.forEach((v, i) => {
+  const x = i / (history.length - 1) * w;
+  const y = h * (1 - v);
+  i ? c.lineTo(x, y) : c.moveTo(x, y);
+ });
+ c.stroke();
+}
+
+// Audio Synthesizer & Fullscreen
+window.toggleMusic = () => {
+ if(musicOn) {
+  clearInterval(musicTimer); musicOn = false;
+  $("musicBtn").textContent = "♫ Әуен"; return;
+ }
+ if(!audioCtx)
+  audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+ audioCtx.resume(); musicOn = true;
+ $("musicBtn").textContent = "♫ Өшіру";
+ const notes = [220, 261.63, 329.63, 392, 440, 392, 329.63, 261.63];
+ let index = 0;
+ function play() {
+  if(!musicOn) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = "sine";
+  osc.frequency.value = notes[index++ % notes.length];
+  gain.gain.setValueAtTime(.0001, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(.03, audioCtx.currentTime + .08);
+  gain.gain.exponentialRampToValueAtTime(.0001, audioCtx.currentTime + .6);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(); osc.stop(audioCtx.currentTime + .65);
+ }
+ play(); musicTimer = setInterval(play, 680);
+};
+
+window.toggleFull = () => {
+ if(!document.fullscreenElement)
+  document.documentElement.requestFullscreen?.();
+ else document.exitFullscreen?.();
+};
+</script>
+</body>
+</html>

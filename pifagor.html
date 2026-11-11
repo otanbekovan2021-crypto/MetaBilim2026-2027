@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Пифагор — Ежелгі Римдегі математикалық саяхат</title>
+<style>
+*{box-sizing:border-box}
+body{
+margin:0;
+background:#130e09;
+color:#fff8e9;
+font-family:Segoe UI,Arial,sans-serif;
+overflow-x:hidden
+}
+[hidden]{display:none!important}
+button{
+border:1px solid #e6c28b66;
+background:linear-gradient(135deg,#80552e,#4c301b);
+color:#fff5dc;
+border-radius:12px;
+padding:12px 20px;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+margin:4px;
+transition:.25s;
+box-shadow:0 5px 15px #0005
+}
+button:hover{
+background:#b78040;
+transform:translateY(-2px)
+}
+button:disabled{opacity:.45;cursor:not-allowed}
+.gold{
+background:linear-gradient(135deg,#f6cf83,#b77a35);
+color:#241407;
+border:0
+}
+.gold:hover{background:#ffe0a2}
+h1,h2,h3{font-family:Georgia,serif}
+
+/* БАСТЫ БЕТ */
+#intro{
+min-height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+text-align:center;
+padding:30px;
+position:relative;
+overflow:hidden;
+background:
+linear-gradient(#100b08aa,#100b08d9),
+url("https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=1920&auto=format&fit=crop")
+center/cover
+}
+#intro:before{
+content:"";
+position:absolute;
+inset:-30px;
+background:linear-gradient(110deg,transparent,#f9d59622,transparent);
+animation:lightMove 10s infinite alternate
+}
+@keyframes lightMove{
+to{transform:translateX(20%)}
+}
+.introContent{
+position:relative;
+z-index:2;
+max-width:900px;
+background:#21170cb8;
+padding:40px;
+border:1px solid #d8ad6d88;
+border-radius:24px;
+backdrop-filter:blur(6px)
+}
+#intro h1{
+font-size:clamp(38px,6vw,75px);
+color:#ffe2a0;
+text-shadow:0 5px 25px #000;
+margin:15px 0
+}
+#intro p{
+font-size:clamp(17px,2vw,23px);
+line-height:1.6
+}
+.small{color:#e5c99e;font-size:15px!important}
+
+/* ЖОҒАРҒЫ БӨЛІК */
+header{
+background:#26180d;
+text-align:center;
+padding:15px;
+border-bottom:2px solid #ad8247
+}
+header h1{
+color:#f8d899;
+font-size:clamp(22px,3vw,33px);
+margin:5px
+}
+header p{margin:5px;color:#d5b98b}
+.toolbar{
+text-align:center;
+padding:9px;
+background:#1b130c
+}
+.toolbar button{
+font-size:13px;
+padding:9px 14px
+}
+
+/* КИНО */
+#cinema{
+position:relative;
+height:clamp(510px,70vh,750px);
+overflow:hidden;
+background:#33271b;
+isolation:isolate
+}
+.romeBackground{
+position:absolute;
+inset:-40px;
+background:
+linear-gradient(90deg,#120c08aa,#24150833,#120c0888),
+url("https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=1920&auto=format&fit=crop")
+center/cover;
+animation:romeCamera 25s ease-in-out infinite alternate;
+filter:sepia(.22) saturate(1.15)
+}
+@keyframes romeCamera{
+from{transform:scale(1)}
+to{transform:scale(1.16) translate(-2%,-1%)}
+}
+.sunlight{
+position:absolute;
+top:-30%;
+right:0;
+width:70%;
+height:120%;
+background:linear-gradient(115deg,transparent 25%,#ffdc9055 48%,transparent 70%);
+filter:blur(35px);
+animation:sunMove 8s infinite alternate;
+pointer-events:none
+}
+@keyframes sunMove{
+from{opacity:.25;transform:rotate(-12deg)}
+to{opacity:.85;transform:rotate(-20deg)}
+}
+.romanCloud{
+position:absolute;
+left:-30%;
+font-size:110px;
+color:#fff2d0;
+opacity:.3;
+filter:blur(12px);
+animation:cloudMove 40s linear infinite;
+pointer-events:none
+}
+@keyframes cloudMove{
+to{transform:translateX(140vw)}
+}
+.dust{
+position:absolute;
+width:4px;height:4px;
+border-radius:50%;
+background:#ffe5a5;
+box-shadow:0 0 9px #ffe0a0;
+animation:dustFloat 9s linear infinite;
+pointer-events:none
+}
+@keyframes dustFloat{
+to{transform:translate(80px,-150px);opacity:0}
+}
+
+/* ПИФАГОР ПОРТРЕТІ */
+#portraitScene{
+position:absolute;
+inset:0;
+z-index:4;
+display:flex;
+align-items:center;
+justify-content:center;
+gap:35px;
+padding:35px;
+background:linear-gradient(90deg,#170f08ef,#21170b99);
+}
+.portraitFrame{
+width:clamp(180px,25vw,320px);
+height:clamp(230px,34vw,400px);
+border:7px ridge #c79a56;
+border-radius:8px;
+background:linear-gradient(145deg,#b9a48a,#514638);
+box-shadow:0 20px 45px #000b;
+overflow:hidden;
+flex-shrink:0;
+animation:portraitEnter 2s ease both
+}
+.portraitFrame img{
+width:100%;
+height:100%;
+object-fit:cover;
+filter:sepia(.25) contrast(1.1)
+}
+#portraitFallback{
+height:100%;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:130px;
+color:#f6e1b8
+}
+.portraitText{max-width:500px}
+.portraitText h2{
+font-size:clamp(32px,4vw,55px);
+color:#ffe1a1;
+margin:10px 0
+}
+.portraitText p{
+font-size:clamp(17px,2vw,22px);
+line-height:1.65;
+text-shadow:0 2px 5px #000
+}
+@keyframes portraitEnter{
+from{opacity:0;transform:translateY(45px) scale(.9)}
+to{opacity:1;transform:translateY(0) scale(1)}
+}
+
+/* ГЕОМЕТРИЯ */
+#mathWorld{
+position:absolute;
+inset:0;
+display:flex;
+align-items:center;
+justify-content:center;
+z-index:2;
+pointer-events:none
+}
+#diagram{
+width:min(78%,730px);
+height:95%;
+overflow:visible;
+filter:drop-shadow(0 12px 22px #000a)
+}
+#diagram polygon,#diagram path,#diagram text{
+transition:opacity 1.1s ease,fill 1s ease
+}
+#triangle{
+fill:#ffffff25;
+stroke:#fff5d2;
+stroke-width:5
+}
+#sqA{
+fill:#34d39988;
+stroke:#6ee7b7;
+stroke-width:4
+}
+#sqB{
+fill:#60a5fa88;
+stroke:#93c5fd;
+stroke-width:4
+}
+#sqC{
+fill:#fbbf2488;
+stroke:#ffe08a;
+stroke-width:4
+}
+.mathLabel{
+font-size:24px;
+fill:white;
+font-weight:bold;
+paint-order:stroke;
+stroke:#1b1209;
+stroke-width:5
+}
+#formulaBanner{
+position:absolute;
+top:7%;
+right:4%;
+z-index:5;
+background:#201409dd;
+border:2px solid #f7cf80;
+padding:16px 23px;
+border-radius:14px;
+color:#ffe19a;
+font-size:clamp(25px,4vw,45px);
+font-weight:bold;
+box-shadow:0 0 25px #f5c66c44
+}
+#narrator{
+position:absolute;
+bottom:15px;
+left:3%;
+z-index:6;
+max-width:560px;
+padding:17px 23px;
+background:#1c130be8;
+border:1px solid #c69b60;
+border-radius:17px;
+backdrop-filter:blur(9px);
+box-shadow:0 12px 30px #0009
+}
+#narrator h2{
+color:#ffe09c;
+font-size:25px;
+margin:0 0 8px
+}
+#narrator p{
+font-size:clamp(16px,1.8vw,20px);
+line-height:1.55;
+margin:0
+}
+#sceneControls{
+padding:15px;
+background:#21160c;
+text-align:center
+}
+#sceneCounter{
+color:#eacb98;
+margin-bottom:8px
+}
+
+/* ЕСЕПТЕР */
+#quiz{
+max-width:1050px;
+margin:30px auto;
+padding:30px;
+background:linear-gradient(145deg,#322114,#170f0b);
+border:1px solid #a97d4c;
+border-radius:22px;
+box-shadow:0 20px 40px #0007
+}
+#quiz h2{color:#ffdc95;font-size:32px}
+#question{
+font-size:22px;
+line-height:1.6
+}
+#quizVisual{
+height:280px;
+background:radial-gradient(circle,#3b2c1b,#100d0a);
+border:1px solid #8b6c46;
+border-radius:16px;
+display:flex;
+align-items:center;
+justify-content:center;
+margin:18px 0
+}
+#quizVisual svg{
+height:95%;
+max-width:100%
+}
+#answer{
+padding:14px;
+width:210px;
+max-width:65%;
+font-size:22px;
+border:2px solid #e5bc78;
+border-radius:11px;
+background:#fff9ed;
+color:#23180e;
+text-align:center
+}
+#feedback{
+min-height:35px;
+font-size:21px;
+font-weight:bold;
+margin:15px 0
+}
+#solution{
+background:#120e0b;
+border-left:5px solid #f5c66b;
+padding:22px;
+border-radius:12px;
+font-size:20px;
+line-height:1.9;
+margin-top:15px
+}
+#progress{
+height:13px;
+background:#54402a;
+border-radius:20px;
+overflow:hidden;
+margin:15px 0
+}
+#progressBar{
+height:100%;
+width:0;
+background:linear-gradient(90deg,#22c55e,#a3e635);
+transition:.5s
+}
+#score{font-size:20px;color:#fcd88e}
+#finish{
+max-width:750px;
+margin:40px auto;
+padding:40px;
+text-align:center;
+background:#2c1c10;
+border:1px solid #cda36a;
+border-radius:24px
+}
+#finish h1{color:#ffe09a;font-size:42px}
+
+@media(max-width:700px){
+#portraitScene{
+flex-direction:column;
+gap:10px;
+padding:12px;
+justify-content:flex-start
+}
+.portraitFrame{width:135px;height:155px}
+#portraitFallback{font-size:70px}
+.portraitText{text-align:center}
+.portraitText h2{font-size:25px}
+.portraitText p{font-size:14px;line-height:1.35}
+#diagram{width:98%;height:75%;margin-top:-85px}
+#narrator{
+left:3%;right:3%;bottom:8px;
+padding:12px
+}
+#narrator h2{font-size:19px}
+#narrator p{font-size:15px}
+#formulaBanner{top:3%;right:3%;font-size:24px;padding:9px}
+#quiz{margin:10px;padding:18px}
+}
+</style>
+</head>
+<body>
+
+<section id="intro">
+<div class="introContent">
+<div style="font-size:65px">🏛️ 📐 🎬</div>
+<h1>ПИФАГОРДЫҢ<br>КИНО ӘЛЕМІ</h1>
+<p>
+Ежелгі Римнің сәулетті ғимараттары аясында
+математиканың ұлы құпиясын аш!
+</p>
+<p class="small">
+🎬 Тарихи атмосфера • 📐 Анимациялық дәлелдеу
+<br>🎵 Әуен • 🧠 8 есеп
+</p>
+<button class="gold" onclick="startMovie()" style="font-size:22px;padding:18px 32px">
+▶ Киноны бастау
+</button>
+</div>
+</section>
+
+<div id="app" hidden>
+<header>
+<h1>🏛️ ПИФАГОР ТЕОРЕМАСЫ</h1>
+<p>8-сынып • Геометрия • Тарихи кино-зертхана</p>
+</header>
+
+<div class="toolbar">
+<button id="musicBtn" onclick="toggleMusic()">🎵 Әуен: қосулы</button>
+<button onclick="toggleFullscreen()">⛶ Толық экран</button>
+<button onclick="restartMovie()">🎬 Қайта көру</button>
+</div>
+
+<section id="cinema">
+<div class="romeBackground"></div>
+<div class="sunlight"></div>
+<div id="effects"></div>
+
+<div id="portraitScene" hidden>
+<div class="portraitFrame">
+<img id="pythagorasImage" alt="Пифагордың мүсіндік бейнесі" hidden>
+<div id="portraitFallback">🏛️</div>
+</div>
+<div class="portraitText">
+<h2>ПИФАГОР</h2>
+<p>
+Біздің заманымызға дейінгі VI ғасырда
+өмір сүрген ежелгі грек математигі және философы.
+</p>
+<p>
+Бүгін біз оның есімімен аталған әйгілі
+теореманың құпиясын ашамыз!
+</p>
+<p style="font-size:14px;color:#e9c98e">
+Ескерту: Рим көрінісі — тарихи атмосфера.
+Пифагор Ежелгі Грекияда өмір сүрген.
+</p>
+</div>
+</div>
+
+<div id="mathWorld">
+<svg id="diagram" viewBox="0 0 650 500">
+<polygon id="sqA"
+points="190,310 350,310 350,470 190,470"
+opacity="0"/>
+<polygon id="sqB"
+points="190,190 190,310 70,310 70,190"
+opacity="0"/>
+<polygon id="sqC"
+points="190,190 350,310 470,150 310,30"
+opacity="0"/>
+<polygon id="triangle"
+points="190,190 190,310 350,310"
+opacity="0"/>
+<path id="rightAngle"
+d="M190 288H212V310"
+fill="none" stroke="#ffe29c"
+stroke-width="4" opacity="0"/>
+
+<text id="labelA" class="mathLabel"
+x="270" y="337" text-anchor="middle" opacity="0">a = 4</text>
+<text id="labelB" class="mathLabel"
+x="175" y="250" text-anchor="end" opacity="0">b = 3</text>
+<text id="labelC" class="mathLabel"
+x="285" y="225" text-anchor="middle" opacity="0">c = 5</text>
+
+<text id="areaA" class="mathLabel"
+x="270" y="400" text-anchor="middle" opacity="0">a² = 16</text>
+<text id="areaB" class="mathLabel"
+x="130" y="255" text-anchor="middle" opacity="0">b² = 9</text>
+<text id="areaC" class="mathLabel"
+x="330" y="135" text-anchor="middle" opacity="0">c² = 25</text>
+</svg>
+</div>
+
+<div id="formulaBanner" hidden>a² + b² = c²</div>
+
+<div id="narrator">
+<h2 id="sceneTitle"></h2>
+<p id="sceneText"></p>
+</div>
+</section>
+
+<div id="sceneControls">
+<div id="sceneCounter"></div>
+<button onclick="previousScene()">◀ Алдыңғы</button>
+<button id="pauseBtn" onclick="togglePause()">⏸ Тоқтату</button>
+<button class="gold" onclick="nextScene()">Келесі ▶</button>
+<button onclick="startQuiz()">🧠 Есептерге өту</button>
+</div>
+
+<section id="quiz" hidden>
+<h2>📜 Пифагордың математикалық сынақтары</h2>
+<div id="score">⭐ Ұпай: <span id="scoreValue">0</span></div>
+<div id="progress"><div id="progressBar"></div></div>
+<h3 id="questionNumber"></h3>
+<p id="question"></p>
+<div id="quizVisual"></div>
+
+<div style="text-align:center">
+<input id="answer" type="number" step="any" placeholder="Жауабың">
+<button class="gold" onclick="checkAnswer()">✓ Тексеру</button>
+</div>
+
+<div id="feedback"></div>
+<button onclick="showSolution()">📖 Толық шешімін көрсету</button>
+<div id="solution" hidden></div>
+
+<div style="text-align:center;margin-top:20px">
+<button class="gold" id="nextQuestionBtn" onclick="nextQuestion()" hidden>
+Келесі есеп ➜
+</button>
+</div>
+</section>
+
+<section id="finish" hidden>
+<div style="font-size:75px">🏆</div>
+<h1>ЖАРАЙСЫҢ!</h1>
+<p style="font-size:22px">
+Сен Пифагордың математикалық сынақтарын аяқтадың!
+</p>
+<h2 id="finalScore"></h2>
+<button class="gold" onclick="restartQuiz()">🔄 Қайта ойнау</button>
+<button onclick="restartMovie()">🎬 Киноны қайта көру</button>
+</section>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+
+/* ===================================
+   1. ПИФАГОР ПОРТРЕТІ
+=================================== */
+
+async function loadPortrait(){
+try{
+const url="https://en.wikipedia.org/w/api.php?"+
+new URLSearchParams({
+action:"query",
+titles:"Pythagoras",
+prop:"pageimages",
+pithumbsize:"700",
+format:"json",
+origin:"*"
+});
+const response=await fetch(url);
+if(!response.ok)throw new Error("Жүктеу қатесі");
+const data=await response.json();
+const page=Object.values(data.query.pages)[0];
+
+if(page.thumbnail?.source){
+const img=$("pythagorasImage");
+img.onload=()=>{
+img.hidden=false;
+$("portraitFallback").hidden=true;
+};
+img.src=page.thumbnail.source;
+}
+}catch(error){
+console.log("Портрет жүктелмеді:",error);
+}
+}
+loadPortrait();
+
+/* ===================================
+   2. ҚОЗҒАЛАТЫН РИМ АТМОСФЕРАСЫ
+=================================== */
+
+function createEffects(){
+const container=$("effects");
+
+for(let i=0;i<4;i++){
+const cloud=document.createElement("div");
+cloud.className="romanCloud";
+cloud.textContent="☁";
+cloud.style.top=(5+i*14)+"%";
+cloud.style.animationDelay=(-i*11)+"s";
+cloud.style.animationDuration=(35+i*8)+"s";
+container.appendChild(cloud);
+}
+
+for(let i=0;i<65;i++){
+const dust=document.createElement("div");
+dust.className="dust";
+dust.style.left=Math.random()*100+"%";
+dust.style.top=Math.random()*100+"%";
+dust.style.animationDelay=(-Math.random()*9)+"s";
+dust.style.animationDuration=(5+Math.random()*8)+"s";
+container.appendChild(dust);
+}
+}
+createEffects();
+
+/* ===================================
+   3. ЖАҒЫМДЫ АСПАПТЫҚ ӘУЕН
+=================================== */
+
+let audioCtx=null;
+let musicTimer=null;
+let musicEnabled=true;
+let noteIndex=0;
+
+const melody=[
+392,440,523.25,659.25,
+587.33,523.25,440,392,
+349.23,392,440,523.25,
+493.88,440,392,349.23,
+329.63,392,440,523.25,
+587.33,659.25,523.25,440,
+392,349.23,329.63,349.23,
+392,440,392,0
+];
+
+function playNote(freq){
+if(!audioCtx||!freq)return;
+
+const t=audioCtx.currentTime;
+const osc=audioCtx.createOscillator();
+const gain=audioCtx.createGain();
+
+osc.type="sine";
+osc.frequency.value=freq;
+
+gain.gain.setValueAtTime(.0001,t);
+gain.gain.exponentialRampToValueAtTime(.055,t+.08);
+gain.gain.exponentialRampToValueAtTime(.0001,t+.55);
+
+osc.connect(gain);
+gain.connect(audioCtx.destination);
+osc.start(t);
+osc.stop(t+.6);
+}
+
+function startMusic(){
+if(!musicEnabled)return;
+if(!audioCtx){
+audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+}
+audioCtx.resume();
+if(musicTimer)return;
+
+playNote(melody[noteIndex++%melody.length]);
+musicTimer=setInterval(()=>{
+playNote(melody[noteIndex++%melody.length]);
+},580);
+}
+
+function stopMusic(){
+clearInterval(musicTimer);
+musicTimer=null;
+if(audioCtx)audioCtx.suspend();
+}
+
+function toggleMusic(){
+musicEnabled=!musicEnabled;
+if(musicEnabled)startMusic();
+else stopMusic();
+$("musicBtn").textContent=musicEnabled?
+"🎵 Әуен: қосулы":"🔇 Әуен: өшірулі";
+}
+
+/* ===================================
+   4. КИНО СЦЕНАРИЙІ
+=================================== */
+
+const scenes=[
+{
+title:"1. Ежелгі әлемге саяхат",
+text:"Көз алдыңа ежелгі өркениетті елестет! Зәулім бағандар, мәрмәр ғимараттар, ғылым мен өнер. Бүгін біз антикалық дәуірдің ұлы математигі Пифагормен танысамыз.",
+visible:[],
+portrait:true,
+duration:8500
+},
+{
+title:"2. Ұлы ғұлама Пифагор",
+text:"Пифагор — ежелгі грек философы және математигі. Оның есімімен аталған теорема ғасырлар бойы құрылыс, сәулет және геометрияда қолданылып келеді.",
+visible:[],
+portrait:true,
+duration:8500
+},
+{
+title:"3. Тікбұрышты үшбұрыш",
+text:"Міне, тікбұрышты үшбұрыш! Оның бір бұрышы дәл 90 градус. Қазір осы үшбұрыштың қабырғалары арасындағы байланысты зерттейміз.",
+visible:["triangle","rightAngle"],
+duration:8000
+},
+{
+title:"4. Катеттер мен гипотенуза",
+text:"Тік бұрышты құрайтын екі қабырға катеттер деп аталады. Олардың ұзындықтары 3 және 4. Ал тік бұрышқа қарсы жатқан қабырға гипотенуза деп аталады.",
+visible:["triangle","rightAngle","labelA","labelB","labelC"],
+duration:8500
+},
+{
+title:"5. Бірінші квадрат",
+text:"Ұзындығы 4 болатын катетке квадрат тұрғызамыз. Оның ауданы 4 көбейту 4, яғни 16 шаршы бірлік.",
+visible:["triangle","rightAngle","labelA","labelB","labelC","sqA","areaA"],
+duration:8000
+},
+{
+title:"6. Екінші квадрат",
+text:"Енді ұзындығы 3 болатын катетке квадрат тұрғызамыз. Оның ауданы 3 көбейту 3, яғни 9 шаршы бірлік.",
+visible:["triangle","rightAngle","labelA","labelB","labelC","sqA","sqB","areaA","areaB"],
+duration:8000
+},
+{
+title:"7. Үлкен квадрат",
+text:"Гипотенузаға да квадрат тұрғызайық. Оның ауданы 25 шаршы бірлік! Байқадың ба? 16 мен 9-дың қосындысы дәл 25-ке тең.",
+visible:["triangle","rightAngle","labelA","labelB","labelC","sqA","sqB","sqC","areaA","areaB","areaC"],
+formula:true,
+duration:9000
+},
+{
+title:"8. Пифагор теоремасы",
+text:"Теорема былай тұжырымдалады: тікбұрышты үшбұрыштың катеттері квадраттарының қосындысы гипотенузаның квадратына тең. 3² + 4² = 5². Енді өз біліміңді сына!",
+visible:["triangle","rightAngle","labelA","labelB","labelC","sqA","sqB","sqC","areaA","areaB","areaC"],
+formula:true,
+duration:10000
+}
+];
+
+const svgParts=[
+"triangle","rightAngle","labelA","labelB","labelC",
+"sqA","sqB","sqC","areaA","areaB","areaC"
+];
+
+let sceneIndex=0;
+let movieTimer=null;
+let paused=false;
+
+function startMovie(){
+$("intro").hidden=true;
+$("app").hidden=false;
+$("cinema").hidden=false;
+$("sceneControls").hidden=false;
+$("quiz").hidden=true;
+$("finish").hidden=true;
+
+sceneIndex=0;
+paused=false;
+startMusic();
+renderScene();
+}
+
+function renderScene(){
+clearTimeout(movieTimer);
+
+const s=scenes[sceneIndex];
+
+$("sceneTitle").textContent=s.title;
+$("sceneText").textContent=s.text;
+$("sceneCounter").textContent=
+"🎞️ Көрініс "+(sceneIndex+1)+" / "+scenes.length;
+
+$("portraitScene").hidden=!s.portrait;
+$("formulaBanner").hidden=!s.formula;
+
+svgParts.forEach(id=>{
+$(id).setAttribute(
+"opacity",
+s.visible.includes(id)?"1":"0"
+);
+});
+
+$("pauseBtn").textContent=
+paused?"▶ Жалғастыру":"⏸ Тоқтату";
+
+if(!paused){
+movieTimer=setTimeout(()=>{
+if(sceneIndex<scenes.length-1){
+sceneIndex++;
+renderScene();
+}else{
+startQuiz();
+}
+},s.duration);
+}
+}
+
+function nextScene(){
+if(sceneIndex<scenes.length-1){
+sceneIndex++;
+paused=false;
+renderScene();
+}else{
+startQuiz();
+}
+}
+
+function previousScene(){
+sceneIndex=Math.max(0,sceneIndex-1);
+paused=false;
+renderScene();
+}
+
+function togglePause(){
+paused=!paused;
+renderScene();
+}
+
+function restartMovie(){
+clearTimeout(movieTimer);
+$("intro").hidden=true;
+$("app").hidden=false;
+$("cinema").hidden=false;
+$("sceneControls").hidden=false;
+$("quiz").hidden=true;
+$("finish").hidden=true;
+sceneIndex=0;
+paused=false;
+startMusic();
+renderScene();
+window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* ===================================
+   5. МАТЕМАТИКАЛЫҚ ЕСЕПТЕР
+=================================== */
+
+const questions=[
+{
+text:"Тікбұрышты үшбұрыштың катеттері 3 см және 4 см. Гипотенузасын тап.",
+a:3,b:4,c:null,
+answer:5,unit:"см",
+solution:"c² = 3² + 4² = 9 + 16 = 25. Сондықтан c = √25 = 5 см."
+},
+{
+text:"Катеттері 6 см және 8 см. Гипотенузасын тап.",
+a:6,b:8,c:null,
+answer:10,unit:"см",
+solution:"c² = 6² + 8² = 36 + 64 = 100. c = √100 = 10 см."
+},
+{
+text:"Гипотенуза 13 см, бір катет 5 см. Екінші катетті тап.",
+a:5,b:null,c:13,
+answer:12,unit:"см",
+solution:"b² = 13² − 5² = 169 − 25 = 144. b = √144 = 12 см."
+},
+{
+text:"Катеттері 9 см және 12 см. Гипотенузасын тап.",
+a:9,b:12,c:null,
+answer:15,unit:"см",
+solution:"c² = 9² + 12² = 81 + 144 = 225. c = √225 = 15 см."
+},
+{
+text:"Ұзындығы 10 м баспалдақ қабырғаға сүйеулі тұр. Төменгі ұшы қабырғадан 6 м қашықтықта. Баспалдақ қанша метр биіктікке жетеді?",
+a:6,b:null,c:10,
+answer:8,unit:"м",
+solution:"h² = 10² − 6² = 100 − 36 = 64. h = √64 = 8 м."
+},
+{
+text:"Тіктөртбұрыштың ұзындығы 12 см, ені 5 см. Диагоналін тап.",
+a:12,b:5,c:null,
+answer:13,unit:"см",
+solution:"d² = 12² + 5² = 144 + 25 = 169. d = √169 = 13 см."
+},
+{
+text:"Гипотенуза 17 см, бір катет 8 см. Екінші катетті тап.",
+a:8,b:null,c:17,
+answer:15,unit:"см",
+solution:"b² = 17² − 8² = 289 − 64 = 225. b = √225 = 15 см."
+},
+{
+text:"Саябақта шығысқа 15 м, содан кейін солтүстікке 20 м жүрдің. Бастапқы нүктеден түзу қашықтықты тап.",
+a:15,b:20,c:null,
+answer:25,unit:"м",
+solution:"c² = 15² + 20² = 225 + 400 = 625. c = √625 = 25 м."
+}
+];
+
+let currentQuestion=0;
+let score=0;
+let answered=false;
+
+function triangleVisual(q){
+const a=q.a===null?"?":q.a;
+const b=q.b===null?"?":q.b;
+const c=q.c===null?"?":q.c;
+
+return `
+<svg viewBox="0 0 480 260">
+<polygon
+points="100,215 100,45 350,215"
+fill="#e9b86d22"
+stroke="#f8d28d"
+stroke-width="4"/>
+<path d="M100 190H125V215"
+fill="none" stroke="white" stroke-width="3"/>
+<text x="70" y="130"
+fill="#4ade80" font-size="25"
+font-weight="bold" text-anchor="middle">${b}</text>
+<text x="225" y="245"
+fill="#93c5fd" font-size="25"
+font-weight="bold" text-anchor="middle">${a}</text>
+<text x="250" y="110"
+fill="#fde68a" font-size="25"
+font-weight="bold" text-anchor="middle">${c}</text>
+<text x="112" y="182" fill="white" font-size="16">90°</text>
+</svg>`;
+}
+
+function startQuiz(){
+clearTimeout(movieTimer);
+$("cinema").hidden=true;
+$("sceneControls").hidden=true;
+$("quiz").hidden=false;
+$("finish").hidden=true;
+
+currentQuestion=0;
+score=0;
+showQuestion();
+$("quiz").scrollIntoView({behavior:"smooth"});
+}
+
+function showQuestion(){
+answered=false;
+const q=questions[currentQuestion];
+
+$("questionNumber").textContent=
+"📍 Есеп "+(currentQuestion+1)+" / "+questions.length;
+$("question").textContent=q.text;
+$("quizVisual").innerHTML=triangleVisual(q);
+
+$("answer").value="";
+$("answer").disabled=false;
+$("feedback").textContent="";
+$("solution").hidden=true;
+$("nextQuestionBtn").hidden=true;
+$("scoreValue").textContent=score;
+
+$("progressBar").style.width=
+(currentQuestion/questions.length*100)+"%";
+
+$("answer").focus();
+}
+
+function checkAnswer(){
+if(answered)return;
+
+const raw=$("answer").value.trim();
+
+if(raw===""){
+$("feedback").textContent="✏️ Алдымен жауабыңды енгіз!";
+$("feedback").style.color="#fde68a";
+return;
+}
+
+const value=Number(raw);
+const q=questions[currentQuestion];
+
+if(Math.abs(value-q.answer)<0.0001){
+answered=true;
+score+=10;
+$("scoreValue").textContent=score;
+$("answer").disabled=true;
+
+$("feedback").textContent=
+"🌟 Дұрыс! Жарайсың! +10 ұпай";
+$("feedback").style.color="#4ade80";
+$("nextQuestionBtn").hidden=false;
+
+}else{
+$("feedback").textContent=
+"❌ Дұрыс емес. Пифагор формуласын қолданып қайта есепте!";
+$("feedback").style.color="#f87171";
+}
+}
+
+function showSolution(){
+const q=questions[currentQuestion];
+
+$("solution").hidden=false;
+$("solution").innerHTML=
+"<b>📖 Толық шешімі:</b><br>"+
+q.solution+
+"<br><b style='color:#4ade80'>Жауабы: "+
+q.answer+" "+q.unit+"</b>";
+}
+
+function nextQuestion(){
+if(!answered)return;
+currentQuestion++;
+
+if(currentQuestion>=questions.length){
+finishQuiz();
+}else{
+showQuestion();
+}
+}
+
+function finishQuiz(){
+$("quiz").hidden=true;
+$("finish").hidden=false;
+
+$("finalScore").textContent=
+"⭐ Сен "+score+" / "+(questions.length*10)+
+" ұпай жинадың!";
+
+$("finish").scrollIntoView({behavior:"smooth"});
+}
+
+function restartQuiz(){
+currentQuestion=0;
+score=0;
+$("finish").hidden=true;
+$("quiz").hidden=false;
+showQuestion();
+}
+
+$("answer").addEventListener("keydown",e=>{
+if(e.key==="Enter"){
+if(answered)nextQuestion();
+else checkAnswer();
+}
+});
+
+/* ===================================
+   6. ПРОЕКТОР — ТОЛЫҚ ЭКРАН
+=================================== */
+
+function toggleFullscreen(){
+if(!document.fullscreenElement){
+document.documentElement.requestFullscreen?.();
+}else{
+document.exitFullscreen?.();
+}
+}
+</script>
+</body>
+</html>

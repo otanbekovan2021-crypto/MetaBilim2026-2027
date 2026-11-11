@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <title>Жердің ішкі құрылысы 3D</title>
+    <style>
+        body { margin: 0; background: radial-gradient(circle, #1a1a2e 0%, #000 100%); overflow: hidden; font-family: sans-serif; }
+        #info-card {
+            position: absolute; top: 20px; left: 20px; width: 320px;
+            background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 100;
+        }
+        h2 { color: #d35400; margin: 0 0 10px 0; font-size: 22px; }
+        .desc { font-size: 14px; line-height: 1.6; color: #2c3e50; }
+        .nav { margin-top: 15px; font-weight: bold; color: #2980b9; cursor: pointer; text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div id="info-card">
+        <h2 id="title">Жердің құрылысы</h2>
+        <div id="text" class="desc">Зерттеуді бастау үшін экранды басыңыз немесе Жерді айналдырыңыз.</div>
+        <div class="nav" onclick="nextLayer()">Келесі қабатты көру →</div>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(10, 8, 12);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+        scene.add(ambientLight);
+        const pointLight = new THREE.PointLight(0xffffff, 2);
+        pointLight.position.set(10, 10, 10);
+        scene.add(pointLight);
+
+        // Жер қабаттарын жасау
+        const group = new THREE.Group();
+        scene.add(group);
+
+        // 1. Ішкі Ядро (Inner Core) - Сары
+        const innerGeo = new THREE.SphereGeometry(1.2, 32, 32);
+        const innerMat = new THREE.MeshPhongMaterial({ color: 0xfff347 });
+        group.add(new THREE.Mesh(innerGeo, innerMat));
+
+        // 2. Сыртқы Ядро (Outer Core) - Сәбіз түстес (кесілген)
+        const outerGeo = new THREE.SphereGeometry(2.2, 32, 32, 0, Math.PI * 1.5);
+        const outerMat = new THREE.MeshPhongMaterial({ color: 0xf39c12, side: THREE.DoubleSide });
+        const outerCore = new THREE.Mesh(outerGeo, outerMat);
+        group.add(outerCore);
+
+        // 3. Мантия (Mantle) - Қызыл-сары (кесілген)
+        const mantleGeo = new THREE.SphereGeometry(3.5, 32, 32, 0, Math.PI * 1.5);
+        const mantleMat = new THREE.MeshPhongMaterial({ color: 0xe67e22, side: THREE.DoubleSide });
+        const mantle = new THREE.Mesh(mantleGeo, mantleMat);
+        group.add(mantle);
+
+        // 4. Жер қыртысы (Crust) - Көк (кесілген)
+        const crustGeo = new THREE.SphereGeometry(3.7, 32, 32, 0, Math.PI * 1.5);
+        const crustMat = new THREE.MeshPhongMaterial({ color: 0x2980b9, side: THREE.DoubleSide });
+        const crust = new THREE.Mesh(crustGeo, crustMat);
+        group.add(crust);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            group.rotation.y += 0.002;
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Интерфейспен жұмыс
+        const data = [
+            { t: "🌍 Жер қыртысы", d: "Біз өмір сүретін ең жұқа қабат. Оның қалыңдығы 5 км-ден (мұхит астында) 70 км-ге (тауларда) дейін жетеді." },
+            { t: "🔥 Мантия", d: "Жердің ең үлкен бөлігі. Ол өте ыстық балқыған тау жыныстарынан тұрады. Температурасы 2000°C-қа дейін жетеді." },
+            { t: "🟠 Сыртқы ядро", d: "Сұйық күйдегі темір мен никельден тұрады. Дәл осы қабат Жердің магнит өрісін тудырады." },
+            { t: "🟡 Ішкі ядро", d: "Жердің орталығы. Орасан зор қысымның әсерінен ол қатты күйде болады. Температурасы Күннің бетімен бірдей (6000°C)." }
+        ];
+        let idx = 0;
+        window.nextLayer = () => {
+            idx = (idx + 1) % data.length;
+            document.getElementById('title').innerText = data[idx].t;
+            document.getElementById('text').innerText = data[idx].d;
+        };
+    </script>
+</body>
+</html>

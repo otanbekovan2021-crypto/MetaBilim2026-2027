@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Bus — Математикалық саяхат</title>
+
+<style>
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+canvas {
+    display: block;
+}
+
+/* Жоғарғы ақпарат */
+#overlay {
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(650px, 90%);
+    background: rgba(255,255,255,0.94);
+    padding: 15px 22px;
+    border-radius: 18px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    z-index: 100;
+}
+
+#overlay h2 {
+    margin: 0 0 5px;
+    color: #d32f2f;
+}
+
+#progress {
+    height: 12px;
+    background: #ddd;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+#progressBar {
+    height: 100%;
+    width: 0%;
+    background: #28a745;
+    transition: width 0.5s;
+}
+
+/* Есеп терезесі */
+#questionBox {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(600px, 90%);
+    background: rgba(20,30,50,0.94);
+    color: white;
+    padding: 20px;
+    border-radius: 20px;
+    text-align: center;
+    z-index: 100;
+}
+
+#question {
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+#answer {
+    width: 180px;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    text-align: center;
+}
+
+#checkBtn {
+    padding: 12px 20px;
+    margin-left: 8px;
+    border: none;
+    border-radius: 10px;
+    background: #2196f3;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#checkBtn:hover {
+    background: #1976d2;
+}
+
+#message {
+    margin-top: 12px;
+    min-height: 24px;
+    font-weight: bold;
+}
+
+#score {
+    font-size: 18px;
+    margin-top: 5px;
+}
+
+#finish {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    background: rgba(255,255,255,0.96);
+    padding: 40px;
+    border-radius: 25px;
+    text-align: center;
+    z-index: 200;
+    box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+}
+
+#finish h1 {
+    color: #2e7d32;
+}
+
+#restart {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;
+    background: #2196f3;
+    color: white;
+    font-size: 17px;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div id="overlay">
+
+    <h2>🚍 Math Bus — Математикалық саяхат</h2>
+
+    <div>
+        Аялдама:
+        <b><span id="stop">1</span> / 8</b>
+        &nbsp;&nbsp; | &nbsp;&nbsp;
+        ⭐ Ұпай:
+        <b><span id="score">0</span></b>
+    </div>
+
+    <div id="progress">
+        <div id="progressBar"></div>
+    </div>
+
+</div>
+
+
+<div id="questionBox">
+
+    <div id="question">
+        Есеп жүктелуде...
+    </div>
+
+    <input
+        id="answer"
+        type="number"
+        placeholder="Жауабың"
+    >
+
+    <button id="checkBtn" onclick="checkAnswer()">
+        Тексеру
+    </button>
+
+    <div id="message"></div>
+
+</div>
+
+
+<div id="finish">
+
+    <h1>🏁 Сапар аяқталды!</h1>
+
+    <p>Сен барлық аялдамадан өттің! 🚍</p>
+
+    <h2>
+        ⭐ Қорытынды ұпай:
+        <span id="finalScore">0</span>
+    </h2>
+
+    <button id="restart" onclick="restartGame()">
+        🔄 Қайта ойнау
+    </button>
+
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+
+/* ==========================================
+   1. ОЙЫН ДЕРЕКТЕРІ
+========================================== */
+
+const questions = [
+
+    {
+        text: "🚍 Автобус 60 км/сағ жылдамдықпен 3 сағат жүрді. Қанша км жол жүрді?",
+        answer: 180,
+        hint: "S = v × t"
+    },
+
+    {
+        text: "⏱️ Автобус 240 км жолды 60 км/сағ жылдамдықпен жүрді. Қанша сағат жүрді?",
+        answer: 4,
+        hint: "t = S ÷ v"
+    },
+
+    {
+        text: "🚦 Автобус 300 км жолды 5 сағатта жүрді. Жылдамдығы қандай?",
+        answer: 60,
+        hint: "v = S ÷ t"
+    },
+
+    {
+        text: "🛣️ Қалаға дейін 400 км бар. Автобус 175 км жүрді. Қанша км жол қалды?",
+        answer: 225,
+        hint: "Қалған жол = барлық жол − жүрілген жол"
+    },
+
+    {
+        text: "⛽ Автобус 100 км жолға 20 литр жанармай жұмсайды. 300 км жолға қанша литр қажет?",
+        answer: 60,
+        hint: "300 км — 100 км-ден 3 есе көп"
+    },
+
+    {
+        text: "🚌 Автобус 70 км/сағ жылдамдықпен 4 сағат жүрді. Ол қанша км жол жүрді?",
+        answer: 280,
+        hint: "S = v × t"
+    },
+
+    {
+        text: "🛑 Автобус әр 40 км сайын аялдайды. 200 км жолда неше рет аялдама болады?",
+        answer: 5,
+        hint: "200 ÷ 40"
+    },
+
+    {
+        text: "🏁 Автобус 500 км жолдың 320 км-ын жүріп өтті. Мәреге дейін қанша км қалды?",
+        answer: 180,
+        hint: "500 − 320"
+    }
+
+];
+
+
+/* ==========================================
+   2. ОЙЫН АЙНЫМАЛЫЛАРЫ
+========================================== */
+
+let currentQuestion = 0;
+let score = 0;
+
+
+/* ==========================================
+   3. HTML ЭЛЕМЕНТТЕРІ
+========================================== */
+
+const questionElement =
+    document.getElementById("question");
+
+const answerElement =
+    document.getElementById("answer");
+
+const messageElement =
+    document.getElementById("message");
+
+const scoreElement =
+    document.getElementById("score");
+
+const stopElement =
+    document.getElementById("stop");
+
+const progressBar =
+    document.getElementById("progressBar");
+
+
+/* ==========================================
+   4. СҰРАҚТЫ КӨРСЕТУ
+========================================== */
+
+function showQuestion() {
+
+    const q = questions[currentQuestion];
+
+    questionElement.innerText = q.text;
+
+    answerElement.value = "";
+
+    messageElement.innerText = "";
+
+    stopElement.innerText =
+        currentQuestion + 1;
+
+    const progress =
+        (currentQuestion / questions.length) * 100;
+
+    progressBar.style.width =
+        progress + "%";
+
+    answerElement.focus();
+}
+
+
+/* ==========================================
+   5. ЖАУАПТЫ ТЕКСЕРУ
+========================================== */
+
+function checkAnswer() {
+
+    const userAnswer =
+        Number(answerElement.value);
+
+    const correctAnswer =
+        questions[currentQuestion].answer;
+
+    if (answerElement.value === "") {
+
+        messageElement.innerText =
+            "✏️ Алдымен жауабыңды енгіз!";
+
+        return;
+    }
+
+
+    if (userAnswer === correctAnswer) {
+
+        score += 10;
+
+        scoreElement.innerText =
+            score;
+
+        messageElement.innerText =
+            "✅ Дұрыс! Автобус келесі аялдамаға жүрді! 🚍";
+
+        moveBus();
+
+
+        setTimeout(() => {
+
+            currentQuestion++;
+
+            if (currentQuestion >= questions.length) {
+
+                finishGame();
+
+            } else {
+
+                showQuestion();
+
+            }
+
+        }, 1500);
+
+
+    } else {
+
+        messageElement.innerText =
+            "❌ Дұрыс емес. Кеңес: " +
+            questions[currentQuestion].hint;
+
+    }
+
+}
+
+
+/* ==========================================
+   6. ENTER БАСҚАНДА ТЕКСЕРУ
+========================================== */
+
+answerElement.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key === "Enter") {
+
+            checkAnswer();
+
+        }
+
+    }
+);
+
+
+/* ==========================================
+   7. ОЙЫН АЯҚТАЛДЫ
+========================================== */
+
+function finishGame() {
+
+    progressBar.style.width = "100%";
+
+    document.getElementById("finalScore")
+        .innerText = score;
+
+    document.getElementById("finish")
+        .style.display = "block";
+
+}
+
+
+/* ==========================================
+   8. ҚАЙТА БАСТАУ
+========================================== */
+
+function restartGame() {
+
+    currentQuestion = 0;
+
+    score = 0;
+
+    scoreElement.innerText = "0";
+
+    document.getElementById("finish")
+        .style.display = "none";
+
+    busGroup.position.z = 0;
+
+    showQuestion();
+
+}
+
+
+/* ==========================================
+   9. THREE.JS САХНАСЫ
+========================================== */
+
+const scene =
+    new THREE.Scene();
+
+scene.background =
+    new THREE.Color(0x87CEEB);
+
+
+const camera =
+    new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+    );
+
+
+const renderer =
+    new THREE.WebGLRenderer({
+        antialias: true
+    });
+
+renderer.setSize(
+    window.innerWidth,
+    window.innerHeight
+);
+
+document.body.appendChild(
+    renderer.domElement
+);
+
+
+/* ==========================================
+   10. ЖАРЫҚ
+========================================== */
+
+const light =
+    new THREE.DirectionalLight(
+        0xffffff,
+        1
+    );
+
+light.position.set(
+    5,
+    10,
+    7
+);
+
+scene.add(light);
+
+scene.add(
+    new THREE.AmbientLight(
+        0x666666
+    )
+);
+
+
+/* ==========================================
+   11. ЖЕР
+========================================== */
+
+const groundGeometry =
+    new THREE.PlaneGeometry(
+        1000,
+        1000
+    );
+
+const groundMaterial =
+    new THREE.MeshPhongMaterial({
+        color: 0x228B22
+    });
+
+const ground =
+    new THREE.Mesh(
+        groundGeometry,
+        groundMaterial
+    );
+
+ground.rotation.x =
+    -Math.PI / 2;
+
+scene.add(ground);
+
+
+/* ==========================================
+   12. ЖОЛ
+========================================== */
+
+const roadGeometry =
+    new THREE.PlaneGeometry(
+        20,
+        1000
+    );
+
+const roadMaterial =
+    new THREE.MeshPhongMaterial({
+        color: 0x333333
+    });
+
+const road =
+    new THREE.Mesh(
+        roadGeometry,
+        roadMaterial
+    );
+
+road.rotation.x =
+    -Math.PI / 2;
+
+road.position.y =
+    0.01;
+
+scene.add(road);
+
+
+/* ==========================================
+   13. ЖОЛ СЫЗЫҚТАРЫ
+========================================== */
+
+for (
+    let i = -500;
+    i < 500;
+    i += 10
+) {
+
+    const lineGeo =
+        new THREE.PlaneGeometry(
+            0.5,
+            5
+        );
+
+    const lineMat =
+        new THREE.MeshBasicMaterial({
+            color: 0xffffff
+        });
+
+    const line =
+        new THREE.Mesh(
+            lineGeo,
+            lineMat
+        );
+
+    line.rotation.x =
+        -Math.PI / 2;
+
+    line.position.set(
+        0,
+        0.02,
+        i
+    );
+
+    scene.add(line);
+
+}
+
+
+/* ==========================================
+   14. АВТОБУС
+========================================== */
+
+const busGroup =
+    new THREE.Group();
+
+
+/* Корпус */
+
+const bodyGeo =
+    new THREE.BoxGeometry(
+        4,
+        2.5,
+        8
+    );
+
+const bodyMat =
+    new THREE.MeshPhongMaterial({
+        color: 0xff0000
+    });
+
+const busBody =
+    new THREE.Mesh(
+        bodyGeo,
+        bodyMat
+    );
+
+busBody.position.y =
+    1.5;
+
+busGroup.add(
+    busBody
+);
+
+
+/* Терезелер */
+
+const winGeo =
+    new THREE.BoxGeometry(
+        4.1,
+        1,
+        6
+    );
+
+const winMat =
+    new THREE.MeshPhongMaterial({
+        color: 0x88ccff
+    });
+
+const windows =
+    new THREE.Mesh(
+        winGeo,
+        winMat
+    );
+
+windows.position.y =
+    2;
+
+busGroup.add(
+    windows
+);
+
+
+/* Дөңгелектер */
+
+const wheelGeo =
+    new THREE.CylinderGeometry(
+        0.5,
+        0.5,
+        0.5,
+        32
+    );
+
+const wheelMat =
+    new THREE.MeshPhongMaterial({
+        color: 0x111111
+    });
+
+const wheels = [];
+
+const wheelPositions = [
+
+    [-2.1, 0.5, 2.5],
+    [ 2.1, 0.5, 2.5],
+    [-2.1, 0.5,-2.5],
+    [ 2.1, 0.5,-2.5]
+
+];
+
+
+wheelPositions.forEach(
+    pos => {
+
+        const wheel =
+            new THREE.Mesh(
+                wheelGeo,
+                wheelMat
+            );
+
+        wheel.rotation.z =
+            Math.PI / 2;
+
+        wheel.position.set(
+            pos[0],
+            pos[1],
+            pos[2]
+        );
+
+        busGroup.add(
+            wheel
+        );
+
+        wheels.push(
+            wheel
+        );
+
+    }
+);
+
+
+scene.add(
+    busGroup
+);
+
+
+/* ==========================================
+   15. АВТОБУС ҚОЗҒАЛЫСЫ
+========================================== */
+
+function moveBus() {
+
+    let target =
+        busGroup.position.z - 35;
+
+    const start =
+        busGroup.position.z;
+
+    const duration = 1200;
+
+    const startTime =
+        performance.now();
+
+
+    function move(time) {
+
+        const elapsed =
+            time - startTime;
+
+        const progress =
+            Math.min(
+                elapsed / duration,
+                1
+            );
+
+        busGroup.position.z =
+            start +
+            (target - start) *
+            progress;
+
+
+        wheels.forEach(
+            wheel => {
+                wheel.rotation.x -= 0.15;
+            }
+        );
+
+
+        if (progress < 1) {
+
+            requestAnimationFrame(
+                move
+            );
+
+        }
+
+    }
+
+    requestAnimationFrame(
+        move
+    );
+
+}
+
+
+/* ==========================================
+   16. КАМЕРА
+========================================== */
+
+camera.position.set(
+    10,
+    7,
+    15
+);
+
+camera.lookAt(
+    busGroup.position
+);
+
+
+/* ==========================================
+   17. АНИМАЦИЯ
+========================================== */
+
+function animate() {
+
+    requestAnimationFrame(
+        animate
+    );
+
+
+    camera.position.z =
+        busGroup.position.z + 15;
+
+    camera.position.x =
+        12;
+
+    camera.lookAt(
+        busGroup.position
+    );
+
+
+    renderer.render(
+        scene,
+        camera
+    );
+
+}
+
+
+animate();
+
+
+/* ==========================================
+   18. ЭКРАН ӨЛШЕМІ
+========================================== */
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        camera.aspect =
+            window.innerWidth /
+            window.innerHeight;
+
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(
+            window.innerWidth,
+            window.innerHeight
+        );
+
+    }
+);
+
+
+/* ==========================================
+   19. ОЙЫНДЫ БАСТАУ
+========================================== */
+
+showQuestion();
+
+</script>
+
+</body>
+</html>

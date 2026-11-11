@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MetaBilim — Интеграл әлемі</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#030712;color:white;font-family:Segoe UI,Arial,sans-serif}
+[hidden]{display:none!important}
+button{background:#193452;color:white;border:1px solid #54718d;border-radius:12px;padding:12px 18px;margin:4px;cursor:pointer;font-size:15px;font-weight:bold}
+button:hover{background:#2563eb}
+.primary{background:linear-gradient(120deg,#f59e0b,#d97706);border:0}
+#intro{min-height:100vh;display:grid;place-items:center;text-align:center;padding:25px;background:radial-gradient(circle,#183d75,#030712)}
+#intro h1{font-size:clamp(42px,7vw,90px);color:#facc15;text-shadow:0 0 30px #d9770680}
+#intro p{font-size:22px;color:#cbd5e1}
+header{text-align:center;padding:18px;background:#081425}
+header h1{color:#facc15;margin:0}
+nav{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;padding:12px;background:#091322}
+nav button{font-size:13px;padding:9px}
+nav button.active{background:#facc15;color:#111827}
+.toolbar{text-align:center;padding:9px;background:#06101f}
+#world{height:70vh;min-height:480px;position:relative;overflow:hidden;background:#020617}
+#worldArt{position:absolute;inset:0;overflow:hidden}
+.scene{position:absolute;inset:-30px;background-size:cover;background-position:center;animation:camera 22s ease-in-out infinite alternate}
+@keyframes camera{from{transform:scale(1)}to{transform:scale(1.13) translate(-1%,-1%)}}
+.weather{background-image:linear-gradient(#06142655,#030712bb),url("https://images.unsplash.com/photo-1500534623283-312aade485b7?w=1800")}
+.hospital{background-image:linear-gradient(#064e5b44,#030712bb),url("https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1800")}
+.airplane{background-image:linear-gradient(#0369a155,#030712aa),url("https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1800")}
+.architecture{background-image:linear-gradient(#33415555,#030712bb),url("https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1800")}
+.energy{background-image:linear-gradient(#92400e44,#030712bb),url("https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=1800")}
+.programming{background-image:linear-gradient(#312e8155,#030712bb),url("https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=1800")}
+.forest{background-image:linear-gradient(#064e3b22,#03071299),url("https://images.unsplash.com/photo-1448375240586-882707db888b?w=1800")}
+.farm{background-image:linear-gradient(#36531444,#030712aa),url("https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=1800")}
+.economy{background-image:linear-gradient(#1e293b55,#030712bb),url("https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1800")}
+.space{background-image:linear-gradient(#0f172a33,#03071288),url("https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1800")}
+.rain{position:absolute;top:-50px;width:2px;height:35px;background:linear-gradient(transparent,#bfdbfe);animation:rainfall linear infinite}
+@keyframes rainfall{to{transform:translate(-100px,110vh)}}
+.cloud{position:absolute;font-size:100px;opacity:.55;animation:cloudmove 25s linear infinite}
+@keyframes cloudmove{from{transform:translateX(-20vw)}to{transform:translateX(120vw)}}
+.leaf{position:absolute;top:-30px;font-size:23px;animation:leaffall linear infinite}
+@keyframes leaffall{to{transform:translate(110px,105vh) rotate(720deg)}}
+.river{position:absolute;bottom:0;width:100%;height:20%;background:linear-gradient(100deg,#0284c744,#67e8f966,#0284c744);background-size:250% 100%;animation:water 5s linear infinite}
+@keyframes water{to{background-position:250% 0}}
+.flying{position:absolute;top:35%;left:-15%;font-size:90px;animation:fly 12s linear infinite}
+@keyframes fly{to{transform:translateX(125vw) translateY(-100px)}}
+.particle{position:absolute;color:#a7f3d0;font-size:22px;animation:float 8s ease-in-out infinite alternate}
+@keyframes float{to{transform:translate(50px,-90px);opacity:.2}}
+.star{position:absolute;width:3px;height:3px;background:white;border-radius:50%;animation:twinkle 2s infinite alternate}
+@keyframes twinkle{to{opacity:.1;transform:scale(.4)}}
+.rocket{position:absolute;font-size:90px;bottom:-100px;left:70%;animation:launch 10s linear infinite}
+@keyframes launch{to{transform:translate(-250px,-110vh) rotate(-20deg)}}
+.codefall{position:absolute;top:-100px;color:#4ade80;font:19px monospace;opacity:.6;writing-mode:vertical-rl;animation:codefall 8s linear infinite}
+@keyframes codefall{to{transform:translateY(110vh)}}
+.pulse{position:absolute;right:8%;top:28%;font-size:65px;color:#4ade80;animation:heartbeat 1.2s infinite}
+@keyframes heartbeat{50%{transform:scale(1.25);opacity:.5}}
+.turbine{position:absolute;right:15%;top:25%;font-size:100px;animation:spin 7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#overlay{position:absolute;top:9%;left:5%;max-width:670px;padding:25px;background:#030712bb;backdrop-filter:blur(12px);border:1px solid #ffffff33;border-radius:20px;z-index:5}
+#overlay h2{font-size:clamp(27px,4vw,43px);color:#facc15;margin:8px 0}
+#overlay p{font-size:clamp(16px,2vw,21px);line-height:1.55}
+#worldControls{position:absolute;bottom:15px;left:0;right:0;text-align:center;z-index:6}
+.lab{max-width:1100px;margin:30px auto;padding:25px;background:#0b1930;border-radius:20px}
+.lab h2{color:#facc15}
+#question{font-size:21px;line-height:1.6}
+#formula{display:inline-block;font-size:27px;color:#fde68a;background:#020617;padding:16px;border-radius:10px}
+canvas{display:block;width:100%;height:300px;background:#030712;border:1px solid #334155;border-radius:12px;margin-top:15px}
+#answers{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:18px}
+#answers button{font-size:19px;padding:17px}
+#feedback{font-size:21px;min-height:35px;margin:15px 0}
+#solution{background:#020617;border-left:4px solid #facc15;padding:22px;border-radius:12px;line-height:2;font-size:19px;margin-top:15px}
+#result{color:#4ade80;font-size:24px;font-weight:bold}
+@media(max-width:600px){#overlay{top:5%;left:4%;padding:15px;max-width:92%}#worldControls button{padding:10px;font-size:13px}}
+</style>
+</head>
+<body>
+
+<section id="intro">
+<div>
+<div style="font-size:65px">🌐 🎬 🚀</div>
+<h1>ИНТЕГРАЛ ӘЛЕМІ</h1>
+<p>Математиканы болашақ мамандығың арқылы зертте!</p>
+<p>10 мамандық • 10 интерактивті зертхана</p>
+<button class="primary" onclick="enter()" style="font-size:22px;padding:18px 35px">🎬 Саяхатты бастау</button>
+</div>
+</section>
+
+<div id="app" hidden>
+<header>
+<h1>ИНТЕГРАЛ — КӘСІБИ КИНОЗЕРТТЕУ</h1>
+<p>MetaBilim Cinematic Edition | 11-сынып</p>
+</header>
+
+<nav id="menu"></nav>
+
+<div class="toolbar">
+<button onclick="fullscreen()">⛶ Толық экран</button>
+<button onclick="toggleMusic()" id="musicBtn">🎵 Әуен: қосулы</button>
+<button onclick="home()">🏠 Басты бет</button>
+</div>
+
+<section id="world">
+<div id="worldArt"></div>
+<div id="overlay">
+<div style="color:#facc15;font-weight:bold">🎬 КИНО КӨРІНІСІ • ЗЕРТТЕУ</div>
+<h2 id="jobTitle"></h2>
+<p id="story"></p>
+</div>
+<div id="worldControls">
+<button class="primary" onclick="openLab()">🔬 Зерттеуді бастау</button>
+<button onclick="nextJob()">Келесі мамандық ⏭</button>
+</div>
+</section>
+
+<section class="lab" id="lab" hidden>
+<h2>🔬 Интерактивті зертхана</h2>
+<p id="question"></p>
+<div id="formula"></div>
+<canvas id="graph" width="1000" height="300"></canvas>
+<h3>🎯 Дұрыс нәтижені таңда</h3>
+<div id="answers"></div>
+<div id="feedback"></div>
+<button onclick="showSolution()">📖 Толық шешімін көрсету</button>
+<div id="solution" hidden>
+<div id="solutionText"></div>
+<div id="result"></div>
+</div>
+<div style="text-align:center;margin-top:25px">
+<button class="primary" onclick="nextJob()">Келесі мамандық ⏭</button>
+<button onclick="closeLab()">🎬 Көрініске қайту</button>
+</div>
+</section>
+</div>
+
+<script>
+const jobs=[
+{
+name:"МЕТЕОРОЛОГ",type:"weather",
+story:"Сен метеостанциядасың. Аспанды қара бұлт торлап, нөсер жаңбыр жауып жатыр. Жауын-шашын мөлшерін интеграл арқылы есепте!",
+question:"Жауын-шашын қарқындылығы r(t)=2t мм/сағ. 3 сағатта қанша жауын-шашын түседі?",
+a:2,b:0,end:3,
+formula:"∫₀³ 2t dt",
+primitive:"F(t)=t²",
+solution:"∫₀³ 2t dt = [t²]₀³ = 3² − 0² = 9",
+answer:9,unit:"мм"
+},
+{
+name:"ДӘРІГЕР",type:"hospital",
+story:"Сен заманауи аурухананың реанимация бөліміндесің. Жүрек мониторы жұмыс істеп тұр. Науқасқа енгізілетін дәрінің жалпы мөлшерін анықта.",
+question:"Дәрі енгізу жылдамдығы q(t)=2t+1 мл/сағ. 2 сағаттағы дәрі мөлшерін тап.",
+a:2,b:1,end:2,
+formula:"∫₀² (2t+1)dt",
+primitive:"F(t)=t²+t",
+solution:"∫₀² (2t+1)dt = [t²+t]₀² = (4+2)−0 = 6",
+answer:6,unit:"мл"
+},
+{
+name:"ҰШҚЫШ",type:"airplane",
+story:"Сен ұшақ кабинасындасың! Аспанда бұлттар қозғалып, ұшақ биікте ұшып барады. Интеграл арқылы жүрілген қашықтықты есепте.",
+question:"Ұшақ жылдамдығы v(t)=100+20t км/сағ. 2 сағаттағы жолды тап.",
+a:20,b:100,end:2,
+formula:"∫₀² (100+20t)dt",
+primitive:"F(t)=100t+10t²",
+solution:"∫₀² (100+20t)dt = [100t+10t²]₀² = 200+40 = 240",
+answer:240,unit:"км"
+},
+{
+name:"СӘУЛЕТШІ",type:"architecture",
+story:"Сен заманауи қаланың сәулет бюросындасың. Биік ғимараттар мен күрделі құрылыс жобаларының арасында жаңа музей жобасын есептеп жатырсың.",
+question:"y=x² графигінің астындағы 0-ден 3-ке дейінгі ауданын тап.",
+a:0,b:0,end:3,quadratic:true,
+formula:"∫₀³ x² dx",
+primitive:"F(x)=x³/3",
+solution:"∫₀³ x² dx = [x³/3]₀³ = 27/3−0 = 9",
+answer:9,unit:"м²"
+},
+{
+name:"ЭНЕРГЕТИК",type:"energy",
+story:"Сен жасыл энергия станциясындасың. Жел турбиналары айналып, күн панельдері электр энергиясын өндіруде.",
+question:"Қуат P(t)=2t кВт. 4 сағатта өндірілген энергияны тап.",
+a:2,b:0,end:4,
+formula:"∫₀⁴ 2t dt",
+primitive:"F(t)=t²",
+solution:"∫₀⁴ 2t dt = [t²]₀⁴ = 4²−0² = 16",
+answer:16,unit:"кВт·сағ"
+},
+{
+name:"БАҒДАРЛАМАШЫ",type:"programming",
+story:"Сен компьютерлік технологиялар зертханасындасың. Экранда бағдарламалық кодтар қозғалып жатыр. Виртуалды көліктің жүрген жолын есепте.",
+question:"Виртуалды көліктің жылдамдығы v(t)=4t м/с. 3 секундтағы жолын тап.",
+a:4,b:0,end:3,
+formula:"∫₀³ 4t dt",
+primitive:"F(t)=2t²",
+solution:"∫₀³ 4t dt = [2t²]₀³ = 2·9−0 = 18",
+answer:18,unit:"м"
+},
+{
+name:"ЭКОЛОГ",type:"forest",
+story:"Сен қалың жасыл орманның ішіндесің! Ағаштардың жапырақтары желмен тербеліп, өзен ағып жатыр. Орман экожүйесін қорғау үшін өзенге түскен ластаушы заттың массасын есепте.",
+question:"Өзенге ластаушы заттың түсу жылдамдығы q(t)=3t кг/сағ. 4 сағаттағы жалпы массаны тап.",
+a:3,b:0,end:4,
+formula:"∫₀⁴ 3t dt",
+primitive:"F(t)=1,5t²",
+solution:"∫₀⁴ 3t dt = [1,5t²]₀⁴ = 1,5·16−0 = 24",
+answer:24,unit:"кг"
+},
+{
+name:"АГРОНОМ",type:"farm",
+story:"Сен кең жасыл егістік алқабындасың. Желмен тербелген егін арасында автоматты суару жүйесі жұмыс істеп тұр.",
+question:"Суару жылдамдығы q(t)=10+2t л/мин. 5 минутта жұмсалған су көлемін тап.",
+a:2,b:10,end:5,
+formula:"∫₀⁵ (10+2t)dt",
+primitive:"F(t)=10t+t²",
+solution:"∫₀⁵ (10+2t)dt = [10t+t²]₀⁵ = 50+25 = 75",
+answer:75,unit:"л"
+},
+{
+name:"ЭКОНОМИСТ",type:"economy",
+story:"Сен халықаралық қаржы орталығындасың. Экрандарда биржа көрсеткіштері өзгеріп жатыр. Өндіріс шығындарының өсімін анықта.",
+question:"Шекті шығын C'(q)=2q+10 теңге/дана. 0-ден 5 данаға дейін жалпы шығын қанша өседі?",
+a:2,b:10,end:5,
+formula:"∫₀⁵ (2q+10)dq",
+primitive:"F(q)=q²+10q",
+solution:"∫₀⁵ (2q+10)dq = [q²+10q]₀⁵ = 25+50 = 75",
+answer:75,unit:"теңге"
+},
+{
+name:"ҒАРЫШ ИНЖЕНЕРІ",type:"space",
+story:"Сен ғарыш кеңістігін зерттеп жатырсың. Айналаңда жұлдыздар жарқырап, зымыран ғарышқа көтерілуде. Жылдамдықтың өзгерісін есепте.",
+question:"Зымыранның үдеуі a(t)=3t м/с². 4 секундтағы жылдамдық өзгерісін тап.",
+a:3,b:0,end:4,
+formula:"∫₀⁴ 3t dt",
+primitive:"F(t)=1,5t²",
+solution:"∫₀⁴ 3t dt = [1,5t²]₀⁴ = 1,5·16 = 24",
+answer:24,unit:"м/с"
+}
+];
+
+const $=id=>document.getElementById(id);
+let current=0;
+let graphAnimation=0;
+
+// ӘУЕН: БРАУЗЕРДЕ ЖАСАЛАТЫН АСПАПТЫҚ МЕЛОДИЯ
+let audioCtx=null;
+let musicTimer=null;
+let musicEnabled=true;
+let noteIndex=0;
+const melody=[
+392,440,523.25,659.25,587.33,523.25,440,392,
+349.23,392,440,523.25,493.88,440,392,349.23,
+329.63,392,440,523.25,587.33,523.25,440,392,
+349.23,329.63,293.66,329.63,349.23,392,392,0
+];
+
+function playNote(freq){
+if(!audioCtx||!freq)return;
+const now=audioCtx.currentTime;
+const osc=audioCtx.createOscillator();
+const gain=audioCtx.createGain();
+osc.type="sine";
+osc.frequency.setValueAtTime(freq,now);
+gain.gain.setValueAtTime(0.0001,now);
+gain.gain.exponentialRampToValueAtTime(0.065,now+0.06);
+gain.gain.exponentialRampToValueAtTime(0.0001,now+0.48);
+osc.connect(gain);
+gain.connect(audioCtx.destination);
+osc.start(now);
+osc.stop(now+0.5);
+}
+
+function startMusic(){
+if(!musicEnabled)return;
+if(!audioCtx){
+audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+}
+audioCtx.resume();
+if(musicTimer)return;
+playNote(melody[noteIndex++%melody.length]);
+musicTimer=setInterval(()=>{
+playNote(melody[noteIndex++%melody.length]);
+},540);
+}
+
+function stopMusic(){
+clearInterval(musicTimer);
+musicTimer=null;
+if(audioCtx)audioCtx.suspend();
+}
+
+function toggleMusic(){
+musicEnabled=!musicEnabled;
+if(musicEnabled)startMusic();
+else stopMusic();
+$("musicBtn").textContent=musicEnabled?"🎵 Әуен: қосулы":"🔇 Әуен: өшірулі";
+}
+
+function enter(){
+$("intro").hidden=true;
+$("app").hidden=false;
+selectJob(0);
+startMusic();
+}
+
+function home(){
+$("app").hidden=true;
+$("intro").hidden=false;
+stopMusic();
+}
+
+function addElement(className,text,styles={}){
+const el=document.createElement("div");
+el.className=className;
+if(text)el.textContent=text;
+Object.assign(el.style,styles);
+$("worldArt").appendChild(el);
+return el;
+}
+
+function selectJob(n){
+current=n;
+const j=jobs[n];
+$("lab").hidden=true;
+$("jobTitle").textContent=j.name;
+$("story").textContent=j.story;
+$("worldArt").innerHTML="";
+
+addElement("scene "+j.type);
+
+if(j.type==="weather"){
+for(let i=0;i<130;i++){
+addElement("rain","",{
+left:Math.random()*100+"%",
+animationDuration:(.35+Math.random()*.55)+"s",
+animationDelay:-Math.random()*3+"s",
+opacity:String(.35+Math.random()*.6)
+});
+}
+for(let i=0;i<4;i++){
+addElement("cloud","☁️",{
+top:(5+i*13)+"%",
+left:(i*20-30)+"%",
+animationDelay:(-i*6)+"s"
+});
+}
+}
+
+if(j.type==="forest"){
+addElement("river");
+for(let i=0;i<35;i++){
+addElement("leaf",i%3===0?"🍃":"🍂",{
+left:Math.random()*100+"%",
+animationDuration:(5+Math.random()*8)+"s",
+animationDelay:-Math.random()*12+"s"
+});
+}
+for(let i=0;i<18;i++){
+addElement("particle","✦",{
+left:Math.random()*100+"%",
+top:Math.random()*100+"%",
+animationDelay:-Math.random()*8+"s"
+});
+}
+}
+
+if(j.type==="airplane"){
+addElement("flying","✈️");
+for(let i=0;i<5;i++){
+addElement("cloud","☁️",{
+top:(10+i*13)+"%",
+left:(i*17)+"%",
+animationDelay:(-i*4)+"s"
+});
+}
+}
+
+if(j.type==="hospital"){
+addElement("pulse","💚");
+addElement("particle","♥",{
+right:"15%",top:"55%",fontSize:"60px",color:"#4ade80"
+});
+}
+
+if(j.type==="energy"){
+addElement("turbine","⚙️");
+for(let i=0;i<15;i++){
+addElement("particle","⚡",{
+left:Math.random()*100+"%",
+top:Math.random()*100+"%",
+animationDelay:-Math.random()*8+"s"
+});
+}
+}
+
+if(j.type==="programming"){
+for(let i=0;i<22;i++){
+addElement("codefall","0101011100101",{
+left:i*5+"%",
+animationDuration:(4+Math.random()*6)+"s",
+animationDelay:-Math.random()*9+"s"
+});
+}
+}
+
+if(j.type==="farm"){
+for(let i=0;i<35;i++){
+addElement("particle","🌾",{
+left:Math.random()*100+"%",
+top:(55+Math.random()*40)+"%",
+animationDelay:-Math.random()*8+"s"
+});
+}
+}
+
+if(j.type==="architecture"){
+for(let i=0;i<15;i++){
+addElement("particle","✧",{
+left:Math.random()*100+"%",
+top:Math.random()*100+"%",
+animationDelay:-Math.random()*8+"s"
+});
+}
+}
+
+if(j.type==="economy"){
+for(let i=0;i<20;i++){
+addElement("particle",i%2?"📈":"₸",{
+left:Math.random()*100+"%",
+top:Math.random()*100+"%",
+animationDelay:-Math.random()*8+"s"
+});
+}
+}
+
+if(j.type==="space"){
+for(let i=0;i<110;i++){
+addElement("star","",{
+left:Math.random()*100+"%",
+top:Math.random()*100+"%",
+animationDelay:-Math.random()*3+"s"
+});
+}
+addElement("rocket","🚀");
+}
+
+[...$("menu").children].forEach((b,i)=>{
+b.classList.toggle("active",i===n);
+});
+}
+
+function openLab(){
+const j=jobs[current];
+$("lab").hidden=false;
+$("question").textContent=j.question;
+$("formula").textContent=j.formula;
+$("feedback").textContent="";
+$("solution").hidden=true;
+$("answers").innerHTML="";
+
+const gap=j.answer>=50?10:3;
+const options=[j.answer,j.answer+gap,j.answer-gap];
+options.sort(()=>Math.random()-.5);
+
+options.forEach(value=>{
+const btn=document.createElement("button");
+btn.textContent=value+" "+j.unit;
+btn.onclick=()=>{
+const correct=value===j.answer;
+$("feedback").textContent=correct?
+"🌟 Керемет! Дұрыс жауап!":
+"⚠️ Қате. Қайта есептеп көр!";
+$("feedback").style.color=correct?"#4ade80":"#f87171";
+};
+$("answers").appendChild(btn);
+});
+
+drawGraph(j);
+$("lab").scrollIntoView({behavior:"smooth"});
+}
+
+function showSolution(){
+const j=jobs[current];
+$("solution").hidden=false;
+$("solutionText").innerHTML=
+"<b>1. Есептің шарты:</b> "+j.question+
+"<br><b>2. Анықталған интеграл:</b> "+j.formula+
+"<br><b>3. Алғашқы функция:</b> "+j.primitive+
+"<br><b>4. Ньютон–Лейбниц формуласы бойынша есептеу:</b> "+j.solution;
+$("result").textContent="✅ ЖАУАБЫ: "+j.answer+" "+j.unit;
+}
+
+function closeLab(){
+$("lab").hidden=true;
+$("world").scrollIntoView({behavior:"smooth"});
+}
+
+function nextJob(){
+selectJob((current+1)%jobs.length);
+$("world").scrollIntoView({behavior:"smooth"});
+}
+
+function drawGraph(j){
+cancelAnimationFrame(graphAnimation);
+const canvas=$("graph");
+const ctx=canvas.getContext("2d");
+const w=canvas.width,h=canvas.height;
+const left=75,right=w-35,top=25,bottom=h-45;
+const f=x=>j.quadratic?x*x:j.a*x+j.b;
+const maxY=Math.max(1,f(j.end)*1.2);
+const px=x=>left+x/j.end*(right-left);
+const py=y=>bottom-y/maxY*(bottom-top);
+let progress=0;
+
+function frame(){
+ctx.clearRect(0,0,w,h);
+
+ctx.strokeStyle="#334155";
+ctx.lineWidth=1;
+for(let i=1;i<6;i++){
+const y=top+(bottom-top)*i/6;
+ctx.beginPath();
+ctx.moveTo(left,y);
+ctx.lineTo(right,y);
+ctx.stroke();
+}
+
+ctx.strokeStyle="#94a3b8";
+ctx.lineWidth=2;
+ctx.beginPath();
+ctx.moveTo(left,top);
+ctx.lineTo(left,bottom);
+ctx.lineTo(right,bottom);
+ctx.stroke();
+
+ctx.fillStyle="#cbd5e1";
+ctx.font="17px Arial";
+ctx.fillText("0",left-25,bottom+22);
+ctx.fillText(String(j.end),right-10,bottom+22);
+ctx.fillText("f(x)",left-55,top+5);
+ctx.fillText(j.quadratic?"x":"t / q",right-15,bottom+37);
+
+const limit=j.end*progress;
+const grad=ctx.createLinearGradient(0,top,0,bottom);
+grad.addColorStop(0,"rgba(56,189,248,.55)");
+grad.addColorStop(1,"rgba(56,189,248,.08)");
+
+ctx.beginPath();
+ctx.moveTo(px(0),bottom);
+ctx.lineTo(px(0),py(f(0)));
+
+for(let i=0;i<=150;i++){
+const x=limit*i/150;
+ctx.lineTo(px(x),py(f(x)));
+}
+ctx.lineTo(px(limit),bottom);
+ctx.closePath();
+ctx.fillStyle=grad;
+ctx.fill();
+
+ctx.beginPath();
+for(let i=0;i<=200;i++){
+const x=j.end*i/200;
+if(i===0)ctx.moveTo(px(x),py(f(x)));
+else ctx.lineTo(px(x),py(f(x)));
+}
+ctx.strokeStyle="#facc15";
+ctx.lineWidth=4;
+ctx.stroke();
+
+progress=Math.min(1,progress+.012);
+if(progress<1)graphAnimation=requestAnimationFrame(frame);
+}
+frame();
+}
+
+function fullscreen(){
+if(!document.fullscreenElement){
+document.documentElement.requestFullscreen?.();
+}else{
+document.exitFullscreen?.();
+}
+}
+
+jobs.forEach((j,i)=>{
+const btn=document.createElement("button");
+btn.textContent=j.name;
+btn.onclick=()=>selectJob(i);
+$("menu").appendChild(btn);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MATH TIME MACHINE — Математика тарихы</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#050b16;color:white;font-family:Segoe UI,Arial,sans-serif;overflow:hidden}
+[hidden]{display:none!important}
+button{padding:12px 18px;margin:4px;border:1px solid #ffffff55;border-radius:12px;background:#124564;color:white;font-size:16px;font-weight:bold;cursor:pointer}
+button:hover{background:#087caa}
+button:disabled{opacity:.4;cursor:not-allowed}
+.gold{background:linear-gradient(120deg,#facc15,#d97706);color:#241609;border:0}
+.gold:hover{background:#fde68a}
+#intro{position:fixed;inset:0;z-index:40;display:grid;place-items:center;text-align:center;padding:20px;background:radial-gradient(circle,#163b60,#020617)}
+.introCard{max-width:820px;background:#061527dd;padding:35px;border:1px solid #67e8f9;border-radius:25px}
+#intro h1{font-size:clamp(38px,6vw,75px);color:#fde68a}
+#intro p{font-size:21px;line-height:1.6}
+#cinema{position:fixed;inset:0;overflow:hidden;background:#101c2b}
+#video,#background{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#background{background-position:center;background-size:cover;animation:cameraMove 25s ease-in-out infinite alternate}
+@keyframes cameraMove{to{transform:scale(1.15) translateX(-2%)}}
+#shade{position:absolute;inset:0;background:linear-gradient(90deg,#020617b9,#02061722 75%),linear-gradient(0deg,#020617bb,transparent 65%);pointer-events:none}
+#ambient{position:absolute;inset:0;pointer-events:none}
+.spark{position:absolute;width:3px;height:3px;background:#ffe8ae;border-radius:50%;box-shadow:0 0 9px #ffe8ae;animation:floatUp 8s linear infinite}
+@keyframes floatUp{to{transform:translate(70px,-160px);opacity:0}}
+#top{position:absolute;top:0;left:0;right:0;padding:12px 18px;background:#020617bd;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;z-index:5}
+#top h1{margin:0;color:#fde68a;font-size:clamp(18px,2.5vw,27px)}
+#eraLabel{color:#a5f3fc}
+#info{position:absolute;left:3%;bottom:3%;width:min(620px,94%);z-index:6;background:#061324e9;border:1px solid #e9c17a;border-radius:18px;padding:19px 23px;backdrop-filter:blur(10px)}
+#info h2{color:#fde68a;margin:0 0 8px;font-size:clamp(22px,3vw,31px)}
+#info p{font-size:clamp(16px,2vw,20px);line-height:1.6;margin:0}
+#scholar{position:absolute;right:3%;top:17%;z-index:5;width:min(330px,33vw);background:#07182bdc;border:1px solid #67e8f9;border-radius:18px;padding:16px;text-align:center;backdrop-filter:blur(8px)}
+#scholar img{height:160px;max-width:100%;object-fit:contain;border-radius:12px}
+#scholar h3{color:#fde68a;margin:8px 0}
+#scholar p{font-size:15px;line-height:1.5}
+#portraitFallback{font-size:70px}
+#mission{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(680px,94vw);max-height:85vh;overflow:auto;z-index:15;background:#071729f5;border:2px solid #facc15;border-radius:22px;padding:26px;box-shadow:0 0 90px #000c}
+#mission h2{color:#fde68a}
+#mission p{font-size:19px;line-height:1.6}
+#answer{width:190px;max-width:65%;padding:13px;border:2px solid #67e8f9;border-radius:10px;font-size:21px;text-align:center}
+#feedback{min-height:30px;font-size:19px;font-weight:bold;margin:14px 0}
+#solution{padding:18px;background:#102a40;border-left:4px solid #facc15;border-radius:10px;line-height:1.9;font-size:19px}
+#progress{position:absolute;right:3%;top:90px;z-index:7;background:#020817dd;border:1px solid #67e8f9;border-radius:12px;padding:12px;text-align:center}
+#progress strong{font-size:25px;color:#fde68a}
+#portal{position:absolute;inset:0;z-index:20;background:#020617aa;display:grid;place-items:center;pointer-events:none}
+.portalRing{width:min(65vw,450px);height:min(65vw,450px);border:14px solid #67e8f9;border-radius:50%;background:radial-gradient(circle,#dbeafe,#38bdf8 30%,#1d4ed8 65%,#020617);box-shadow:0 0 90px #38bdf8,inset 0 0 70px #2563eb;animation:portalSpin 1.4s linear infinite}
+@keyframes portalSpin{to{transform:rotate(360deg) scale(1.1)}}
+#flash{position:fixed;inset:0;background:white;opacity:0;z-index:25;pointer-events:none;transition:opacity .5s}
+#finish{position:fixed;inset:0;z-index:30;background:#020817ed;display:grid;place-items:center;text-align:center;padding:20px}
+.finishCard{max-width:750px;background:#10334d;border:1px solid #67e8f9;border-radius:25px;padding:35px}
+.finishCard h1{font-size:clamp(35px,5vw,58px);color:#fde68a}
+@media(max-width:700px){
+#scholar{top:90px;right:3%;width:150px;padding:7px}
+#scholar img{height:80px}
+#scholar h3{font-size:15px}
+#scholar p{font-size:11px}
+#portraitFallback{font-size:35px}
+#progress{top:90px;left:3%;right:auto}
+#info{left:3%;right:3%;width:auto;bottom:8px;padding:12px}
+#info h2{font-size:20px}
+#info p{font-size:15px}
+#mission{padding:17px}
+#top button{font-size:12px;padding:8px}
+}
+</style>
+</head>
+<body>
+
+<section id="intro">
+<div class="introCard">
+<div style="font-size:65px">⏳ 🏛️ 📐</div>
+<h1>MATH TIME MACHINE</h1>
+<h2 style="color:#67e8f9">МАТЕМАТИКА ТАРИХЫНА САЯХАТ</h2>
+<p>2050 жыл. Уақыт машинасының бес құпия коды жоғалды. Оларды қалпына келтіру үшін ежелгі өркениеттерге саяхат жасап, математиканың даму тарихын зертте!</p>
+<p style="font-size:16px;color:#fde68a">🎬 Тарихи көріністер • 👨‍🏫 Ғалымдар • 📜 Есептер • 🌀 Уақыт порталы</p>
+<button class="gold" onclick="startGame()" style="font-size:21px;padding:18px 30px">▶ САЯХАТТЫ БАСТАУ</button>
+</div>
+</section>
+
+<section id="cinema" hidden>
+<div id="background"></div>
+<video id="video" muted autoplay loop playsinline hidden></video>
+<div id="shade"></div>
+<div id="ambient"></div>
+
+<div id="top">
+<div>
+<h1>⏳ MATH TIME MACHINE</h1>
+<div id="eraLabel"></div>
+</div>
+<div>
+<button id="musicBtn" onclick="toggleMusic()">🎵 Әуен</button>
+<button onclick="fullscreen()">⛶ Экран</button>
+<button onclick="restart()">↻ Қайта бастау</button>
+</div>
+</div>
+
+<div id="progress">
+УАҚЫТ КОДТАРЫ<br>
+<strong id="codeCount">0 / 5</strong>
+<div id="locks">🔒 🔒 🔒 🔒 🔒</div>
+</div>
+
+<div id="scholar">
+<img id="scholarImage" hidden alt="Математиктің тарихи бейнесі">
+<div id="portraitFallback">📜</div>
+<h3 id="scholarName"></h3>
+<p id="scholarText"></p>
+</div>
+
+<div id="info">
+<h2 id="sceneTitle"></h2>
+<p id="sceneText"></p>
+<div style="margin-top:14px">
+<button class="gold" onclick="openMission()" id="missionOpen">📜 Тарихи жұмбақты шешу</button>
+<button onclick="showScholar()">👨‍🏫 Ғалым туралы</button>
+</div>
+</div>
+
+<div id="mission" hidden>
+<div id="missionEra" style="color:#67e8f9"></div>
+<h2 id="missionTitle"></h2>
+<p id="history"></p>
+<p id="question"></p>
+<div style="text-align:center">
+<input id="answer" type="number" step="any" placeholder="Жауабың">
+<button class="gold" onclick="checkAnswer()">Тексеру ✓</button>
+</div>
+<div id="feedback"></div>
+<button onclick="showHint()">💡 Кеңес</button>
+<button onclick="showSolution()">📖 Толық шешімі</button>
+<button onclick="closeMission()">↩ Көрініске қайту</button>
+<div id="solution" hidden></div>
+<div style="text-align:center;margin-top:16px">
+<button id="nextBtn" class="gold" onclick="completeMission()" hidden>🔓 Кодты алып, келесі дәуірге өту</button>
+</div>
+</div>
+
+<div id="portal" hidden><div class="portalRing"></div></div>
+</section>
+
+<div id="flash"></div>
+
+<section id="finish" hidden>
+<div class="finishCard">
+<div style="font-size:80px">🏆 ⏳ ✨</div>
+<h1>УАҚЫТ ҚАЛПЫНА КЕЛДІ!</h1>
+<p style="font-size:21px">Сен бес тарихи дәуірді зерттеп, математиканың дамуына үлес қосқан ғалымдармен таныстың!</p>
+<h2 id="finalScore"></h2>
+<button class="gold" onclick="restart()">🔄 Қайта саяхаттау</button>
+</div>
+</section>
+
+<script>
+const $=id=>document.getElementById(id);
+
+/*
+ТАРИХИ МЕДИАФАЙЛДАР
+
+assets/babylon.jpg
+assets/egypt.jpg
+assets/greece.jpg
+assets/baghdad.jpg
+assets/newton.jpg
+
+assets/babylon.mp4
+assets/egypt.mp4
+assets/greece.mp4
+assets/baghdad.mp4
+assets/newton.mp4
+
+assets/pythagoras.jpg
+assets/archimedes.jpg
+assets/al-khwarizmi.jpg
+assets/newton-portrait.jpg
+
+Файлдар болмаса, бейтарап тарихи стильдегі
+фон көрсетіледі. Кездейсоқ сурет шықпайды.
+*/
+
+const eras=[
+{
+name:"ЕЖЕЛГІ ВАВИЛОН",
+year:"Б.з.д. XVIII ғасыр",
+title:"Вавилонның құпия қақпасы",
+story:"Сен ежелгі Вавилонға келдің! Қалада зиккураттар, саз кірпішті үйлер және математикалық жазбалар бар. Құпия саз тақтайшаның есебін шеш!",
+scholar:"Вавилондық есепшілер",
+scholarInfo:"Бұл кезеңдегі көптеген математикалық мәтіндердің авторлары белгісіз. Есепшілер саз тақтайшаларға сына жазуымен есептер түсірген.",
+portrait:"",
+history:"Вавилондықтар квадраттық есептерді шешудің әдістерін қолданған. Олардың математикалық білімдері саз тақтайшаларда сақталған.",
+question:"x² + 6x = 16 теңдеуінің оң түбірін тап.",
+answer:2,
+hint:"x² + 6x − 16 = 0 түріне келтір.",
+solution:"x² + 6x − 16 = 0.<br>D = 6² − 4·1·(−16) = 100.<br>x = (−6 ± 10)/2.<br>x₁ = 2, x₂ = −8.<br><b>Жауабы: 2.</b>",
+photo:"assets/babylon.jpg",
+video:"assets/babylon.mp4",
+color:"#92704c"
+},
+{
+name:"ЕЖЕЛГІ МЫСЫР",
+year:"Б.з.д. II мыңжылдық",
+title:"Ахмес папирусының құпиясы",
+story:"Ніл өзенінің жағасындасың. Пирамидалар мен ежелгі құрылыс алаңдары көз алдыңда. Жер өлшеушілерге математикалық есепті шешуге көмектес!",
+scholar:"Ахмес — ежелгі мысырлық жазғыш",
+scholarInfo:"Ахмес шамамен б.з.д. 1650 жылы Ринд математикалық папирусын көшірген. Бұл құжатта арифметика мен геометрия есептері бар.",
+portrait:"",
+history:"Ежелгі Мысырда математика жер өлшеуде, құрылыста және шаруашылықта қолданылған.",
+question:"Тіктөртбұрыштың ұзындығы 12 м, ені 8 м. Ауданын тап.",
+answer:96,
+hint:"S = a · b формуласын қолдан.",
+solution:"S = a · b.<br>S = 12 · 8 = 96 м².<br><b>Жауабы: 96 м².</b>",
+photo:"assets/egypt.jpg",
+video:"assets/egypt.mp4",
+color:"#b98a54"
+},
+{
+name:"ЕЖЕЛГІ ГРЕКИЯ",
+year:"Б.з.д. VI–III ғасырлар",
+title:"Пифагор мен Архимед әлемі",
+story:"Мәрмәр ғибадатханалар мен көне грек қалаларына келдің. Пифагор мектебінің математикалық құпиясын ашып, көпірдің ұзындығын есепте!",
+scholar:"Пифагор және Архимед",
+scholarInfo:"Пифагор б.з.д. VI ғасырда өмір сүрген грек философы. Архимед б.з.д. III ғасырда геометрия, механика және шеңберді зерттеуге үлкен үлес қосты.",
+portrait:"assets/pythagoras.jpg",
+history:"Пифагор теоремасы тікбұрышты үшбұрыштың катеттері мен гипотенузасын байланыстырады. Бұл қатынас Пифагордан бұрын да белгілі болған.",
+question:"Катеттері 5 м және 12 м. Гипотенузаны тап.",
+answer:13,
+hint:"c² = a² + b².",
+solution:"c² = 5² + 12².<br>c² = 25 + 144 = 169.<br>c = √169 = 13 м.<br><b>Жауабы: 13 м.</b>",
+photo:"assets/greece.jpg",
+video:"assets/greece.mp4",
+color:"#617d91"
+},
+{
+name:"ОРТАҒАСЫРЛЫҚ БАҒДАТ",
+year:"IX ғасыр",
+title:"Әл-Хорезмидің алгебрасы",
+story:"Бағдаттағы ғылыми орталыққа келдің. Қолжазбалар мен математикалық кітаптар сақталған. Әл-Хорезмидің алгебралық есебін шеш!",
+scholar:"Мұхаммед әл-Хорезми",
+scholarInfo:"IX ғасырда өмір сүрген математик, астроном және географ. Оның алгебра жөніндегі еңбегі математиканың дамуына зор ықпал етті.",
+portrait:"assets/al-khwarizmi.jpg",
+history:"«Алгебра» атауы әл-Хорезмидің еңбегіндегі «әл-жәбр» сөзінен шыққан. Ғалым теңдеулерді жүйелі шешу әдістерін сипаттаған.",
+question:"x² + 10x = 39 теңдеуінің оң түбірін тап.",
+answer:3,
+hint:"Толық квадратқа келтір: (x + 5)² = 64.",
+solution:"x² + 10x = 39.<br>x² + 10x + 25 = 64.<br>(x + 5)² = 64.<br>x + 5 = ±8.<br>x = 3 немесе −13.<br><b>Оң түбірі: 3.</b>",
+photo:"assets/baghdad.jpg",
+video:"assets/baghdad.mp4",
+color:"#9d795c"
+},
+{
+name:"НЬЮТОН ДӘУІРІ",
+year:"XVII ғасыр, Англия",
+title:"Ньютон және қозғалыс",
+story:"Сен XVII ғасырдағы Англияға келдің. Ескі университет ғимараттары мен ғылыми зерттеу бөлмелері. Соңғы уақыт кодын табу үшін қозғалыс есебін шеш!",
+scholar:"Исаак Ньютон",
+scholarInfo:"1642/1643–1727 жылдары өмір сүрген ағылшын физигі және математигі. Математикалық анализдің, механиканың және оптиканың дамуына іргелі үлес қосты.",
+portrait:"assets/newton-portrait.jpg",
+history:"Ньютон мен Лейбниц математикалық анализдің дамуына үлкен үлес қосты. Туынды арқылы лездік өзгеру жылдамдығын анықтауға болады.",
+question:"s(t)=t² метр. t=3 секундтағы лездік жылдамдықты тап.",
+answer:6,
+hint:"v(t)=s'(t)=2t.",
+solution:"s(t)=t².<br>v(t)=s'(t)=2t.<br>v(3)=2·3=6 м/с.<br><b>Жауабы: 6 м/с.</b>",
+photo:"assets/newton.jpg",
+video:"assets/newton.mp4",
+color:"#4c687d"
+}
+];
+
+let current=0;
+let completed=0;
+let score=0;
+let answered=false;
+let transitioning=false;
+let transitionTimer=null;
+
+/* КИНО АТМОСФЕРАСЫ */
+for(let i=0;i<65;i++){
+const p=document.createElement("div");
+p.className="spark";
+p.style.left=Math.random()*100+"%";
+p.style.top=Math.random()*100+"%";
+p.style.animationDuration=(5+Math.random()*9)+"s";
+p.style.animationDelay=-Math.random()*10+"s";
+$("ambient").appendChild(p);
+}
+
+function loadEra(index){
+current=index;
+transitioning=false;
+answered=false;
+const e=eras[index];
+
+$("eraLabel").textContent=e.name+" • "+e.year;
+$("sceneTitle").textContent=e.title;
+$("sceneText").textContent=e.story;
+$("scholarName").textContent=e.scholar;
+$("scholarText").textContent=e.scholarInfo;
+$("mission").hidden=true;
+$("missionOpen").disabled=false;
+
+const bg=$("background");
+bg.hidden=false;
+bg.style.backgroundImage=
+"linear-gradient(120deg,#02061777,#02061733),url('"+e.photo+"')";
+bg.style.backgroundColor=e.color;
+
+const img=$("scholarImage");
+img.hidden=true;
+$("portraitFallback").hidden=false;
+img.onload=()=>{
+img.hidden=false;
+$("portraitFallback").hidden=true;
+};
+img.onerror=()=>{
+img.hidden=true;
+$("portraitFallback").hidden=false;
+};
+if(e.portrait)img.src=e.portrait;
+else img.removeAttribute("src");
+
+const video=$("video");
+video.pause();
+video.hidden=true;
+video.onloadeddata=()=>{
+if(current!==index)return;
+video.play().then(()=>{
+video.hidden=false;
+bg.hidden=true;
+}).catch(()=>{
+video.hidden=true;
+bg.hidden=false;
+});
+};
+video.onerror=()=>{
+video.hidden=true;
+bg.hidden=false;
+};
+video.src=e.video;
+video.load();
+updateProgress();
+}
+
+function updateProgress(){
+$("codeCount").textContent=completed+" / "+eras.length;
+$("locks").textContent="🔑 ".repeat(completed)+"🔒 ".repeat(eras.length-completed);
+}
+
+function startGame(){
+$("intro").hidden=true;
+$("finish").hidden=true;
+$("cinema").hidden=false;
+completed=0;
+score=0;
+startMusic();
+loadEra(0);
+}
+
+function showScholar(){
+$("scholar").animate([
+{transform:"scale(1)"},
+{transform:"scale(1.08)"},
+{transform:"scale(1)"}
+],{duration:800});
+}
+
+function openMission(){
+if(transitioning)return;
+const e=eras[current];
+$("mission").hidden=false;
+$("missionEra").textContent=e.name+" • "+e.year;
+$("missionTitle").textContent=e.title;
+$("history").textContent="📚 ТАРИХ: "+e.history;
+$("question").textContent="🧩 ЕСЕП: "+e.question;
+$("answer").value="";
+$("answer").disabled=false;
+$("feedback").textContent="";
+$("solution").hidden=true;
+$("nextBtn").hidden=true;
+answered=false;
+$("answer").focus();
+}
+
+function closeMission(){
+$("mission").hidden=true;
+}
+
+function checkAnswer(){
+if(answered)return;
+const raw=$("answer").value.trim();
+if(raw===""){
+$("feedback").textContent="✏️ Жауабыңды енгіз!";
+$("feedback").style.color="#fde68a";
+return;
+}
+const value=Number(raw);
+const e=eras[current];
+if(Number.isFinite(value)&&Math.abs(value-e.answer)<.00001){
+answered=true;
+score+=20;
+$("feedback").textContent="🌟 ДҰРЫС! УАҚЫТ КОДЫ ТАБЫЛДЫ! +20 ҰПАЙ";
+$("feedback").style.color="#4ade80";
+$("answer").disabled=true;
+$("nextBtn").hidden=false;
+successSound();
+}else{
+$("feedback").textContent="❌ Дұрыс емес. Қайта есептеп көр!";
+$("feedback").style.color="#f87171";
+errorSound();
+}
+}
+
+function showHint(){
+$("feedback").textContent="💡 "+eras[current].hint;
+$("feedback").style.color="#fde68a";
+}
+
+function showSolution(){
+$("solution").hidden=false;
+$("solution").innerHTML=
+"<b style='color:#fde68a'>📖 ТОЛЫҚ ШЕШІМІ:</b><br>"+
+eras[current].solution;
+}
+
+function completeMission(){
+if(!answered||transitioning)return;
+transitioning=true;
+completed++;
+updateProgress();
+$("mission").hidden=true;
+$("sceneTitle").textContent="🔓 ҚҰПИЯ КОД АШЫЛДЫ!";
+$("sceneText").textContent="Математикалық миссия орындалды! Уақыт машинасы келесі дәуірге дайындалуда.";
+$("missionOpen").disabled=true;
+successSound();
+
+transitionTimer=setTimeout(()=>{
+$("portal").hidden=false;
+portalSound();
+transitionTimer=setTimeout(()=>{
+$("flash").style.opacity="1";
+transitionTimer=setTimeout(()=>{
+$("portal").hidden=true;
+if(completed>=eras.length){
+$("cinema").hidden=true;
+$("finish").hidden=false;
+$("finalScore").textContent="⭐ "+score+" / 100 ҰПАЙ";
+}else{
+loadEra(completed);
+}
+$("flash").style.opacity="0";
+},600);
+},1700);
+},2000);
+}
+
+function restart(){
+clearTimeout(transitionTimer);
+$("video").pause();
+$("cinema").hidden=true;
+$("finish").hidden=true;
+$("intro").hidden=false;
+$("portal").hidden=true;
+$("flash").style.opacity="0";
+completed=0;
+score=0;
+current=0;
+transitioning=false;
+stopMusic();
+}
+
+$("answer").addEventListener("keydown",e=>{
+if(e.key==="Enter"){
+if(answered)completeMission();
+else checkAnswer();
+}
+});
+
+/* АСПАПТЫҚ ӘУЕН */
+let audioCtx=null;
+let musicEnabled=true;
+let musicTimer=null;
+let noteIndex=0;
+const melody=[
+220,261.63,329.63,392,
+349.23,329.63,261.63,220,
+196,246.94,293.66,349.23,
+329.63,293.66,246.94,196,
+220,329.63,440,392,
+349.23,329.63,261.63,220
+];
+
+function tone(freq,duration=.5,volume=.035){
+if(!audioCtx||!freq)return;
+const t=audioCtx.currentTime;
+const osc=audioCtx.createOscillator();
+const gain=audioCtx.createGain();
+osc.type="sine";
+osc.frequency.value=freq;
+gain.gain.setValueAtTime(.0001,t);
+gain.gain.exponentialRampToValueAtTime(volume,t+.06);
+gain.gain.exponentialRampToValueAtTime(.0001,t+duration);
+osc.connect(gain);
+gain.connect(audioCtx.destination);
+osc.start(t);
+osc.stop(t+duration+.02);
+}
+
+function playMusic(){
+tone(melody[noteIndex%melody.length],.7,.035);
+if(noteIndex%4===0){
+tone(melody[noteIndex%melody.length]/2,1.5,.016);
+}
+noteIndex++;
+}
+
+function startMusic(){
+if(!musicEnabled)return;
+if(!audioCtx){
+audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+}
+audioCtx.resume();
+if(musicTimer)return;
+playMusic();
+musicTimer=setInterval(playMusic,700);
+}
+
+function stopMusic(){
+clearInterval(musicTimer);
+musicTimer=null;
+if(audioCtx)audioCtx.suspend();
+}
+
+function toggleMusic(){
+musicEnabled=!musicEnabled;
+if(musicEnabled)startMusic();
+else stopMusic();
+$("musicBtn").textContent=musicEnabled?"🎵 Әуен":"🔇 Өшірулі";
+}
+
+function successSound(){
+if(!audioCtx||!musicEnabled)return;
+tone(523,.25,.07);
+setTimeout(()=>tone(659,.3,.07),180);
+setTimeout(()=>tone(784,.6,.07),360);
+}
+
+function errorSound(){
+if(!audioCtx||!musicEnabled)return;
+tone(180,.3,.06);
+}
+
+function portalSound(){
+if(!audioCtx||!musicEnabled)return;
+[196,247,294,392,494,587,784].forEach((n,i)=>{
+setTimeout(()=>tone(n,.6,.055),i*150);
+});
+}
+
+function fullscreen(){
+if(!document.fullscreenElement){
+document.documentElement.requestFullscreen?.();
+}else{
+document.exitFullscreen?.();
+}
+}
+</script>
+</body>
+</html>

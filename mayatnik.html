@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <title>Hi-Tech Маятник Зертханасы</title>
+    <style>
+        body { margin: 0; background: #0a0e14; color: #00d2ff; font-family: 'Orbitron', sans-serif; overflow: hidden; display: flex; }
+        
+        /* Сәнді бүйірлік панель */
+        .ui-panel {
+            width: 320px; height: 100vh; background: rgba(16, 22, 32, 0.9);
+            border-right: 2px solid #00d2ff; padding: 25px; box-sizing: border-box;
+            backdrop-filter: blur(10px); z-index: 10; display: flex; flex-direction: column;
+        }
+
+        .canvas-wrapper { flex-grow: 1; position: relative; cursor: crosshair; }
+        
+        h2 { text-transform: uppercase; letter-spacing: 3px; border-bottom: 1px solid #00d2ff; padding-bottom: 10px; font-size: 1.2em; }
+
+        .control-group { margin-bottom: 25px; }
+        label { display: block; font-size: 0.8em; margin-bottom: 10px; color: #8892b0; }
+        
+        /* Сәнді слайдерлер */
+        input[type="range"] {
+            -webkit-appearance: none; width: 100%; background: #1d2d44; height: 4px; border-radius: 5px; outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 15px; height: 15px; background: #00d2ff; border-radius: 50%; cursor: pointer;
+            box-shadow: 0 0 10px #00d2ff;
+        }
+
+        .monitor {
+            background: rgba(0, 210, 255, 0.05); border: 1px solid #1d2d44; padding: 15px; border-radius: 5px;
+            margin-top: auto; font-family: monospace;
+        }
+        .monitor-item { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9em; }
+        .val { color: #fff; text-shadow: 0 0 5px #00d2ff; }
+
+        .hint { font-size: 0.7em; color: #4e5d78; margin-top: 15px; text-align: center; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="ui-panel">
+    <h2>Quantum Lab</h2>
+    
+    <div class="control-group">
+        <label>VECTOR LENGTH (L): <span class="val" id="l_txt">2.5m</span></label>
+        <input type="range" id="l_slider" min="100" max="400" value="280">
+    </div>
+
+    <div class="control-group">
+        <label>GRAVITY CORE (g): <span class="val" id="g_txt">9.8</span></label>
+        <input type="range" id="g_slider" min="1.6" max="25" step="0.1" value="9.8">
+    </div>
+
+    <div class="monitor">
+        <div class="monitor-item"><span>VELOCITY:</span> <span class="val" id="v_txt">0.0</span></div>
+        <div class="monitor-item"><span>PERIOD T:</span> <span class="val" id="per_txt">0.0</span></div>
+        <div class="monitor-item"><span>ANGLE:</span> <span class="val" id="ang_txt">0°</span></div>
+        <div class="monitor-item"><span>SCALE:</span> <span class="val" id="zoom_txt">100%</span></div>
+    </div>
+    
+    <div class="hint">SCROLL TO ZOOM • DRAG TO INTERACT</div>
+</div>
+
+<div class="canvas-wrapper" id="container">
+    <canvas id="labCanvas"></canvas>
+</div>
+
+<script>
+const canvas = document.getElementById('labCanvas');
+const ctx = canvas.getContext('2d');
+const container = document.getElementById('container');
+
+let L = 280, g = 9.8, angle = Math.PI/4, angleVel = 0, angleAcc = 0;
+let scale = 1.0, offsetX = 0, offsetY = 0;
+let isDragging = false;
+let trail = []; // Із қалдыру үшін массив
+
+function resize() {
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight;
+}
+window.onresize = resize;
+resize();
+
+// Zoom функциясы
+container.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    scale += e.deltaY * -0.001;
+    scale = Math.min(Math.max(0.3, scale), 3);
+    document.getElementById('zoom_txt').innerText = Math.round(scale * 100) + "%";
+}, { passive: false });
+
+// Interaction
+container.addEventListener('mousedown', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left - canvas.width/2 - offsetX) / scale;
+    const my = (e.clientY - rect.top - 100 - offsetY) / scale;
+    const bx = L * Math.sin(angle), by = L * Math.cos(angle);
+    if (Math.hypot(mx - bx, my - by) < 40) isDragging = true;
+});
+
+window.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+        const rect = canvas.getBoundingClientRect();
+        const mx = (e.clientX - rect.left - canvas.width/2 - offsetX) / scale;
+        const my = (e.clientY - rect.top - 100 - offsetY) / scale;
+        angle = Math.atan2(mx, my);
+        angleVel = 0;
+        trail = []; // Тартып жатқанда ізді тазалау
+    }
+});
+
+window.addEventListener('mouseup', () => isDragging = false);
+
+function update() {
+    if (!isDragging) {
+        angleAcc = (-g / (L/25)) * Math.sin(angle);
+        angleVel += angleAcc * 0.1;
+        angle += angleVel * 0.1;
+        angleVel *= 0.997; // Ауа кедергісі
+    }
+
+    // Маятниктің ұшын із ретінде сақтау
+    const bx = L * Math.sin(angle);
+    const by = L * Math.cos(angle);
+    trail.push({x: bx, y: by, alpha: 1.0});
+    if (trail.length > 50) trail.shift(); // Іздің ұзындығы
+
+    document.getElementById('l_txt').innerText = (L/100).toFixed(1) + "m";
+    document.getElementById('g_txt').innerText = g;
+    document.getElementById('v_txt').innerText = Math.abs(angleVel * 10).toFixed(1);
+    document.getElementById('ang_txt').innerText = Math.round(angle * 180 / Math.PI) + "°";
+    document.getElementById('per_txt').innerText = (2 * Math.PI * Math.sqrt((L/100)/g)).toFixed(2) + "s";
+}
+
+function draw() {
+    // Фонды толтыру
+    ctx.fillStyle = '#0a0e14';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.save();
+    ctx.translate(canvas.width/2 + offsetX, 100 + offsetY);
+    ctx.scale(scale, scale);
+
+    // 1. Координаталық тор (Эффектілі Blue Grid)
+    ctx.strokeStyle = 'rgba(0, 210, 255, 0.05)';
+    ctx.lineWidth = 1/scale;
+    for(let i=-2000; i<=2000; i+=80) {
+        ctx.beginPath(); ctx.moveTo(i, -1000); ctx.lineTo(i, 2000); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(-2000, i); ctx.lineTo(2000, i); ctx.stroke();
+    }
+
+    const bx = L * Math.sin(angle);
+    const by = L * Math.cos(angle);
+
+    // 2. Маятниктің ізі (Motion Trail)
+    ctx.beginPath();
+    for(let i=0; i<trail.length; i++) {
+        let p = trail[i];
+        ctx.globalAlpha = i / trail.length; // Із біртіндеп жоғалады
+        ctx.lineTo(p.x, p.y);
+    }
+    ctx.strokeStyle = '#00d2ff';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.globalAlpha = 1.0;
+
+    // 3. Жіп (Неонды сәуле)
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = '#00d2ff';
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(bx, by);
+    ctx.strokeStyle = '#00d2ff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // 4. Шар (Glowing Sphere)
+    let grad = ctx.createRadialGradient(bx-5, by-5, 2, bx, by, 25);
+    grad.addColorStop(0, '#fff');
+    grad.addColorStop(0.3, '#00d2ff');
+    grad.addColorStop(1, '#0057ff');
+    
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(bx, by, 20, 0, Math.PI*2);
+    ctx.fill();
+    
+    // Шардың айналасындағы импульс
+    ctx.beginPath();
+    ctx.arc(bx, by, 25 + Math.abs(angleVel*2), 0, Math.PI*2);
+    ctx.strokeStyle = 'rgba(0, 210, 255, 0.2)';
+    ctx.stroke();
+
+    // 5. Төбедегі ілмек (Base)
+    ctx.fillStyle = '#1d2d44';
+    ctx.fillRect(-30, -5, 60, 10);
+    ctx.shadowBlur = 0;
+
+    ctx.restore();
+}
+
+document.getElementById('l_slider').oninput = (e) => { L = parseInt(e.target.value); trail = []; };
+document.getElementById('g_slider').oninput = (e) => { g = parseFloat(e.target.value); };
+
+function loop() {
+    update();
+    draw();
+    requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body>
+</html>
