@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>MetaBilim</title>
+
+<style>
+
+body{
+margin:0;
+height:100vh;
+font-family:Arial;
+background-image:url("https://images.unsplash.com/photo-1462331940025-496dfbfc7564");
+background-size:cover;
+background-position:center;
+overflow:hidden;
+display:flex;
+justify-content:center;
+align-items:center;
+color:white;
+perspective:1000px;
+}
+
+/* Платформа */
+
+.container{
+background:rgba(0,0,0,0.6);
+padding:40px;
+border-radius:20px;
+text-align:center;
+z-index:5;
+}
+
+h1{
+font-size:40px;
+margin-bottom:30px;
+}
+
+/* Пәндер */
+
+.subjects{
+display:grid;
+grid-template-columns:repeat(2,200px);
+gap:20px;
+}
+
+.subject{
+padding:15px;
+border-radius:10px;
+background:linear-gradient(45deg,#00c6ff,#0072ff);
+cursor:pointer;
+transition:0.3s;
+}
+
+.subject:hover{
+transform:scale(1.1);
+background:linear-gradient(45deg,#ff00cc,#3333ff);
+}
+
+/* Планеталар */
+
+.planet{
+position:absolute;
+border-radius:50%;
+background-size:cover;
+transform-style:preserve-3d;
+}
+
+/* Әртүрлі қозғалыс */
+
+@keyframes moveRight{
+0%{transform:translateX(-200px) rotate(0deg);}
+100%{transform:translateX(120vw) rotate(360deg);}
+}
+
+@keyframes moveDown{
+0%{transform:translateY(-200px) rotate(0deg);}
+100%{transform:translateY(120vh) rotate(360deg);}
+}
+
+@keyframes moveDiagonal{
+0%{transform:translate(-200px,-200px) rotate(0deg);}
+100%{transform:translate(120vw,120vh) rotate(360deg);}
+}
+
+@keyframes moveZigzag{
+0%{transform:translateX(-200px) translateY(0);}
+50%{transform:translateX(50vw) translateY(-80px);}
+100%{transform:translateX(120vw) translateY(60px);}
+}
+
+/* Планеталар */
+
+.mercury{
+width:50px;
+height:50px;
+background-image:url("https://upload.wikimedia.org/wikipedia/commons/4/4a/Mercury_in_true_color.jpg");
+top:5%;
+animation:moveRight 40s linear infinite;
+}
+
+.venus{
+width:70px;
+height:70px;
+background-image:url("https://upload.wikimedia.org/wikipedia/commons/e/e5/Venus-real_color.jpg");
+top:20%;
+animation:moveDiagonal 55s linear infinite;
+}
+
+.earth{
+width:80px;
+height:80px;
+background-image:url("https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg");
+top:35%;
+animation:moveZigzag 60s linear infinite;
+}
+
+.mars{
+width:60px;
+height:60px;
+background-image:url("https://upload.wikimedia.org/wikipedia/commons/0/02/OSIRIS_Mars_true_color.jpg");
+top:50%;
+animation:moveDown 65s linear infinite;
+}
+
+.jupiter{
+width:120px;
+height:120px;
+background-image:url("https://upload.wikimedia.org/wikipedia/commons/e/e2/Jupiter.jpg");
+top:65%;
+animation:moveRight 80s linear infinite;
+}
+
+.saturn{
+width:120px;
+height:120px;
+background-image:url("https://upload.wikimedia.org/wikipedia/commons/c/c7/Saturn_during_Equinox.jpg");
+top:10%;
+animation:moveDiagonal 75s linear infinite;
+}
+
+.uranus{
+width:90px;
+height:90px;
+background-image:url("https://upload.wikimedia.org/wikipedia/commons/3/3d/Uranus2.jpg");
+top:75%;
+animation:moveZigzag 70s linear infinite;
+}
+
+.neptune{
+width:90px;
+height:90px;
+background-image:url("https://upload.wikimedia.org/wikipedia/commons/5/56/Neptune_Full.jpg");
+top:85%;
+animation:moveDown 90s linear infinite;
+}
+
+/* Астероид */
+
+.asteroid{
+position:absolute;
+width:15px;
+height:15px;
+background:gray;
+border-radius:50%;
+animation:asteroidMove linear infinite;
+}
+
+@keyframes asteroidMove{
+from{
+transform:translate(-100px,-100px);
+}
+to{
+transform:translate(120vw,120vh);
+}
+}
+
+/* Жұлдыздар */
+
+.star{
+position:absolute;
+width:2px;
+height:2px;
+background:white;
+animation:starMove linear infinite;
+}
+
+@keyframes starMove{
+from{transform:translateY(-10vh);}
+to{transform:translateY(110vh);}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>MetaBilim</h1>
+
+<div class="subjects">
+
+<div class="subject" onclick="window.location.href='math.html'">
+Математика
+</div>
+<div class="subject"onclick="window.location.href='physics.html'">
+Физика
+</div>
+<div class="subject" onclick="window.location.href='Untitled-1.html'">
+Химия
+</div>
+<div class="subject"onclick="window.location.href='animal.html'">
+Биология
+</div>
+<div class="subject" onclick="window.location.href='history.html'">
+Тарих
+</div>
+<div class="subject"onclick="window.location.href='karta.html'">
+География
+</div>
+
+</div>
+
+</div>
+
+<!-- Планеталар -->
+
+<div class="planet mercury"></div>
+<div class="planet venus"></div>
+<div class="planet earth"></div>
+<div class="planet mars"></div>
+<div class="planet jupiter"></div>
+<div class="planet saturn"></div>
+<div class="planet uranus"></div>
+<div class="planet neptune"></div>
+
+<!-- Астероидтар -->
+
+<div class="asteroid" style="top:20%; left:10%; animation-duration:8s;"></div>
+<div class="asteroid" style="top:60%; left:30%; animation-duration:10s;"></div>
+<div class="asteroid" style="top:80%; left:50%; animation-duration:12s;"></div>
+
+<script>
+
+/* Жұлдыздар */
+
+for(let i=0;i<120;i++){
+
+let star=document.createElement("div");
+
+star.className="star";
+
+star.style.left=Math.random()*100+"vw";
+star.style.top=Math.random()*100+"vh";
+star.style.animationDuration=(5+Math.random()*10)+"s";
+
+document.body.appendChild(star);
+
+}
+
+</script>
+
+</body>
+</html>
